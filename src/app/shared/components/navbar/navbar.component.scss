@@ -1,0 +1,30 @@
+.navbar {
+    display: flex;
+}
+
+.logo {
+    font-weight: bold;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.menu-desktop {
+    display: flex;
+    gap: 10px;
+}
+
+.menu-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .menu-desktop {
+        display: none;
+    }
+
+    .menu-mobile {
+        display: inline-flex;
+    }
+}

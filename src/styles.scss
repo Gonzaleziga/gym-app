@@ -1,1 +1,64 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+/* 1️⃣ Core obligatorio */
+@include mat.core();
+
+/* 2️⃣ Tema claro */
+$light-theme: mat.define-theme((color: (theme-type: light,
+        primary: mat.$blue-palette,
+        tertiary: mat.$green-palette,
+      )));
+
+/* 3️⃣ Tema oscuro */
+$dark-theme: mat.define-theme((color: (theme-type: dark,
+        primary: mat.$blue-palette,
+        tertiary: mat.$green-palette,
+      )));
+
+/* 4️⃣ Tema claro por defecto */
+:root {
+  @include mat.all-component-themes($light-theme);
+}
+
+/* 5️⃣ Tema oscuro */
+.dark-theme {
+  @include mat.all-component-colors($dark-theme);
+}
+
+/* Ajustes para cards en modo oscuro */
+.dark-theme {
+
+  /* Fondo de las cards */
+  mat-card {
+    background-color: #1e1e1e; // fondo oscuro
+    color: #fff; // texto blanco
+  }
+
+  /* Opcional: botones dentro de cards */
+  mat-card button {
+    color: #fff;
+  }
+
+  /* Opcional: títulos y párrafos dentro de cards */
+  mat-card h1,
+  mat-card h2,
+  mat-card h3,
+  mat-card p {
+    color: #fff;
+  }
+}
+
+/* Fuente global para toda la app */
+html,
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  color: #111;
+  /* color por defecto, se adapta al dark-mode */
+  background-color: #fff;
+  /* fondo claro por defecto */
+  transition: background-color 0.3s, color 0.3s;
+}

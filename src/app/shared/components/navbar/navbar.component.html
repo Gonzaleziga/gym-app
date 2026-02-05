@@ -1,0 +1,33 @@
+<mat-toolbar color="primary" class="navbar">
+    <span class="logo">GYM PRO</span>
+    <span class="spacer"></span>
+
+    <!-- Menú escritorio -->
+    <div class="menu-desktop">
+        <button mat-icon-button (click)="toggleTheme()">
+            <mat-icon>dark_mode</mat-icon>
+        </button>
+        <button mat-button>Servicios</button>
+        <button mat-button>Planes</button>
+        <button mat-button>Galería</button>
+        <button mat-button>Contacto</button>
+        <button mat-raised-button color="accent">Iniciar sesión</button>
+    </div>
+
+    <!-- Botón hamburguesa -->
+    <button mat-icon-button [matMenuTriggerFor]="mobileMenu" class="menu-mobile">
+        <mat-icon>menu</mat-icon>
+    </button>
+</mat-toolbar>
+
+<!-- Menú móvil -->
+<mat-menu #mobileMenu="matMenu">
+    <button mat-icon-button (click)="toggleTheme()">
+        <mat-icon>dark_mode</mat-icon>
+    </button>
+    <button mat-menu-item>Servicios</button>
+    <button mat-menu-item>Planes</button>
+    <button mat-menu-item>Galería</button>
+    <button mat-menu-item>Contacto</button>
+    <button mat-menu-item>Iniciar sesión</button>
+</mat-menu>
