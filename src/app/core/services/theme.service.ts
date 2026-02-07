@@ -1,33 +1,27 @@
 import { Injectable } from '@angular/core';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
 
-  private darkClass = 'dark-theme';
+  private storageKey = 'theme';
 
-  constructor() { }
+  initTheme(): void {
+    const savedTheme = localStorage.getItem(this.storageKey);
 
-  /** Alterna entre claro y oscuro */
-  toggleTheme(): void {
-    document.documentElement.classList.toggle(this.darkClass);
-
-    const isDark = document.documentElement.classList.contains(this.darkClass);
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  }
-
-  /** Carga el tema guardado al iniciar la app */
-  loadTheme(): void {
-    const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
-      document.documentElement.classList.add(this.darkClass);
+      document.body.classList.add('dark-theme');
     }
   }
 
-  /** (Opcional) Saber si está activo */
+  toggleTheme(): void {
+    const isDark = document.body.classList.toggle('dark-theme');
+
+    localStorage.setItem(this.storageKey, isDark ? 'dark' : 'light');
+  }
+
   isDarkMode(): boolean {
-    return document.documentElement.classList.contains(this.darkClass);
+    return document.body.classList.contains('dark-theme');
   }
 }

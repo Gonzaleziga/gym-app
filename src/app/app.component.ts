@@ -5,7 +5,6 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { ThemeService } from './core/services/theme.service';
 
 
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -14,11 +13,16 @@ import { ThemeService } from './core/services/theme.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  constructor(private themeService: ThemeService) { }
+  title = 'gym-app';
+  constructor
+    (private themeService: ThemeService,
+
+    ) {
+  }
 
   ngOnInit() {
-    this.themeService.loadTheme();
+    this.themeService.initTheme();
   }
-  title = 'gym-app';
+
 
 }

@@ -1,0 +1,51 @@
+.register-container {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-bottom: 20px;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.error {
+    color: #e53935;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.login-link {
+    margin-top: 20px;
+    font-size: 14px;
+
+    a {
+        margin-left: 4px;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--mat-primary-500, #3f51b5);
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+}

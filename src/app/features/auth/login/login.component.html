@@ -1,0 +1,32 @@
+<div class="login-container">
+    <mat-card class="login-card">
+
+        <h2>Iniciar sesión</h2>
+
+        <form [formGroup]="form" (ngSubmit)="login()">
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Contraseña</mat-label>
+                <input matInput type="password" formControlName="password">
+            </mat-form-field>
+
+            <p class="error" *ngIf="error">{{ error }}</p>
+
+            <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+                {{ loading ? 'Ingresando...' : 'Entrar' }}
+            </button>
+
+
+            <div class="register-link">
+                <span>¿No tienes cuenta?</span>
+                <a routerLink="/register">Regístrate aquí</a>
+            </div>
+        </form>
+
+    </mat-card>
+</div>

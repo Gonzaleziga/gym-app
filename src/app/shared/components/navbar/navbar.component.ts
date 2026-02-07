@@ -18,7 +18,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  constructor(private themeService: ThemeService) { }
+  constructor(public themeService: ThemeService) { }
   toggleTheme() {
     this.themeService.toggleTheme();
   }
