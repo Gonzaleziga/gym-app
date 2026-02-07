@@ -43,8 +43,13 @@ mat-card {
 }
 
 .cta {
-    background: #f1f1f1;
-    color: #111;
+    background-color: var(--bg-section);
+    color: var(--text-main);
     padding: 60px 20px;
     text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cta p {
+    color: var(--text-muted);
 }
