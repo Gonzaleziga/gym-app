@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { ChangeDetectorRef, AfterViewInit } from '@angular/core';
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -32,8 +32,7 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private cd: ChangeDetectorRef
+    private router: Router
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -42,12 +41,11 @@ export class RegisterComponent {
       confirmPassword: ['', Validators.required]
     });
   }
-  ngAfterViewInit() {
-    this.cd.detectChanges();
-  }
 
-  async register() {
-    if (this.form.invalid) return;
+
+
+  register() {
+    if (this.form.invalid || this.loading) return;
 
     const { name, email, password, confirmPassword } = this.form.value;
 
@@ -58,16 +56,17 @@ export class RegisterComponent {
 
     this.loading = true;
     this.error = null;
-    try {
-      await this.authService.register(email, password, name);
-      this.loading = false;
-      this.cd.detectChanges(); // fuerza actualizar la vista
-      alert('Cuenta creada correctamente');
-      this.router.navigate(['/login']);
-    } catch (err: any) {
-      this.error = err.message;
-      this.loading = false;
-      this.cd.detectChanges(); // fuerza actualizar la vista
-    }
+
+    this.authService.register(email, password, name)
+      .then(() => {
+        alert('Cuenta creada correctamente');
+        this.router.navigateByUrl('/login');
+      })
+      .catch(err => {
+        this.error = err.message;
+      })
+      .finally(() => {
+        this.loading = false;
+      });
   }
 }

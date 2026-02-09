@@ -1,13 +1,7 @@
 @use '@angular/material' as mat;
-
-/* ===============================
-   1️⃣ Core obligatorio Material
-================================ */
 @include mat.core();
 
-/* ===============================
-   2️⃣ VARIABLES CSS (CLARO)
-================================ */
+
 :root {
   --bg-main: #ffffff;
   --bg-card: #f5f5f5;
@@ -17,9 +11,6 @@
   --text-muted: #555555;
 }
 
-/* ===============================
-   3️⃣ VARIABLES CSS (OSCURO)
-================================ */
 .dark-theme {
   --bg-main: #121212;
   --bg-card: #1e1e1e;
@@ -29,25 +20,19 @@
   --text-muted: #bbbbbb;
 }
 
-/* ===============================
-   4️⃣ Tema claro Material
-================================ */
+
 $light-theme: mat.define-theme((color: (theme-type: light,
         primary: mat.$blue-palette,
         tertiary: mat.$green-palette,
       )));
 
-/* ===============================
-   5️⃣ Tema oscuro Material
-================================ */
+
 $dark-theme: mat.define-theme((color: (theme-type: dark,
         primary: mat.$blue-palette,
         tertiary: mat.$green-palette,
       )));
 
-/* ===============================
-   6️⃣ Aplicar temas Material
-================================ */
+
 html {
   @include mat.all-component-themes($light-theme);
 }
@@ -56,9 +41,6 @@ html {
   @include mat.all-component-themes($dark-theme);
 }
 
-/* ===============================
-   7️⃣ Estilos globales base
-================================ */
 html,
 body {
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
@@ -73,9 +55,6 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ===============================
-   8️⃣ Cards (sin parches)
-================================ */
 mat-card {
   background-color: var(--bg-card);
   color: var(--text-main);
