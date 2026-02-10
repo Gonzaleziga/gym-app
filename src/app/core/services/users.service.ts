@@ -1,18 +1,27 @@
-import { Injectable } from '@angular/core';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Injectable, Injector, runInInjectionContext } from '@angular/core';
+import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class UsersService {
 
-  constructor(private firestore: Firestore) { }
-
-  createUser(uid: string, data: any) {
-    const ref = doc(this.firestore, `users/${uid}`);
-    return setDoc(ref, data);
-  }
+  constructor(
+    private firestore: Firestore,
+    private injector: Injector
+  ) { }
 
   getUser(uid: string) {
-    const ref = doc(this.firestore, `users/${uid}`);
-    return getDoc(ref);
+    return runInInjectionContext(this.injector, () => {
+      const ref = doc(this.firestore, 'users', uid);
+      return getDoc(ref);
+    });
+  }
+
+  createUser(uid: string, data: any) {
+    return runInInjectionContext(this.injector, () => {
+      const ref = doc(this.firestore, 'users', uid);
+      return setDoc(ref, data);
+    });
   }
 }

@@ -50,7 +50,7 @@ export class LoginComponent {
 
     this.authService.login(email!, password!)
       .then(() => {
-        this.router.navigate(['/']);
+        this.authService.redirectByRole();
       })
       .catch(err => {
         this.error = err.message;

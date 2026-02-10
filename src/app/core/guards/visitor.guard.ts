@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { UsersService } from '../services/users.service';
 
-export const clientGuard: CanMatchFn = async () => {
+export const visitorGuard: CanMatchFn = async () => {
   const auth = inject(Auth);
   const router = inject(Router);
   const usersService = inject(UsersService);
@@ -17,8 +17,8 @@ export const clientGuard: CanMatchFn = async () => {
 
   const snap = await usersService.getUser(user.uid);
 
-  if (snap.exists() && snap.data()?.['role'] === 'client') {
-    console.log('CLIENT GUARD OK');
+  if (snap.exists() && snap.data()?.['role'] === 'visitor') {
+    console.log('VISITOR GUARD OK');
     return true;
   }
 

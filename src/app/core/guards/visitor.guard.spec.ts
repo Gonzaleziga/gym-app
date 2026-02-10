@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanMatchFn } from '@angular/router';
 
-import { empleadoGuard } from './empleado.guard';
+import { visitorGuard } from './visitor.guard';
 
-describe('empleadoGuard', () => {
+describe('visitorGuard', () => {
   const executeGuard: CanMatchFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => empleadoGuard(...guardParameters));
+      TestBed.runInInjectionContext(() => visitorGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

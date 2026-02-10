@@ -1,0 +1,28 @@
+.dashboard-container {
+    max-width: 900px;
+    margin: 40px auto;
+    display: grid;
+    gap: 20px;
+}
+
+mat-card {
+    padding: 20px;
+}
+
+.welcome-card {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-left: 6px solid var(--border-welcome);
+}
+
+.locked-card {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-left: 6px solid var(--border-locked);
+}
+
+.info-card {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-left: 6px solid var(--border-info);
+}

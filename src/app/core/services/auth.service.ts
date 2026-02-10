@@ -9,6 +9,7 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { UsersService } from './users.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,8 @@ export class AuthService {
     private auth: Auth,
     private firestore: Firestore,
     private injector: Injector,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private router: Router
   ) { }
 
   // 📧 Registro email/password
@@ -76,6 +78,36 @@ export class AuthService {
 
       return cred;
     });
+  }
+
+  async redirectByRole() {
+    const user = this.auth.currentUser;
+    if (!user) return;
+
+    const snap = await this.usersService.getUser(user.uid);
+    if (!snap.exists()) return;
+
+    const role = snap.data()['role'];
+    console.log('REDIRECT ROLE:', role);
+
+    switch (role) {
+      case 'admin':
+        this.router.navigate(['/admin']);
+        break;
+
+      case 'client':
+        this.router.navigate(['/client']);
+        break;
+
+      case 'employee':
+        this.router.navigate(['/employee']);
+        break;
+
+      default:
+        this.router.navigate(['/visitor']);
+        break;
+    }
+
   }
 
   logout() {

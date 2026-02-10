@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
-import { clienteGuard } from './core/guards/cliente.guard';
-import { empleadoGuard } from './core/guards/empleado.guard';
+import { clientGuard } from './core/guards/cliente.guard';
+import { employeeGuard } from './core/guards/employee.guard';
+import { visitorGuard } from './core/guards/visitor.guard';
 
 export const routes: Routes = [
     // Público
@@ -33,19 +34,27 @@ export const routes: Routes = [
                 .then(m => m.DashboardComponent),
         canMatch: [authGuard, adminGuard]
     },
+
     {
-        path: 'cliente',
+        path: 'client',
         loadComponent: () =>
             import('./features/cliente/dashboard/dashboard.component')
                 .then(m => m.DashboardComponent),
-        canMatch: [authGuard, clienteGuard]
+        canMatch: [authGuard, clientGuard]
     },
     {
-        path: 'empleado',
+        path: 'employee',
         loadComponent: () =>
             import('./features/empleado/dashboard/dashboard.component')
                 .then(m => m.DashboardComponent),
-        canMatch: [authGuard, empleadoGuard]
+        canMatch: [authGuard, employeeGuard]
+    },
+    {
+        path: 'visitor',
+        loadComponent: () =>
+            import('./features/visitor/dashboard/dashboard.component')
+                .then(m => m.DashboardComponent),
+        canMatch: [authGuard, visitorGuard]
     },
 
     { path: '**', redirectTo: '' }
