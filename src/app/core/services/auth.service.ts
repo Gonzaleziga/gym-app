@@ -111,6 +111,6 @@ export class AuthService {
   }
 
   logout() {
-    return runInInjectionContext(this.injector, () => this.auth.signOut());
+    return this.auth.signOut();
   }
 }

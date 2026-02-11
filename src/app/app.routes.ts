@@ -4,9 +4,13 @@ import { adminGuard } from './core/guards/admin.guard';
 import { clientGuard } from './core/guards/cliente.guard';
 import { employeeGuard } from './core/guards/employee.guard';
 import { visitorGuard } from './core/guards/visitor.guard';
+import { PrivateLayoutComponent } from './shared/layouts/private-layout/private-layout.component';
 
 export const routes: Routes = [
-    // Público
+
+    // ===============================
+    // 🌍 PÚBLICO
+    // ===============================
     {
         path: '',
         loadComponent: () =>
@@ -26,37 +30,53 @@ export const routes: Routes = [
                 .then(m => m.RegisterComponent)
     },
 
-    // Privado
+    // ===============================
+    // 🔐 PRIVADO (UN SOLO LAYOUT)
+    // ===============================
     {
-        path: 'admin',
-        loadComponent: () =>
-            import('./features/admin/dashboard/dashboard.component')
-                .then(m => m.DashboardComponent),
-        canMatch: [authGuard, adminGuard]
+        path: '',
+        component: PrivateLayoutComponent,
+        canMatch: [authGuard],
+        children: [
+
+            {
+                path: 'admin',
+                canMatch: [adminGuard],
+                loadComponent: () =>
+                    import('./features/admin/dashboard/dashboard.component')
+                        .then(m => m.DashboardComponent)
+            },
+
+            {
+                path: 'client',
+                canMatch: [clientGuard],
+                loadComponent: () =>
+                    import('./features/cliente/dashboard/dashboard.component')
+                        .then(m => m.DashboardComponent)
+            },
+
+            {
+                path: 'employee',
+                canMatch: [employeeGuard],
+                loadComponent: () =>
+                    import('./features/empleado/dashboard/dashboard.component')
+                        .then(m => m.DashboardComponent)
+            },
+
+            {
+                path: 'visitor',
+                canMatch: [visitorGuard],
+                loadComponent: () =>
+                    import('./features/visitor/dashboard/dashboard.component')
+                        .then(m => m.DashboardComponent)
+            }
+
+        ]
     },
 
-    {
-        path: 'client',
-        loadComponent: () =>
-            import('./features/cliente/dashboard/dashboard.component')
-                .then(m => m.DashboardComponent),
-        canMatch: [authGuard, clientGuard]
-    },
-    {
-        path: 'employee',
-        loadComponent: () =>
-            import('./features/empleado/dashboard/dashboard.component')
-                .then(m => m.DashboardComponent),
-        canMatch: [authGuard, employeeGuard]
-    },
-    {
-        path: 'visitor',
-        loadComponent: () =>
-            import('./features/visitor/dashboard/dashboard.component')
-                .then(m => m.DashboardComponent),
-        canMatch: [authGuard, visitorGuard]
-    },
-
+    // ===============================
+    // ❌ FALLBACK
+    // ===============================
     { path: '**', redirectTo: '' }
 
 ];

@@ -1,0 +1,24 @@
+<mat-sidenav-container class="layout-container">
+
+    <!-- SIDEBAR -->
+    <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()" class="sidebar">
+
+        <app-private-sidebar></app-private-sidebar>
+
+    </mat-sidenav>
+
+    <!-- CONTENIDO -->
+    <mat-sidenav-content class="content">
+
+        <!-- Botón hamburguesa SOLO en móvil -->
+        <button mat-icon-button class="menu-toggle" *ngIf="isMobile()" (click)="sidenav.toggle()">
+
+            <mat-icon>menu</mat-icon>
+
+        </button>
+
+        <router-outlet></router-outlet>
+
+    </mat-sidenav-content>
+
+</mat-sidenav-container>

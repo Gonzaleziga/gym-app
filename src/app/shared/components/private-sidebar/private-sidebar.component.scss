@@ -1,0 +1,54 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.sidebar {
+    width: 240px;
+    background: #1e1e2f; // color de fondo del menu
+    color: white; // color texto del menu
+}
+
+.sidebar-header {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 16px;
+    text-align: center;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001;
+    background: transparent;
+    color: white;
+}
+
+@media (max-width: 1023px) {
+    .menu-toggle {
+        display: none; // ✅ SOLO EN MÓVIL
+    }
+}

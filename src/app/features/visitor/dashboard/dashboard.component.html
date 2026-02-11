@@ -1,7 +1,11 @@
 <div class="dashboard-container">
 
     <mat-card class="welcome-card">
-        <h2>👋 Bienvenido</h2>
+        <h2>👋 Bienvenido visitor</h2>
+        <p *ngIf="role">
+            Estás logueado como:
+            <strong>{{ role | uppercase }}</strong>
+        </p>
         <p>
             Tu cuenta ha sido creada correctamente.
             Actualmente tienes acceso como <strong>Visitante</strong>.
@@ -24,5 +28,7 @@
             apruebe tu cuenta.
         </p>
     </mat-card>
-
+    <button mat-raised-button color="warn" (click)="logout()">
+        Cerrar sesión
+    </button>
 </div>

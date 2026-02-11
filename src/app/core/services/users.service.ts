@@ -12,11 +12,19 @@ export class UsersService {
   ) { }
 
   getUser(uid: string) {
-    return runInInjectionContext(this.injector, () => {
-      const ref = doc(this.firestore, 'users', uid);
-      return getDoc(ref);
-    });
+    return runInInjectionContext(this.injector, () =>
+      getDoc(doc(this.firestore, 'users', uid))
+    );
   }
+
+  async getUserRole(uid: string): Promise<string | null> {
+    const snap = await this.getUser(uid);
+
+    if (!snap.exists()) return null;
+
+    return snap.data()?.['role'] ?? null;
+  }
+
 
   createUser(uid: string, data: any) {
     return runInInjectionContext(this.injector, () => {

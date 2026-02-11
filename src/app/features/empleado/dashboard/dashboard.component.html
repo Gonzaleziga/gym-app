@@ -1,1 +1,34 @@
-<h1>Dashboard Empleado</h1>
+<div class="dashboard-container">
+
+    <mat-card class="welcome-card">
+        <h2>👋 Bienvenido empleado</h2>
+        <p *ngIf="role">
+            Estás logueado como:
+            <strong>{{ role | uppercase }}</strong>
+        </p>
+        <p>
+            Tu cuenta ha sido creada correctamente.
+            Actualmente tienes acceso como <strong>Empleado</strong>.
+        </p>
+    </mat-card>
+
+    <mat-card class="info-card">
+        <h3>¿Qué puedes hacer ahora?</h3>
+        <ul>
+            <li>Explorar la plataforma</li>
+            <li>Conocer los beneficios</li>
+            <li>Ver una demostración del sistema</li>
+        </ul>
+    </mat-card>
+
+    <mat-card class="locked-card">
+        <h3>🔒 Acceso restringido</h3>
+        <p>
+            Algunas funciones estarán disponibles una vez que un administrador
+            apruebe tu cuenta.
+        </p>
+    </mat-card>
+    <button mat-raised-button color="warn" (click)="logout()">
+        Cerrar sesión
+    </button>
+</div>
