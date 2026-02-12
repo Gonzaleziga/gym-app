@@ -24,24 +24,62 @@ export class AuthService {
     private router: Router
   ) { }
 
+
   // 📧 Registro email/password
-  register(email: string, password: string, name: string) {
+  async register(
+    email: string,
+    password: string,
+    name: string,
+    lastNameFather: string,
+    lastNameMother: string,
+    phoneNumber: string
+  ) {
     return runInInjectionContext(this.injector, async () => {
+
       const cred = await createUserWithEmailAndPassword(
         this.auth,
         email,
         password
       );
 
-      await updateProfile(cred.user, { displayName: name });
+      // Actualizar perfil Auth
+      await updateProfile(cred.user, {
+        displayName: name,
+        photoURL: '/images/images.png'
+      });
+
+      // Crear usuario en Firestore
       await this.usersService.createUser(cred.user.uid, {
         uid: cred.user.uid,
         name,
+        lastNameFather,
+        lastNameMother,
+        phoneNumber,
         email,
         provider: 'password',
+
+        // Roles y estado
         role: 'visitor',
+        status: 'active',
         isApproved: false,
-        createdAt: new Date()
+        forceLogout: false,
+
+        // Membresía
+        membershipId: null,
+        membershipStatus: 'inactive',
+
+        // Perfil
+        photoURL: cred.user.photoURL,
+        genero: 'otro',
+        birthDate: null,
+        emergencyContact: {
+          name: '',
+          phone: ''
+        },
+
+        // Fechas
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
 
       return cred;

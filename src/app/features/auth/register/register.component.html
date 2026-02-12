@@ -7,9 +7,25 @@
         <form [formGroup]="form" (ngSubmit)="register()">
 
             <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Nombre completo</mat-label>
+                <mat-label>Nombre/s</mat-label>
                 <input matInput formControlName="name">
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Apellido Paterno</mat-label>
+                <input matInput formControlName="lastNameFather">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Apellido Materno</mat-label>
+                <input matInput formControlName="lastNameMother">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Teléfono</mat-label>
+                <input matInput formControlName="phoneNumber">
+            </mat-form-field>
+
 
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Email</mat-label>

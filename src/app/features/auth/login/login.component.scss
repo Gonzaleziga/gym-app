@@ -2,7 +2,11 @@
     min-height: calc(100vh - 120px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    /* antes era center */
+    padding-top: 80px;
+    /* ajusta este valor */
+    background: url('/images/login.jpg') center top / contain no-repeat;
 }
 
 .login-card {

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { last } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -36,9 +37,14 @@ export class RegisterComponent {
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
+      lastNameFather: ['', Validators.required],
+      lastNameMother: ['', Validators.required],
+      phoneNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      membershipId: [''],
+      forceLogout: [false]
     });
   }
 
@@ -47,7 +53,7 @@ export class RegisterComponent {
   register() {
     if (this.form.invalid || this.loading) return;
 
-    const { name, email, password, confirmPassword } = this.form.value;
+    const { name, lastNameFather, lastNameMother, phoneNumber, email, password, confirmPassword, membershipId, forceLogout } = this.form.value;
 
     if (password !== confirmPassword) {
       this.error = 'Las contraseñas no coinciden';
@@ -57,7 +63,7 @@ export class RegisterComponent {
     this.loading = true;
     this.error = null;
 
-    this.authService.register(email, password, name)
+    this.authService.register(email, lastNameFather, lastNameMother, phoneNumber, password, name,)
       .then(() => {
         alert('Cuenta creada correctamente');
         this.router.navigateByUrl('/login');
