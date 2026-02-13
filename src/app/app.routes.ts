@@ -39,12 +39,24 @@ export const routes: Routes = [
         canMatch: [authGuard],
         children: [
 
+            // ADMIN
             {
                 path: 'admin',
                 canMatch: [adminGuard],
-                loadComponent: () =>
-                    import('./features/admin/dashboard/dashboard.component')
-                        .then(m => m.DashboardComponent)
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import('./features/admin/dashboard/dashboard.component')
+                                .then(m => m.DashboardComponent)
+                    },
+                    {
+                        path: 'users',
+                        loadComponent: () =>
+                            import('./features/admin/users/admin-users/admin-users.component')
+                                .then(m => m.AdminUsersComponent)
+                    }
+                ]
             },
 
             {

@@ -4,9 +4,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserSessionService } from '../../../core/services/user-session.service';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 @Component({
   selector: 'app-private-sidebar',
@@ -69,5 +71,16 @@ export class PrivateSidebarComponent {
     }
   });
 
-  constructor(private userSession: UserSessionService) { }
+  constructor(
+    private userSession: UserSessionService,
+    private authService: AuthService,
+    private router: Router
+  ) { }
+
+  // 🔥 LOGOUT GLOBAL
+  async logout() {
+    await this.authService.logout();
+    this.router.navigateByUrl('/');
+  }
+
 }

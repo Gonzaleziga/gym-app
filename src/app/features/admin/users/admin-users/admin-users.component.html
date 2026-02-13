@@ -1,0 +1,71 @@
+<div *ngIf="loading">
+    <p>Cargando usuarios...</p>
+</div>
+
+<mat-tab-group *ngIf="!loading">
+
+    <!-- ADMIN -->
+    <mat-tab label="Administradores">
+        <mat-card *ngFor="let user of admins" class="user-card">
+            <h3>{{ user.name }}</h3>
+            <p>{{ user.email }}</p>
+
+            <div class="role-buttons">
+                <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                    [disabled]="user.role === r">
+
+                    {{ r }}
+                </button>
+            </div>
+        </mat-card>
+    </mat-tab>
+
+    <!-- EMPLEADOS -->
+    <mat-tab label="Empleados">
+        <mat-card *ngFor="let user of employees" class="user-card">
+            <h3>{{ user.name }}</h3>
+            <p>{{ user.email }}</p>
+
+            <div class="role-buttons">
+                <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                    [disabled]="user.role === r">
+
+                    {{ r }}
+                </button>
+            </div>
+        </mat-card>
+    </mat-tab>
+
+    <!-- CLIENTES -->
+    <mat-tab label="Clientes">
+        <mat-card *ngFor="let user of clients" class="user-card">
+            <h3>{{ user.name }}</h3>
+            <p>{{ user.email }}</p>
+
+            <div class="role-buttons">
+                <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                    [disabled]="user.role === r">
+
+                    {{ r }}
+                </button>
+            </div>
+        </mat-card>
+    </mat-tab>
+
+    <!-- VISITANTES -->
+    <mat-tab label="Visitantes">
+        <mat-card *ngFor="let user of visitors" class="user-card">
+            <h3>{{ user.name }}</h3>
+            <p>{{ user.email }}</p>
+
+            <div class="role-buttons">
+                <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                    [disabled]="user.role === r">
+
+                    {{ r }}
+                </button>
+            </div>
+        </mat-card>
+    </mat-tab>
+
+</mat-tab-group>

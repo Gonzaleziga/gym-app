@@ -1,5 +1,5 @@
 import { Injectable, Injector, runInInjectionContext } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, setDoc, collection, getDocs, updateDoc } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +30,27 @@ export class UsersService {
     return runInInjectionContext(this.injector, () => {
       const ref = doc(this.firestore, 'users', uid);
       return setDoc(ref, data);
+    });
+  }
+
+  // 🔥 Obtener todos los usuarios
+  getAllUsers() {
+    return runInInjectionContext(this.injector, async () => {
+      const ref = collection(this.firestore, 'users');
+      const snap = await getDocs(ref);
+
+      return snap.docs.map(d => ({
+        uid: d.id,
+        ...d.data()
+      }));
+    });
+  }
+
+  // 🔥 Actualizar usuario (rol, status, etc)
+  updateUser(uid: string, data: any) {
+    return runInInjectionContext(this.injector, () => {
+      const ref = doc(this.firestore, 'users', uid);
+      return updateDoc(ref, data);
     });
   }
 }

@@ -9,16 +9,26 @@
     </div>
 
     <nav class="menu">
-        <div class="menu-item" routerLink="/dashboard" routerLinkActive="active">
-            <mat-icon>home</mat-icon>
-            <span>Inicio</span>
+
+        <div class="menu-item" *ngFor="let item of menuItems()" [routerLink]="item.route" routerLinkActive="active"
+            (click)="closeSidebar()">
+            <mat-icon>
+                {{
+                item.route.includes('users') ? 'people' :
+                item.route.includes('admin') ? 'admin_panel_settings' :
+                item.route.includes('client') ? 'person' :
+                item.route.includes('employee') ? 'badge' :
+                'home'
+                }}
+            </mat-icon>
+
+            <span>{{ item.label }}</span>
         </div>
 
-        <div class="menu-item" routerLink="/usuarios" routerLinkActive="active" *ngIf="role() === 'admin'">
-            <mat-icon>people</mat-icon>
-            <span>Usuarios</span>
-        </div>
     </nav>
 
     <!-- OVERLAY PARA CERRAR -->
-    <div class="overlay" *ngIf="isOpen" (click)="closeSidebar()"></div>
+    <div class="menu-item logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Salir</span>
+    </div>
