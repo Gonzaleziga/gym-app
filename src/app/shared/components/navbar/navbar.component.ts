@@ -26,11 +26,17 @@ import { Observable } from 'rxjs';
 export class NavbarComponent {
 
   private auth = inject(Auth);
+
+  // 🔥 Estado reactivo del usuario
   user$: Observable<any> = authState(this.auth);
 
   constructor(public themeService: ThemeService) { }
 
   toggleTheme() {
     this.themeService.toggleTheme();
+  }
+
+  logout() {
+    this.auth.signOut();
   }
 }

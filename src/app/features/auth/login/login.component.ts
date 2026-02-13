@@ -46,13 +46,25 @@ export class LoginComponent {
     this.loading = true;
     this.error = null;
 
+    // ✅ Leer TODO el form correctamente
     const { email, password } = this.form.value;
 
-    this.authService.login(email!, password!)
+    console.log('EMAIL:', email);
+    console.log('PASSWORD:', password);
+
+    if (!email || !password) {
+      this.error = 'Email y contraseña son obligatorios';
+      this.loading = false;
+      return;
+    }
+
+    this.authService.login(email.trim(), password)
       .then(() => {
-        this.authService.redirectByRole();
+        console.log('✅ Login correcto');
+        return this.authService.redirectByRole();
       })
       .catch(err => {
+        console.error('❌ Login error:', err);
         this.error = err.message;
       })
       .finally(() => {

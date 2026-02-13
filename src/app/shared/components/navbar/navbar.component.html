@@ -1,9 +1,11 @@
-<mat-toolbar color="primary" class="navbar" *ngIf="!(user$ | async)">
-    <span class="logo">GYM PRO</span>
+<mat-toolbar color="primary" class="navbar">
+    <span class="logo" routerLink="/" style="cursor:pointer;">GYM PRO</span>
     <span class="spacer"></span>
 
     <!-- Menú escritorio -->
     <div class="menu-desktop">
+
+        <!-- Toggle tema -->
         <button mat-icon-button (click)="toggleTheme()">
             <mat-icon>
                 {{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}
@@ -15,9 +17,22 @@
         <button mat-button>Planes</button>
         <button mat-button>Galería</button>
         <button mat-button>Contacto</button>
-        <button mat-raised-button color="accent" routerLink="/login">
-            Iniciar sesión
-        </button>
+
+        <!-- 🔓 Usuario NO autenticado -->
+        <ng-container *ngIf="!(user$ | async)">
+            <button mat-raised-button color="accent" routerLink="/login">
+                Iniciar sesión
+            </button>
+        </ng-container>
+
+        <!-- 🔐 Usuario autenticado -->
+        <ng-container *ngIf="user$ | async as user">
+            <button mat-button [matMenuTriggerFor]="userMenu">
+                {{ user.displayName || user.email }}
+                <mat-icon>expand_more</mat-icon>
+            </button>
+        </ng-container>
+
     </div>
 
     <!-- Botón hamburguesa -->
@@ -26,24 +41,46 @@
     </button>
 </mat-toolbar>
 
-<!-- ⚠️ mat-menu SIN ngIf -->
+
+<!-- 🔐 Menú usuario desktop -->
+<mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Cerrar sesión
+    </button>
+</mat-menu>
+
+
+<!-- 📱 Menú móvil -->
 <mat-menu #mobileMenu="matMenu">
-    <button mat-icon-button (click)="toggleTheme()">
+
+    <!-- Toggle tema -->
+    <button mat-menu-item (click)="toggleTheme()">
         <mat-icon>
             {{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}
         </mat-icon>
+        Tema
     </button>
 
-    <br />
-
-    <button mat-stroked-button color="primary" routerLink="/">
-        Home
-    </button>
+    <button mat-menu-item routerLink="/">Home</button>
     <button mat-menu-item>Servicios</button>
     <button mat-menu-item>Planes</button>
     <button mat-menu-item>Galería</button>
     <button mat-menu-item>Contacto</button>
-    <button mat-raised-button color="accent" routerLink="/login">
-        Iniciar sesión
-    </button>
+
+    <!-- 🔓 No autenticado -->
+    <ng-container *ngIf="!(user$ | async)">
+        <button mat-menu-item routerLink="/login">
+            Iniciar sesión
+        </button>
+    </ng-container>
+
+    <!-- 🔐 Autenticado -->
+    <ng-container *ngIf="user$ | async">
+        <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Cerrar sesión
+        </button>
+    </ng-container>
+
 </mat-menu>

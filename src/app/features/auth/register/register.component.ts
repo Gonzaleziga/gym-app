@@ -53,7 +53,15 @@ export class RegisterComponent {
   register() {
     if (this.form.invalid || this.loading) return;
 
-    const { name, lastNameFather, lastNameMother, phoneNumber, email, password, confirmPassword, membershipId, forceLogout } = this.form.value;
+    const {
+      name,
+      lastNameFather,
+      lastNameMother,
+      phoneNumber,
+      email,
+      password,
+      confirmPassword
+    } = this.form.value;
 
     if (password !== confirmPassword) {
       this.error = 'Las contraseñas no coinciden';
@@ -63,7 +71,15 @@ export class RegisterComponent {
     this.loading = true;
     this.error = null;
 
-    this.authService.register(email, lastNameFather, lastNameMother, phoneNumber, password, name,)
+    // 🔥 ORDEN CORRECTO DE PARÁMETROS
+    this.authService.register(
+      email,
+      password,
+      name,
+      lastNameFather,
+      lastNameMother,
+      phoneNumber
+    )
       .then(() => {
         alert('Cuenta creada correctamente');
         this.router.navigateByUrl('/login');
