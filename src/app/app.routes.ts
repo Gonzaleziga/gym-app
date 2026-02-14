@@ -6,6 +6,7 @@ import { employeeGuard } from './core/guards/employee.guard';
 import { visitorGuard } from './core/guards/visitor.guard';
 import { PrivateLayoutComponent } from './shared/layouts/private-layout/private-layout.component';
 
+
 export const routes: Routes = [
 
     // ===============================
@@ -57,6 +58,13 @@ export const routes: Routes = [
                                 .then(m => m.AdminUsersComponent)
                     }
                 ]
+            },
+            {
+                path: 'profile',
+                loadComponent: () =>
+                    import('./features/profile/profile/profile.component')
+                        .then(m => m.ProfileComponent),
+                canMatch: [authGuard]
             },
 
             {

@@ -5,8 +5,10 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from '@angular/fire/auth';
+
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { UsersService } from './users.service';
 import { Router } from '@angular/router';
@@ -23,7 +25,9 @@ export class AuthService {
     private router: Router
   ) { }
 
-  // 📧 Registro
+  // =============================
+  // 📧 REGISTRO
+  // =============================
   async register(
     email: string,
     password: string,
@@ -32,70 +36,69 @@ export class AuthService {
     lastNameMother: string,
     phoneNumber: string
   ) {
-    try {
+    const cred = await createUserWithEmailAndPassword(
+      this.auth,
+      email.trim(),
+      password.trim()
+    );
 
-      console.log('📩 EMAIL:', email);
-      console.log('🔑 PASSWORD:', password);
+    // Actualizar perfil en Auth
+    await updateProfile(cred.user, {
+      displayName: name,
+      photoURL: '/images/images.png'
+    });
 
-      const cred = await createUserWithEmailAndPassword(
-        this.auth,
-        email.trim(),
-        password.trim()
-      );
+    // Crear documento en Firestore
+    await this.usersService.createUser(cred.user.uid, {
+      uid: cred.user.uid,
+      name,
+      lastNameFather,
+      lastNameMother,
+      phoneNumber,
+      email,
+      provider: 'password',
 
-      console.log('✅ REGISTER OK', cred.user);
+      // Seguridad
+      role: 'visitor',
+      status: 'active',
+      isApproved: false,
+      forceLogout: false,
 
-      await updateProfile(cred.user, {
-        displayName: name,
-        photoURL: '/images/images.png'
-      });
+      // Membresía
+      membershipId: null,
+      membershipStatus: 'inactive',
 
-      await this.usersService.createUser(cred.user.uid, {
-        uid: cred.user.uid,
-        name,
-        lastNameFather,
-        lastNameMother,
-        phoneNumber,
-        email,
-        provider: 'password',
-        role: 'visitor',
-        status: 'active',
-        isApproved: false,
-        forceLogout: false,
-        membershipId: null,
-        membershipStatus: 'inactive',
-        photoURL: cred.user.photoURL,
-        genero: 'otro',
-        birthDate: null,
-        emergencyContact: { name: '', phone: '' },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      // Perfil
+      photoURL: cred.user.photoURL,
+      genero: 'otro',
+      birthDate: null,
+      profilePublic: false,
+      coverPhotoURL: null,
+      bio: '',
+      emergencyContact: { name: '', phone: '' },
 
-      return cred;
+      // Fechas
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-    } catch (error: any) {
-
-      console.error('❌ REGISTER ERROR FULL:', error);
-      console.error('❌ CODE:', error.code);
-      console.error('❌ MESSAGE:', error.message);
-
-      throw error;
-    }
+    return cred;
   }
 
-  // 🔐 Login
+  // =============================
+  // 🔐 LOGIN
+  // =============================
   async login(email: string, password: string) {
     return signInWithEmailAndPassword(
       this.auth,
       email.trim(),
       password.trim()
     );
-
-
   }
 
-  // 🔵 Google
+  // =============================
+  // 🔵 LOGIN GOOGLE
+  // =============================
   async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
     const cred = await signInWithPopup(this.auth, provider);
@@ -110,7 +113,9 @@ export class AuthService {
         email: cred.user.email,
         provider: 'google',
         role: 'visitor',
+        status: 'active',
         isApproved: false,
+        forceLogout: false,
         createdAt: new Date()
       });
     }
@@ -118,6 +123,9 @@ export class AuthService {
     return cred;
   }
 
+  // =============================
+  // 🔁 REDIRECT POR ROL
+  // =============================
   async redirectByRole() {
     const user = this.auth.currentUser;
     if (!user) return;
@@ -129,20 +137,33 @@ export class AuthService {
 
     switch (role) {
       case 'admin':
-        this.router.navigate(['/admin']);
+        await this.router.navigate(['/admin']);
         break;
+
       case 'client':
-        this.router.navigate(['/client']);
+        await this.router.navigate(['/client']);
         break;
+
       case 'employee':
-        this.router.navigate(['/employee']);
+        await this.router.navigate(['/employee']);
         break;
+
       default:
-        this.router.navigate(['/visitor']);
+        await this.router.navigate(['/visitor']);
         break;
     }
   }
 
+  // =============================
+  // 📧 RESET PASSWORD
+  // =============================
+  async resetPassword(email: string) {
+    return sendPasswordResetEmail(this.auth, email);
+  }
+
+  // =============================
+  // 🚪 LOGOUT
+  // =============================
   logout() {
     return this.auth.signOut();
   }

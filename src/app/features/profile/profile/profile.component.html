@@ -1,0 +1,47 @@
+<div *ngIf="loading">
+    <p>Cargando perfil...</p>
+</div>
+
+<div *ngIf="!loading && userData">
+
+    <!-- COVER -->
+    <div class="cover" [style.backgroundImage]="
+         userData.coverPhotoURL 
+         ? 'url(' + userData.coverPhotoURL + ')' 
+         : 'url(/images/cover-default.jpg)'">
+    </div>
+
+    <!-- PROFILE CARD -->
+    <mat-card class="profile-card">
+
+        <img class="profile-photo" [src]="userData.photoURL || '/images/images.png'">
+
+        <h2>
+            {{ userData.name }} {{ userData.lastNameFather }} {{ userData.lastNameMother}}
+        </h2>
+
+        <p class="role">
+            Rol: {{ userData.role }}
+        </p>
+
+        <p class="bio">
+            {{ userData.bio || 'Sin biografía aún.' }}
+        </p>
+
+        <div class="profile-visibility">
+
+            <button mat-raised-button [color]="userData?.isPublic ? 'primary' : 'warn'" (click)="togglePublicProfile()">
+
+                <mat-icon>
+                    {{ userData?.isPublic ? 'public' : 'lock' }}
+                </mat-icon>
+
+                {{ userData?.isPublic ? 'Perfil Público' : 'Perfil Privado' }}
+
+            </button>
+
+        </div>
+
+    </mat-card>
+
+</div>

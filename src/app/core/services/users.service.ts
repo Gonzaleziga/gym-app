@@ -46,11 +46,23 @@ export class UsersService {
     });
   }
 
-  // 🔥 Actualizar usuario (rol, status, etc)
+
+  // 🔥 actualizar usuario
   updateUser(uid: string, data: any) {
     return runInInjectionContext(this.injector, () => {
       const ref = doc(this.firestore, 'users', uid);
       return updateDoc(ref, data);
     });
+  }
+
+  // 🔴 activar / desactivar
+  toggleStatus(uid: string, currentStatus: string) {
+    const newStatus = currentStatus === 'active' ? 'disabled' : 'active';
+    return this.updateUser(uid, { status: newStatus });
+  }
+
+  // 🚪 forzar logout
+  forceLogout(uid: string) {
+    return this.updateUser(uid, { forceLogout: true });
   }
 }

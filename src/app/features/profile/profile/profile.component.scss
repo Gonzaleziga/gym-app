@@ -1,0 +1,41 @@
+.cover {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.profile-card {
+    text-align: center;
+    margin-top: -60px;
+    padding-top: 70px;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+}
+
+.role {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.bio {
+    margin: 10px 0;
+    color: var(--text-muted);
+}
+
+.profile-visibility {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+}
