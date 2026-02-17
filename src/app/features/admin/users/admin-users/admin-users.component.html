@@ -17,7 +17,7 @@
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
 
                 <div class="basic-info">
-                    <h3>{{ user.name }}</h3>
+                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
                     <p>{{ user.email }}</p>
 
                     <span class="account-status" [ngClass]="{
@@ -79,7 +79,7 @@
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
 
                 <div class="basic-info">
-                    <h3>{{ user.name }}</h3>
+                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
                     <p>{{ user.email }}</p>
 
                     <span class="account-status" [ngClass]="{
@@ -142,7 +142,7 @@
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
 
                 <div class="basic-info">
-                    <h3>{{ user.name }}</h3>
+                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
                     <p>{{ user.email }}</p>
                     <!-- 🔐 ESTADO DE CUENTA -->
                     <span class="account-status" [ngClass]="{
@@ -162,15 +162,13 @@
                     <span class="membership-status" [ngClass]="{
                       'membership-active': user.membershipStatus === 'active',
                       'membership-expired': user.membershipStatus === 'expired',
-                      'membership-none': !user.membershipStatus
+                      'membership-none': user.membershipStatus === 'none'
                     }">
 
                         {{
-                        user.membershipStatus === 'active'
-                        ? 'Membresía Activa'
-                        : user.membershipStatus === 'expired'
-                        ? 'Membresía Vencida'
-                        : 'Sin Membresía'
+                        user.membershipStatus === 'active' ? 'Membresía Activa':
+                        user.membershipStatus === 'expired'? 'Membresía Vencida':
+                        'Sin Membresía'
                         }}
 
                     </span>
@@ -256,7 +254,7 @@
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
 
                 <div class="basic-info">
-                    <h3>{{ user.name }}</h3>
+                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
                     <p>{{ user.email }}</p>
 
                     <span class="account-status" [ngClass]="{

@@ -134,7 +134,9 @@ export class AdminUsersComponent implements OnInit {
     this.dialog.open(PaymentHistoryModalComponent, {
       data: {
         uid: user.uid,
-        name: user.name
+        name: user.name,
+        lastNameFather: user.lastNameFather,
+        lastNameMother: user.lastNameMother
       },
       width: '650px'
     });

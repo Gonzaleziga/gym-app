@@ -66,7 +66,7 @@ export class AuthService {
 
       // Membresía
       membershipId: null,
-      membershipStatus: 'expired',
+      membershipStatus: 'none',
       membershipEndDate: null,
 
       // Perfil

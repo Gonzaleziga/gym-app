@@ -192,12 +192,21 @@ export class UsersService {
         if (data.membershipStatus === 'active') {
           activeMembers++;
 
-          const endDate = data.membershipEnd?.toDate?.() ?? new Date(data.membershipEnd);
+          if (data.membershipEnd) {
 
-          const diffDays = (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+            const endDate = data.membershipEnd.toDate
+              ? data.membershipEnd.toDate()
+              : new Date(data.membershipEnd);
 
-          if (diffDays <= 7 && diffDays > 0) {
-            upcomingExpirations++;
+            const today = new Date();
+
+            const diffDays =
+              (endDate.getTime() - today.getTime()) /
+              (1000 * 60 * 60 * 24);
+
+            if (diffDays <= 7 && diffDays > 0) {
+              upcomingExpirations++;
+            }
           }
 
         } else if (data.membershipStatus === 'expired') {
