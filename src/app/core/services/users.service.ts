@@ -1,6 +1,6 @@
-import { Injectable, Injector, runInInjectionContext } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, collection, getDocs, updateDoc } from '@angular/fire/firestore';
-
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
+import { Firestore, doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, query, where, orderBy } from '@angular/fire/firestore';
+import { Storage, ref, uploadBytes, getDownloadURL, getStorage } from '@angular/fire/storage';
 @Injectable({
   providedIn: 'root'
 })
@@ -8,7 +8,8 @@ export class UsersService {
 
   constructor(
     private firestore: Firestore,
-    private injector: Injector
+    private injector: Injector,
+    private storage: Storage
   ) { }
 
   getUser(uid: string) {
@@ -54,10 +55,33 @@ export class UsersService {
       return updateDoc(ref, data);
     });
   }
+  // 🔥 actualizar foto de perfil
+  async uploadProfilePhoto(uid: string, file: File) {
+
+    return runInInjectionContext(this.injector, async () => {
+
+      const filePath = `profile-photos/${uid}/profile.jpg`;
+
+      const storageRef = ref(this.storage, filePath);
+
+      // ⬆ subir imagen
+      await uploadBytes(storageRef, file);
+
+      // 🔗 obtener URL
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // 💾 guardar URL en Firestore
+      await this.updateUser(uid, {
+        photoURL: downloadURL
+      });
+
+      return downloadURL;
+    });
+  }
 
   // 🔴 activar / desactivar
   toggleStatus(uid: string, currentStatus: string) {
-    const newStatus = currentStatus === 'active' ? 'disabled' : 'active';
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     return this.updateUser(uid, { status: newStatus });
   }
 
@@ -65,4 +89,199 @@ export class UsersService {
   forceLogout(uid: string) {
     return this.updateUser(uid, { forceLogout: true });
   }
+
+  async getPublicProfiles() {
+    const usersRef = collection(this.firestore, 'users');
+
+    const q = query(usersRef, where('isPublic', '==', true));
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => doc.data());
+  }
+
+  async activateMembership(uid: string, months: number) {
+
+    const startDate = new Date();
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + months);
+
+    await this.updateUser(uid, {
+      membershipStatus: 'active',
+      membershipStart: startDate,
+      membershipEnd: endDate
+    });
+
+  }
+
+  async registerPayment(user: any, months: number, amount: number, adminUid: string) {
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + months);
+
+    // 🔥 1. Guardar pago
+    await addDoc(collection(this.firestore, 'payments'), {
+      userId: user.uid,
+      amount,
+      months,
+      startDate,
+      endDate,
+      createdAt: new Date(),
+      createdBy: adminUid
+    });
+
+    // 🔥 2. Activar membresía
+    await this.updateUser(user.uid, {
+      membershipStatus: 'active',
+      membershipStart: startDate,
+      membershipEnd: endDate
+    });
+  }
+
+  async getUserPayments(uid: string) {
+
+    const paymentsRef = collection(this.firestore, 'payments');
+
+    const q = query(
+      paymentsRef,
+      where('userId', '==', uid)
+    );
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
+
+  async getFinancialStats() {
+    return runInInjectionContext(this.injector, async () => {
+
+      const paymentsRef = collection(this.firestore, 'payments');
+      const paymentsSnap = await getDocs(paymentsRef);
+
+      const usersSnap = await getDocs(collection(this.firestore, 'users'));
+
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      let monthlyIncome = 0;
+      let monthlyPayments = 0;
+      let activeMembers = 0;
+      let expiredMembers = 0;
+      let upcomingExpirations = 0;
+
+      // 🔥 pagos
+      paymentsSnap.forEach(doc => {
+        const data: any = doc.data();
+        const createdAt = data.createdAt?.toDate?.() ?? new Date(data.createdAt);
+
+        if (createdAt >= firstDayOfMonth) {
+          monthlyIncome += data.amount;
+          monthlyPayments++;
+        }
+      });
+
+      // 🔥 usuarios
+      usersSnap.forEach(doc => {
+        const data: any = doc.data();
+
+        if (data.membershipStatus === 'active') {
+          activeMembers++;
+
+          const endDate = data.membershipEnd?.toDate?.() ?? new Date(data.membershipEnd);
+
+          const diffDays = (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+          if (diffDays <= 7 && diffDays > 0) {
+            upcomingExpirations++;
+          }
+
+        } else if (data.membershipStatus === 'expired') {
+          expiredMembers++;
+        }
+      });
+
+      return {
+        monthlyIncome,
+        monthlyPayments,
+        activeMembers,
+        expiredMembers,
+        upcomingExpirations
+      };
+
+    });
+  }
+  // Informacion del Modal 
+
+  async getMonthlyPayments() {
+
+    const paymentsRef = collection(this.firestore, 'payments');
+
+    const snap = await getDocs(paymentsRef);
+
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    return snap.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter((p: any) => {
+        const createdAt = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
+        return createdAt >= firstDayOfMonth;
+      });
+  }
+
+  async getUsersByMembershipStatus(status: string) {
+
+    const usersRef = collection(this.firestore, 'users');
+
+    const q = query(usersRef, where('membershipStatus', '==', status));
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({
+      uid: doc.id,
+      ...doc.data()
+    }));
+  }
+
+  async getUsersExpiringSoon() {
+
+    const usersRef = collection(this.firestore, 'users');
+    const snap = await getDocs(usersRef);
+
+    const today = new Date();
+
+    return snap.docs
+      .map(doc => ({ uid: doc.id, ...doc.data() }))
+      .filter((u: any) => {
+
+        if (!u.membershipEnd || u.membershipStatus !== 'active') return false;
+
+        const endDate = u.membershipEnd?.toDate?.() ?? new Date(u.membershipEnd);
+
+        const diffDays =
+          (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+        return diffDays <= 7 && diffDays > 0;
+      });
+  }
+
+  async getAllPayments() {
+    return runInInjectionContext(this.injector, async () => {
+
+      const paymentsRef = collection(this.firestore, 'payments');
+      const snap = await getDocs(paymentsRef);
+
+      return snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+    });
+  }
+
 }

@@ -5,6 +5,9 @@ import { clientGuard } from './core/guards/cliente.guard';
 import { employeeGuard } from './core/guards/employee.guard';
 import { visitorGuard } from './core/guards/visitor.guard';
 import { PrivateLayoutComponent } from './shared/layouts/private-layout/private-layout.component';
+import { membershipGuard } from './core/guards/membership.guard';
+
+
 
 
 export const routes: Routes = [
@@ -30,6 +33,7 @@ export const routes: Routes = [
             import('./features/auth/register/register.component')
                 .then(m => m.RegisterComponent)
     },
+
 
     // ===============================
     // 🔐 PRIVADO (UN SOLO LAYOUT)
@@ -69,10 +73,11 @@ export const routes: Routes = [
 
             {
                 path: 'client',
-                canMatch: [clientGuard],
+                canMatch: [clientGuard, membershipGuard],
                 loadComponent: () =>
                     import('./features/cliente/dashboard/dashboard.component')
                         .then(m => m.DashboardComponent)
+
             },
 
             {
@@ -89,7 +94,15 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./features/visitor/dashboard/dashboard.component')
                         .then(m => m.DashboardComponent)
+            },
+            {
+                path: 'comunidad',
+                loadComponent: () =>
+                    import('./features/public-profile/public-profile/public-profile.component')
+                        .then(m => m.PublicProfileComponent)
+
             }
+
 
         ]
     },

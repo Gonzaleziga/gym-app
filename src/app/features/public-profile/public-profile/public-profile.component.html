@@ -1,0 +1,30 @@
+<div *ngIf="loading">
+    <p>Cargando perfiles públicos...</p>
+</div>
+
+<div class="profiles-container" *ngIf="!loading">
+
+    <mat-card *ngFor="let profile of profiles" class="profile-card">
+
+        <img class="profile-photo" [src]="profile.photoURL || '/images/images.png'">
+
+        <h3>
+            {{ profile.name }}
+            {{ profile.lastNameFather }}
+        </h3>
+
+        <p class="role">
+            {{ profile.role }}
+        </p>
+
+        <p class="bio">
+            {{ profile.bio || 'Sin biografía' }}
+        </p>
+
+        <button mat-stroked-button color="primary">
+            Ver perfil
+        </button>
+
+    </mat-card>
+
+</div>

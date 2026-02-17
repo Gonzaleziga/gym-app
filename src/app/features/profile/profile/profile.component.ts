@@ -29,28 +29,74 @@ export class ProfileComponent implements OnInit {
   async ngOnInit() {
     const currentUser = this.auth.currentUser;
 
-    if (!currentUser) return;
+    if (!currentUser) {
+      this.loading = false;
+      return;
+    }
 
-    const snap = await this.usersService.getUser(currentUser.uid);
+    try {
+      const snap = await this.usersService.getUser(currentUser.uid);
 
-    if (snap.exists()) {
-      this.userData = snap.data();
-      this.userData.uid = currentUser.uid; // 🔥 importante
-      console.log('👤 PROFILE DATA:', this.userData);
+      if (snap.exists()) {
+        this.userData = snap.data();
+        this.userData.uid = currentUser.uid;
+      }
+    } catch (error) {
+      console.error('❌ Error cargando perfil:', error);
     }
 
     this.loading = false;
   }
 
+  // 🔥 SUBIR FOTO
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) return;
+    if (!this.userData) return;
+
+    const file = input.files[0];
+
+    try {
+      this.loading = true;
+
+      const imageUrl = await this.usersService.uploadProfilePhoto(
+        this.userData.uid,
+        file
+      );
+
+      // 🔥 actualizar Firestore también
+      await this.usersService.updateUser(this.userData.uid, {
+        photoURL: imageUrl
+      });
+
+      // 🔥 actualizar vista
+      this.userData.photoURL = imageUrl;
+
+      console.log('✅ FOTO ACTUALIZADA CORRECTAMENTE');
+
+    } catch (error) {
+      console.error('❌ ERROR SUBIENDO FOTO:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // 🔥 PERFIL PÚBLICO / PRIVADO
   async togglePublicProfile() {
     if (!this.userData) return;
 
     const newValue = !this.userData.isPublic;
 
-    await this.usersService.updateUser(this.userData.uid, {
-      isPublic: newValue
-    });
+    try {
+      await this.usersService.updateUser(this.userData.uid, {
+        isPublic: newValue
+      });
 
-    this.userData.isPublic = newValue;
+      this.userData.isPublic = newValue;
+
+    } catch (error) {
+      console.error('❌ Error actualizando visibilidad:', error);
+    }
   }
 }

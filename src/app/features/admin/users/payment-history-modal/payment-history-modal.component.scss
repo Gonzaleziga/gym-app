@@ -1,0 +1,58 @@
+.modal-wrapper {
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    z-index: 5;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.close-btn {
+    color: #f44336;
+    /* rojo visible */
+}
+
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.payment-card {
+    margin-bottom: 12px;
+    padding: 12px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.value {
+    font-weight: 500;
+}
+
+.income {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.center {
+    text-align: center;
+    padding: 20px;
+}

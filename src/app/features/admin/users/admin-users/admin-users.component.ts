@@ -5,6 +5,10 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
+import { Auth } from '@angular/fire/auth';
+import { MatDialog } from '@angular/material/dialog';
+import { PaymentHistoryModalComponent }
+  from '../payment-history-modal/payment-history-modal.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -30,9 +34,13 @@ export class AdminUsersComponent implements OnInit {
 
   roles = ['admin', 'employee', 'client', 'visitor'];
 
+  expandedUserId: string | null = null;
+
   constructor(
     private usersService: UsersService,
-    private authService: AuthService   // 🔥 AQUÍ ESTÁ EL CAMBIO
+    private authService: AuthService,
+    private auth: Auth,
+    private dialog: MatDialog
   ) { }
 
   async ngOnInit() {
@@ -43,6 +51,27 @@ export class AdminUsersComponent implements OnInit {
     this.loading = true;
 
     this.users = await this.usersService.getAllUsers();
+
+    const today = new Date();
+
+    // 🔥 Verificar vencimiento automático
+    for (const user of this.users) {
+      if (user.membershipEnd) {
+
+        const endDate = user.membershipEnd.toDate
+          ? user.membershipEnd.toDate()
+          : new Date(user.membershipEnd);
+
+        if (endDate < today && user.membershipStatus === 'active') {
+
+          await this.usersService.updateUser(user.uid, {
+            membershipStatus: 'expired'
+          });
+
+          user.membershipStatus = 'expired';
+        }
+      }
+    }
 
     this.admins = this.users.filter(u => u.role === 'admin');
     this.employees = this.users.filter(u => u.role === 'employee');
@@ -58,26 +87,61 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async toggleStatus(user: any) {
-    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+
+    const newStatus =
+      user.status === 'active' ? 'inactive' : 'active';
 
     await this.usersService.updateUser(user.uid, {
       status: newStatus
     });
 
-    await this.loadUsers();
+    // 🔥 ACTUALIZA SOLO EL OBJETO EN MEMORIA
+    user.status = newStatus;
   }
 
   async forceLogout(uid: string) {
-    await this.usersService.updateUser(uid, {
-      forceLogout: true
-    });
-
+    await this.usersService.updateUser(uid, { forceLogout: true });
     await this.loadUsers();
   }
 
-  // 🔥 AHORA SÍ FUNCIONA
   async resetPassword(user: any) {
     await this.authService.resetPassword(user.email);
     alert('Correo de recuperación enviado a ' + user.email);
   }
+
+  async activateMembership(user: any) {
+    await this.usersService.activateMembership(user.uid, 1);
+    await this.loadUsers();
+  }
+
+  async registerMonthlyPayment(user: any) {
+    const adminUid = this.auth.currentUser?.uid;
+    if (!adminUid) return;
+
+    await this.usersService.registerPayment(
+      user,
+      1,
+      500,
+      adminUid
+    );
+
+    await this.loadUsers();
+  }
+
+  // ✅ ÚNICO MÉTODO CORRECTO
+  viewPayments(user: any) {
+    this.dialog.open(PaymentHistoryModalComponent, {
+      data: {
+        uid: user.uid,
+        name: user.name
+      },
+      width: '650px'
+    });
+  }
+
+  toggleDetails(uid: string) {
+    this.expandedUserId =
+      this.expandedUserId === uid ? null : uid;
+  }
+
 }

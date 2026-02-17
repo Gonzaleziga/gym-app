@@ -1,0 +1,60 @@
+<h2 mat-dialog-title class="modal-title">
+    {{ title }}
+</h2>
+
+<mat-dialog-content class="modal-content">
+
+    <!-- 🔄 LOADING -->
+    <div *ngIf="loading" class="center">
+        <p>Cargando información...</p>
+    </div>
+
+    <!-- 💰 TOTAL ARRIBA SOLO PARA INCOME -->
+    <div *ngIf="!loading && data.type === 'income'" class="income-summary">
+        <h3>Total del mes</h3>
+        <p class="total-amount">${{ data.total }}</p>
+    </div>
+
+    <!-- ❌ SIN REGISTROS -->
+    <div *ngIf="!loading && items.length === 0" class="center">
+        <p>No hay registros.</p>
+    </div>
+
+    <!-- 📊 LISTADO -->
+    <div class="scroll-container">
+
+        <mat-card *ngFor="let item of items" class="detail-card">
+
+            <!-- 💰 PAGOS / INCOME -->
+            <ng-container *ngIf="data.type === 'income' || data.type === 'payments'">
+
+                <div class="row">
+                    <span class="label">Monto:</span>
+                    <span class="value income">${{ item.amount }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Usuario ID:</span>
+                    <span class="value">{{ item.userId }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Fecha:</span>
+                    <span class="value">
+                        {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
+                    </span>
+                </div>
+
+            </ng-container>
+
+        </mat-card>
+
+    </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close color="primary">
+        Cerrar
+    </button>
+</mat-dialog-actions>

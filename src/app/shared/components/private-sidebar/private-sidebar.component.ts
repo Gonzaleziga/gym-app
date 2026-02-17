@@ -46,7 +46,7 @@ export class PrivateSidebarComponent {
         return [
           { label: 'Dashboard', route: '/admin' },
           { label: 'Usuarios', route: '/admin/users' },
-          { label: 'Configuración', route: '/admin/settings' }
+          // { label: 'Configuración', route: '/admin/settings' }
         ];
 
       case 'client':

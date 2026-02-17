@@ -1,6 +1,104 @@
-.admin-actions {
+.client-card {
+    margin-bottom: 20px;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.card-header {
     display: flex;
-    gap: 8px;
-    margin-top: 12px;
+    align-items: center;
+    gap: 18px;
+}
+
+.avatar {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1976d2;
+}
+
+.basic-info {
+    flex: 1;
+}
+
+.basic-info h3 {
+    margin: 0;
+}
+
+// .status {
+//     font-size: 13px;
+//     padding: 3px 8px;
+//     border-radius: 12px;
+// }
+
+
+.details-panel {
+    margin-top: 16px;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+.action-group {
+    display: flex;
     flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.roles-section {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.account-status,
+.membership-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+    margin-right: 6px;
+}
+
+/* 🔐 CUENTA */
+.account-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.account-blocked {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* 💳 MEMBRESÍA */
+.membership-active {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.membership-expired {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.membership-none {
+    background-color: #eeeeee;
+    color: #616161;
 }

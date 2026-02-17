@@ -1,0 +1,48 @@
+<div class="modal-wrapper">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+        <h2>
+            Historial de {{ data.name }}
+        </h2>
+
+        <button mat-icon-button class="close-btn" (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- BODY CON SCROLL -->
+    <div class="modal-body">
+
+        <div *ngIf="loading" class="center">
+            Cargando pagos...
+        </div>
+
+        <div *ngIf="!loading && payments.length === 0" class="center">
+            No hay pagos registrados.
+        </div>
+
+        <mat-card *ngFor="let p of payments" class="payment-card">
+
+            <div class="row">
+                <span class="label">Monto:</span>
+                <span class="value income">${{ p.amount }}</span>
+            </div>
+
+            <div class="row">
+                <span class="label">Meses:</span>
+                <span class="value">{{ p.months }}</span>
+            </div>
+
+            <div class="row">
+                <span class="label">Válido hasta:</span>
+                <span class="value">
+                    {{ p.endDate?.toDate?.() | date:'mediumDate' }}
+                </span>
+            </div>
+
+        </mat-card>
+
+    </div>
+
+</div>

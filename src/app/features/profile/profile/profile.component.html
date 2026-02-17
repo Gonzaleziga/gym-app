@@ -15,7 +15,11 @@
     <mat-card class="profile-card">
 
         <img class="profile-photo" [src]="userData.photoURL || '/images/images.png'">
+        <input type="file" hidden #fileInput accept="image/*" (change)="onFileSelected($event)">
 
+        <button mat-stroked-button (click)="fileInput.click()">
+            Cambiar foto
+        </button>
         <h2>
             {{ userData.name }} {{ userData.lastNameFather }} {{ userData.lastNameMother}}
         </h2>
@@ -24,6 +28,20 @@
             Rol: {{ userData.role }}
         </p>
 
+        <p class="membership">
+            Membresía válida hasta:
+            <strong>
+                {{ userData.membershipExpiresAt?.toDate() | date:'longDate' }}
+            </strong>
+        </p>
+        <p class="membership-status" [ngClass]="{
+          active: userData.membershipStatus === 'active',
+          expired: userData.membershipStatus === 'expired'
+        }">
+
+            Estado: {{ userData.membershipStatus }}
+
+        </p>
         <p class="bio">
             {{ userData.bio || 'Sin biografía aún.' }}
         </p>

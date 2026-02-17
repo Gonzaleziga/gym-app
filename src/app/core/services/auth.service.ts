@@ -66,7 +66,8 @@ export class AuthService {
 
       // Membresía
       membershipId: null,
-      membershipStatus: 'inactive',
+      membershipStatus: 'expired',
+      membershipEndDate: null,
 
       // Perfil
       photoURL: cred.user.photoURL,
@@ -135,6 +136,22 @@ export class AuthService {
 
     const role = snap.data()['role'];
 
+    const membershipExpiresAt = snap.data()['membershipExpiresAt'];
+    const membershipStatus = snap.data()['membershipStatus'];
+
+    if (membershipExpiresAt && membershipExpiresAt.toDate) {
+
+      const expires = membershipExpiresAt.toDate();
+      const now = new Date();
+
+      if (expires < now && membershipStatus === 'active') {
+
+        await this.usersService.updateUser(user.uid, {
+          membershipStatus: 'expired'
+        });
+
+      }
+    }
     switch (role) {
       case 'admin':
         await this.router.navigate(['/admin']);

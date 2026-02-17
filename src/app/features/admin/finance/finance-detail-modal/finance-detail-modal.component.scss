@@ -1,0 +1,71 @@
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.close-btn {
+    margin-left: auto;
+}
+
+
+.modal-content {
+    max-height: 60vh; // 🔥 altura fija
+    overflow-y: auto; // 🔥 scroll vertical
+    padding-right: 8px;
+}
+
+.detail-card {
+    margin-bottom: 12px;
+}
+
+.center {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.label {
+    font-weight: 500;
+    color: #888;
+}
+
+.value {
+    font-weight: 600;
+}
+
+.income {
+    color: #2e7d32;
+}
+
+.active {
+    color: #2e7d32;
+}
+
+.expired {
+    color: #c62828;
+}
+
+
+
+.scroll-container {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.income-summary {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.total-amount {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4caf50;
+}

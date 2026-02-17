@@ -1,36 +1,139 @@
 <div class="dashboard-container">
 
+    <!-- 🔵 BIENVENIDA -->
     <mat-card class="welcome-card">
         <h2>👋 Bienvenido Admin</h2>
+
         <p *ngIf="role">
             Estás logueado como:
             <strong>{{ role | uppercase }}</strong>
         </p>
+
         <p>
             Tu cuenta ha sido creada correctamente.
             Actualmente tienes acceso como <strong>Admin</strong>.
         </p>
     </mat-card>
 
-    <mat-card class="info-card">
-        <h3>¿Qué puedes hacer ahora?</h3>
-        <ul>
-            <li>Ver lista de clientes</li>
-            <li>Editarinformacion de los de clientes</li>
-            <li>Cambiar el rol de los clientes</li>
-            <li>Suspender cuentas por falta de pago</li>
-            <li>Resetear contraseñas</li>
-        </ul>
-    </mat-card>
 
-    <mat-card class="locked-card">
-        <h3>🔒 Acceso restringido</h3>
-        <p>
-            Algunas funciones estarán disponibles una vez que un administrador
-            apruebe tu cuenta.
-        </p>
-    </mat-card>
+    <!-- 🔥 PANEL FINANCIERO -->
+    <div *ngIf="role === 'admin' && stats" class="financial-grid">
+
+        <!-- 💰 Ingresos -->
+        <mat-card class="financial-card clickable" (click)="openDetails('income')">
+
+            <h3>💰 Ingresos del mes</h3>
+            <p class="big-number">${{ stats.monthlyIncome }}</p>
+            <small>Click para ver detalle</small>
+
+        </mat-card>
+
+        <!-- 🧾 Pagos -->
+        <mat-card class="financial-card clickable" (click)="openDetails('payments')">
+
+            <h3>💵 Pagos del mes</h3>
+            <p class="big-number">{{ stats.monthlyPayments }}</p>
+            <small>Click para ver detalle</small>
+
+        </mat-card>
+
+        <!-- 🟢 Activos -->
+        <mat-card class="financial-card clickable" (click)="openDetails('active')">
+
+            <h3>👥 Membresias Activas</h3>
+            <p class="big-number active">{{ stats.activeMembers }}</p>
+            <small>Click para ver detalle</small>
+
+        </mat-card>
+
+        <!-- 🔴 Vencidos -->
+        <mat-card class="financial-card clickable" (click)="openDetails('expired')">
+
+            <h3>❌ Membresias Vencidas</h3>
+            <p class="big-number expired">{{ stats.expiredMembers }}</p>
+            <small>Click para ver detalle</small>
+
+        </mat-card>
+
+        <!-- 🟡 Próximos a vencer -->
+        <mat-card class="financial-card clickable" (click)="openDetails('upcoming')">
+
+            <h3>⚠️ Vencen en 7 días</h3>
+            <p class="big-number warning">{{ stats.upcomingExpirations }}</p>
+            <small>Click para ver detalle</small>
+
+        </mat-card>
+
+    </div>
+
+    <!-- 🚪 Logout -->
     <button mat-raised-button color="warn" (click)="logout()">
         Cerrar sesión
     </button>
+
+</div>
+
+
+<!-- 🔥 MODAL FLOTANTE -->
+<div *ngIf="showModal" class="modal-overlay">
+
+    <div class="modal-card">
+
+        <!-- HEADER -->
+        <div class="modal-header">
+            <h3>{{ selectedDetailType | uppercase }}</h3>
+            <button class="close-btn" (click)="closeModal()">✖</button>
+        </div>
+
+        <!-- BODY -->
+        <div class="modal-body">
+
+            <div *ngIf="detailList.length === 0">
+                <p>No hay registros.</p>
+            </div>
+
+            <div *ngFor="let item of detailList" class="detail-item">
+
+                <!-- 💰 INGRESOS -->
+                <div *ngIf="selectedDetailType === 'income'">
+                    <p><strong>Monto:</strong> ${{ item.amount }}</p>
+                    <p>
+                        <strong>Fecha:</strong>
+                        {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
+                    </p>
+                </div>
+
+                <!-- 🧾 PAGOS -->
+                <div *ngIf="selectedDetailType === 'payments'">
+                    <p><strong>Monto:</strong> ${{ item.amount }}</p>
+                    <p><strong>Meses:</strong> {{ item.months }}</p>
+                    <p>
+                        <strong>Fecha:</strong>
+                        {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
+                    </p>
+                </div>
+
+                <!-- 👥 USUARIOS -->
+                <div *ngIf="selectedDetailType === 'active' ||
+                            selectedDetailType === 'expired' ||
+                            selectedDetailType === 'upcoming'">
+
+                    <p><strong>Nombre:</strong> {{ item.name }}</p>
+                    <p><strong>Email:</strong> {{ item.email }}</p>
+                    <p><strong>Estado:</strong> {{ item.membershipStatus }}</p>
+
+                    <p *ngIf="item.membershipEnd">
+                        <strong>Vence:</strong>
+                        {{ item.membershipEnd?.toDate?.() | date:'mediumDate' }}
+                    </p>
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
