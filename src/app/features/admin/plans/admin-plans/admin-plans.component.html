@@ -1,0 +1,128 @@
+<div class="plans-container">
+
+    <h2 class="title">Gestión de Planes</h2>
+
+    <!-- ================= CREAR PLAN ================= -->
+    <mat-card class="create-plan-card">
+
+        <div class="form-grid">
+
+            <mat-form-field appearance="outline">
+                <mat-label>Nombre del plan</mat-label>
+                <input matInput [(ngModel)]="newPlan.name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Precio</mat-label>
+                <input matInput type="number" [(ngModel)]="newPlan.price">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Duración (meses)</mat-label>
+                <input matInput type="number" [(ngModel)]="newPlan.durationMonths">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select [(ngModel)]="newPlan.type">
+                    <mat-option value="monthly">Mensual</mat-option>
+                    <mat-option value="bimonthly">Bimestral</mat-option>
+                    <mat-option value="quarterly">Trimestral</mat-option>
+                    <mat-option value="semiannual">Semestral</mat-option>
+                    <mat-option value="annual">Anual</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+        </div>
+
+        <button mat-raised-button color="primary" class="create-btn" (click)="createPlan()">
+            Crear Plan
+        </button>
+
+    </mat-card>
+
+    <!-- ================= LISTA DE PLANES ================= -->
+    <!-- ================= LISTA DE PLANES ================= -->
+    <div class="plans-grid">
+
+        <mat-card *ngFor="let plan of plans" class="plan-card">
+
+            <!-- HEADER -->
+            <div class="plan-header">
+                <h3>{{ plan.name }}</h3>
+
+                <span class="status-badge" [ngClass]="plan.isActive ? 'active' : 'inactive'">
+                    {{ plan.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
+
+            <!-- BODY -->
+            <div class="plan-body">
+
+                <!-- 🔹 MODO NORMAL -->
+                <ng-container *ngIf="editingPlanId !== plan.id">
+
+                    <p><strong>Precio:</strong> ${{ plan.price }}</p>
+                    <p><strong>Duración:</strong> {{ plan.durationMonths }} meses</p>
+                    <p><strong>Tipo:</strong> {{ plan.type }}</p>
+
+                </ng-container>
+
+                <!-- 🔹 MODO EDICIÓN -->
+                <ng-container *ngIf="editingPlanId === plan.id">
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Precio</mat-label>
+                        <input matInput type="number" [(ngModel)]="plan.price">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Duración (meses)</mat-label>
+                        <input matInput type="number" [(ngModel)]="plan.durationMonths">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Tipo</mat-label>
+                        <mat-select [(ngModel)]="plan.type">
+                            <mat-option value="monthly">Mensual</mat-option>
+                            <mat-option value="bimonthly">Bimestral</mat-option>
+                            <mat-option value="quarterly">Trimestral</mat-option>
+                            <mat-option value="semiannual">Semestral</mat-option>
+                            <mat-option value="annual">Anual</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                </ng-container>
+
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="plan-actions">
+
+                <!-- Activar / Desactivar -->
+                <button mat-stroked-button [color]="plan.isActive ? 'warn' : 'primary'" (click)="togglePlan(plan)">
+                    {{ plan.isActive ? 'Desactivar' : 'Activar' }}
+                </button>
+
+                <!-- Editar -->
+                <button mat-stroked-button color="primary" *ngIf="editingPlanId !== plan.id" (click)="startEdit(plan)">
+                    Editar
+                </button>
+
+                <!-- Guardar -->
+                <button mat-raised-button color="primary" *ngIf="editingPlanId === plan.id" (click)="saveEdit(plan)">
+                    Guardar
+                </button>
+
+                <!-- Cancelar -->
+                <button mat-stroked-button color="warn" *ngIf="editingPlanId === plan.id" (click)="cancelEdit()">
+                    Cancelar
+                </button>
+
+            </div>
+
+        </mat-card>
+
+    </div>
+
+</div>

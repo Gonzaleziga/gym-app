@@ -2,11 +2,10 @@
 
     <!-- 🔵 BIENVENIDA -->
     <mat-card class="welcome-card">
-        <h2>👋 Bienvenido Admin</h2>
+        <h2>👋 Bienvenido </h2>
 
-        <p *ngIf="role">
-            Estás logueado como:
-            <strong>{{ role | uppercase }}</strong>
+        <p *ngIf="userName">
+            Hola <strong>{{ userName }}</strong> 👋
         </p>
 
         <p>

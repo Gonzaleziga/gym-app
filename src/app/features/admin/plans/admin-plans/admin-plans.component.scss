@@ -1,0 +1,66 @@
+.plans-container {
+    padding: 20px;
+}
+
+.title {
+    margin-bottom: 20px;
+}
+
+.create-plan-card {
+    margin-bottom: 30px;
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.create-btn {
+    width: 200px;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.plan-card {
+    padding: 16px;
+    border-radius: 16px;
+    transition: 0.2s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-3px);
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #2e7d32;
+    color: white;
+}
+
+.status-badge.inactive {
+    background: #c62828;
+    color: white;
+}
+
+.plan-actions {
+    margin-top: 12px;
+}

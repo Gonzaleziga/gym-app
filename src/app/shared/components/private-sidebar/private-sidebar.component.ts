@@ -8,6 +8,7 @@ import { RouterModule, Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserSessionService } from '../../../core/services/user-session.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @Component({
@@ -20,7 +21,9 @@ import { AuthService } from '../../../core/services/auth.service';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSelectModule
+
   ],
   templateUrl: './private-sidebar.component.html',
   styleUrl: './private-sidebar.component.scss'
@@ -46,6 +49,7 @@ export class PrivateSidebarComponent {
         return [
           { label: 'Dashboard', route: '/admin' },
           { label: 'Usuarios', route: '/admin/users' },
+          { label: 'Planes', route: '/admin/plans' },
           // { label: 'Configuración', route: '/admin/settings' }
         ];
 

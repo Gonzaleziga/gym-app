@@ -18,12 +18,15 @@ import { UserSessionService } from '../../../core/services/user-session.service'
 export class DashboardComponent implements OnInit {
 
   role: string | null = null;
+  userName: string | null = null;
   stats: any = null;
 
   // 🔥 CONTROL DEL MODAL
   showModal = false;
   selectedDetailType: string | null = null;
   detailList: any[] = [];
+  // para mostrar el nombre completo en Dashboard
+
 
   constructor(
     private auth: Auth,
@@ -34,19 +37,25 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-
     const user = this.auth.currentUser;
     if (!user) return;
-
-    this.role = await this.usersService.getUserRole(user.uid);
-
+    // 🔹 Traemos el documento completo
+    const snap = await this.usersService.getUser(user.uid);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    // 🔹 Guardamos rol
+    this.role = data?.['role'] ?? null;
+    // 🔹 Nombre completo
+    const name = data?.['name'] ?? '';
+    const lastNameFather = data?.['lastNameFather'] ?? '';
+    const lastNameMother = data?.['lastNameMother'] ?? '';
+    this.userName = `${name} ${lastNameFather} ${lastNameMother}`.trim();
     // 🔥 SOLO ADMIN carga stats
     if (this.role === 'admin') {
       this.stats = await this.usersService.getFinancialStats();
       console.log('📊 STATS:', this.stats);
     }
   }
-
   // 🔥 ABRIR MODAL
   async openDetails(type: string) {
 

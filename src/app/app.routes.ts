@@ -60,6 +60,12 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/admin/users/admin-users/admin-users.component')
                                 .then(m => m.AdminUsersComponent)
+                    },
+                    {
+                        path: 'plans',
+                        loadComponent: () =>
+                            import('./features/admin/plans/admin-plans/admin-plans.component')
+                                .then(m => m.AdminPlansComponent)
                     }
                 ]
             },

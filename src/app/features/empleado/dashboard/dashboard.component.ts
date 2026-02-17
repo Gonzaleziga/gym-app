@@ -19,6 +19,7 @@ import { UserSessionService } from '../../../core/services/user-session.service'
 })
 export class DashboardComponent implements OnInit {
   role: string | null = null;
+  userName: string | null = null;
   constructor(
     private auth: Auth,
     private usersService: UsersService,
@@ -26,15 +27,23 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private userSession: UserSessionService
   ) { }
+
   async ngOnInit() {
     const user = this.auth.currentUser;
     if (!user) return;
-
-    this.role = await this.usersService.getUserRole(user.uid);
+    const snap = await this.usersService.getUser(user.uid);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    // 🔥 Guardamos rol
+    this.role = data?.['role'] ?? null;
     console.log('ROLE UI:', this.role);
     if (this.role) {
-      this.userSession.setRole(this.role); // 👈 CLAVE
+      this.userSession.setRole(this.role);
     }
+    const name = data?.['name'] ?? '';
+    const lastNameFather = data?.['lastNameFather'] ?? '';
+    const lastNameMother = data?.['lastNameMother'] ?? '';
+    this.userName = `${name} ${lastNameFather} ${lastNameMother}`.trim();
   }
 
   async logout() {
