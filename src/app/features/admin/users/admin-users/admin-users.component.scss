@@ -1,68 +1,51 @@
 .client-card {
     margin-bottom: 20px;
-    padding: 18px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 16px;
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    gap: 18px;
+    justify-content: space-between;
 }
 
 .avatar {
-    width: 65px;
-    height: 65px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
+    margin-right: 16px;
     object-fit: cover;
-    border: 2px solid #1976d2;
 }
 
 .basic-info {
     flex: 1;
 }
 
-.basic-info h3 {
-    margin: 0;
+.account-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-// .status {
-//     font-size: 13px;
-//     padding: 3px 8px;
-//     border-radius: 12px;
-// }
+.status-active {
+    background: #4caf50;
+    color: white;
+}
 
+.status-inactive {
+    background: #f44336;
+    color: white;
+}
 
 .details-panel {
-    margin-top: 16px;
-    animation: fadeIn 0.25s ease-in-out;
+    margin-top: 15px;
 }
 
-.action-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 12px;
-}
-
-.roles-section {
-    margin-top: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.admin-actions button {
+    margin-right: 8px;
+    margin-bottom: 8px;
 }
 
 .account-status,
