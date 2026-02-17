@@ -1,14 +1,16 @@
 <div *ngIf="loading">
     <p>Cargando usuarios...</p>
 </div>
-
+<!-- 🔍 BUSCADOR GENERAL -->
+<div class="search-bar">
+    <input type="text" placeholder="🔍 Buscar por nombre o email..." [(ngModel)]="searchTerm" />
+</div>
 <mat-tab-group *ngIf="!loading">
 
     <!-- ================= ADMIN ================= -->
-    -->
     <mat-tab label="Administradores">
 
-        <mat-card *ngFor="let user of admins" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(admins)" class="client-card">
 
             <div class="card-header">
 
@@ -70,7 +72,7 @@
     <!-- ================= EMPLEADOS ================= -->
     <mat-tab label="Empleados">
 
-        <mat-card *ngFor="let user of employees" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(employees)" class="client-card">
 
             <div class="card-header">
 
@@ -132,7 +134,7 @@
     <!-- ================= CARD CLIENTES CON FOTO ================= -->
     <mat-tab label="Clientes">
 
-        <mat-card *ngFor="let user of clients" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
 
             <!-- HEADER -->
             <div class="card-header">
@@ -247,7 +249,7 @@
 
     <mat-tab label="Visitantes">
 
-        <mat-card *ngFor="let user of visitors" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(visitors)" class="client-card">
 
             <div class="card-header">
 

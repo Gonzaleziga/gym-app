@@ -48,6 +48,8 @@
     margin-bottom: 8px;
 }
 
+
+/* 🔐 CUENTA Y MEMBRESIA */
 .account-status,
 .membership-status {
     display: inline-block;
@@ -59,7 +61,7 @@
     margin-right: 6px;
 }
 
-/* 🔐 CUENTA */
+
 .account-active {
     background-color: #e8f5e9;
     color: #2e7d32;
@@ -84,4 +86,18 @@
 .membership-none {
     background-color: #eeeeee;
     color: #616161;
+}
+
+// 🔎 Búsqueda
+.search-bar {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-bar input {
+    width: 280px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
 }

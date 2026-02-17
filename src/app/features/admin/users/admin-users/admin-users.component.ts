@@ -9,6 +9,7 @@ import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { PaymentHistoryModalComponent }
   from '../payment-history-modal/payment-history-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-users',
@@ -17,7 +18,8 @@ import { PaymentHistoryModalComponent }
     CommonModule,
     MatCardModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    FormsModule
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
@@ -26,15 +28,14 @@ export class AdminUsersComponent implements OnInit {
 
   users: any[] = [];
   loading = true;
-
   admins: any[] = [];
   employees: any[] = [];
   clients: any[] = [];
   visitors: any[] = [];
-
   roles = ['admin', 'employee', 'client', 'visitor'];
-
   expandedUserId: string | null = null;
+  searchTerm: string = '';
+  activeTabIndex: number = 0;
 
   constructor(
     private usersService: UsersService,
@@ -142,6 +143,18 @@ export class AdminUsersComponent implements OnInit {
   toggleDetails(uid: string) {
     this.expandedUserId =
       this.expandedUserId === uid ? null : uid;
+  }
+
+  getFilteredUsers(list: any[]) {
+
+    if (!this.searchTerm) return list;
+
+    const term = this.searchTerm.toLowerCase();
+
+    return list.filter(user =>
+      user.name?.toLowerCase().includes(term) ||
+      user.email?.toLowerCase().includes(term)
+    );
   }
 
 }
