@@ -50,6 +50,7 @@ export class PrivateSidebarComponent {
           { label: 'Dashboard', route: '/admin' },
           { label: 'Usuarios', route: '/admin/users' },
           { label: 'Planes', route: '/admin/plans' },
+          { label: 'Ejercicios', route: '/admin/exercises' },
           // { label: 'Configuración', route: '/admin/settings' }
         ];
 

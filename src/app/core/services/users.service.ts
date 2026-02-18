@@ -228,6 +228,13 @@ export class UsersService {
   }
 
 
+  async getUserById(uid: string) {
+    const docRef = doc(this.firestore, `users/${uid}`);
+    const snap = await getDoc(docRef);
 
+    if (!snap.exists()) return null;
+
+    return snap.data();
+  }
 
 }

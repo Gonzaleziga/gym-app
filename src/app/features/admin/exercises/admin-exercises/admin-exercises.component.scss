@@ -1,0 +1,90 @@
+.exercises-container {
+    padding: 20px;
+}
+
+.title {
+    margin-bottom: 20px;
+}
+
+.create-exercise-card {
+    margin-bottom: 30px;
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.create-btn {
+    width: 100%;
+}
+
+.exercises-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.exercise-card {
+    padding: 15px;
+    transition: 0.3s ease;
+}
+
+.exercise-card:hover {
+    transform: translateY(-4px);
+}
+
+.exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.status-badge.active {
+    background: #4caf50;
+    color: white;
+}
+
+.status-badge.inactive {
+    background: #d32f2f;
+    color: white;
+}
+
+.exercise-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.exercise-image {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 10px;
+    top: 0;
+}
+
+.file-upload {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #666;
+}

@@ -1,34 +1,82 @@
 <div class="dashboard-container">
 
+    <!-- 🔵 BIENVENIDA -->
     <mat-card class="welcome-card">
-        <h2>👋 Bienvenido empleado</h2>
-        <p *ngIf="role">
-            Estás logueado como:
-            <strong>{{ role | uppercase }}</strong>
-        </p>
+        <h2>👋 Hola {{ userData?.name }} {{ userData?.lastNameFather }}</h2>
+
         <p>
-            Tu cuenta ha sido creada correctamente.
-            Actualmente tienes acceso como <strong>Empleado</strong>.
+            Bienvenido a tu panel personal.
+        </p>
+
+        <p *ngIf="userData?.planId">
+            Tu plan actual es:
+            <strong>{{ getPlanName(userData.planId) }}</strong>
         </p>
     </mat-card>
 
-    <mat-card class="info-card">
-        <h3>¿Qué puedes hacer ahora?</h3>
-        <ul>
-            <li>Explorar la plataforma</li>
-            <li>Conocer los beneficios</li>
-            <li>Ver una demostración del sistema</li>
-        </ul>
+    <!-- 💳 INFORMACIÓN DE MEMBRESÍA -->
+    <mat-card class="info-card" *ngIf="userData">
+
+        <h3>💳 Información de tu membresía</h3>
+
+        <p>
+            <strong>Estado:</strong>
+            <span [ngClass]="{
+              'membership-active': userData.membershipStatus === 'active',
+              'membership-expired': userData.membershipStatus === 'expired'
+            }">
+                {{
+                userData.membershipStatus === 'active'
+                ? 'Activa'
+                : 'Vencida'
+                }}
+            </span>
+        </p>
+
+        <p *ngIf="userData.membershipEnd">
+            <strong>Fecha de vencimiento:</strong>
+            {{ userData.membershipEnd?.toDate() | date:'mediumDate' }}
+        </p>
+
+        <p *ngIf="daysRemaining > 0">
+            <strong>Días restantes:</strong> {{ daysRemaining }}
+        </p>
+
+        <p *ngIf="daysRemaining <= 5 && daysRemaining > 0" style="color: orange;">
+            ⚠️ Tu membresía está por vencer
+        </p>
+
     </mat-card>
 
-    <mat-card class="locked-card">
-        <h3>🔒 Acceso restringido</h3>
+    <!-- 💰 ÚLTIMO PAGO -->
+    <mat-card class="info-card" *ngIf="lastPayment">
+
+        <h3>💰 Último pago</h3>
+
         <p>
-            Algunas funciones estarán disponibles una vez que un administrador
-            apruebe tu cuenta.
+            <strong>Monto:</strong> ${{ lastPayment.amount }}
+        </p>
+
+        <p>
+            <strong>Fecha:</strong>
+            {{ lastPayment.createdAt?.toDate() | date:'mediumDate' }}
+        </p>
+
+    </mat-card>
+
+
+    <!-- 🔒 MENSAJE SI NO TIENE PLAN -->
+    <mat-card class="locked-card" *ngIf="!userData?.planId">
+        <h3>🔒 Sin plan activo</h3>
+        <p>
+            Actualmente no tienes un plan asignado.
+            Contacta a administración para activarlo.
         </p>
     </mat-card>
+
+    <!-- 🚪 LOGOUT -->
     <button mat-raised-button color="warn" (click)="logout()">
         Cerrar sesión
     </button>
+
 </div>

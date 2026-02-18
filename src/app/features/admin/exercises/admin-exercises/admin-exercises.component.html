@@ -1,0 +1,97 @@
+<div class="exercises-container">
+
+    <h2 class="title">Gestión de Ejercicios</h2>
+
+    <!-- ================= CREAR EJERCICIO ================= -->
+    <mat-card class="create-exercise-card">
+
+        <h3>Nuevo Ejercicio</h3>
+
+        <div class="form-grid">
+
+            <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput [(ngModel)]="newExercise.name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Grupo muscular</mat-label>
+                <input matInput [(ngModel)]="newExercise.muscleGroup">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Dificultad</mat-label>
+                <input matInput [(ngModel)]="newExercise.difficulty">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="newExercise.description"></textarea>
+            </mat-form-field>
+
+            <!-- 📸 SUBIR IMAGEN -->
+            <div class="file-upload">
+
+                <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden>
+
+                <button mat-stroked-button color="primary" type="button" (click)="fileInput.click()">
+                    📷 Seleccionar Imagen
+                </button>
+
+                <span *ngIf="selectedFile" class="file-name">
+                    {{ selectedFile.name }}
+                </span>
+
+            </div>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Video URL</mat-label>
+                <input matInput [(ngModel)]="newExercise.videoUrl">
+            </mat-form-field>
+
+        </div>
+
+        <button mat-raised-button color="primary" class="create-btn" (click)="createExercise()">
+            Crear Ejercicio
+        </button>
+
+    </mat-card>
+
+
+    <!-- ================= LISTA DE EJERCICIOS ================= -->
+
+    <div *ngIf="loading">
+        <p>Cargando ejercicios...</p>
+    </div>
+
+    <div class="exercises-grid">
+
+        <mat-card *ngFor="let exercise of exercises" class="exercise-card">
+
+            <div class="exercise-header">
+                <h3>{{ exercise.name }}</h3>
+
+                <span class="status-badge" [ngClass]="exercise.isActive ? 'active' : 'inactive'">
+                    {{ exercise.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
+
+            <div class="exercise-body">
+                <p><strong>Grupo:</strong> {{ exercise.muscleGroup }}</p>
+                <p><strong>Dificultad:</strong> {{ exercise.difficulty }}</p>
+                <p>{{ exercise.description }}</p>
+                <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" alt="exercise" class="exercise-image">
+            </div>
+
+            <div class="exercise-actions">
+                <button mat-stroked-button [color]="exercise.isActive ? 'warn' : 'primary'"
+                    (click)="toggleExercise(exercise)">
+                    {{ exercise.isActive ? 'Desactivar' : 'Activar' }}
+                </button>
+            </div>
+
+        </mat-card>
+
+    </div>
+
+</div>

@@ -8,6 +8,8 @@ import { Auth } from '@angular/fire/auth';
 import { UsersService } from '../../../core/services/users.service';
 import { OnInit } from '@angular/core';
 import { UserSessionService } from '../../../core/services/user-session.service';
+import { PaymentsService } from '../../../core/services/payments.service';
+import { PlansService } from '../../../core/services/plans.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,23 +20,48 @@ import { UserSessionService } from '../../../core/services/user-session.service'
 })
 export class DashboardComponent implements OnInit {
   role: string | null = null;
+  userData: any = null;
+  lastPayment: any = null;
+  daysRemaining: number = 0;
+  loading = true;
+  plans: any[] = [];
   constructor(
     private auth: Auth,
     private usersService: UsersService,
     private authService: AuthService,
     private router: Router,
-    private userSession: UserSessionService
+    private userSession: UserSessionService,
+    private paymentsService: PaymentsService,
+    private plansService: PlansService
   ) { }
 
   async ngOnInit() {
-    const user = this.auth.currentUser;
-    if (!user) return;
 
-    this.role = await this.usersService.getUserRole(user.uid);
-    console.log('ROLE UI:', this.role);
-    if (this.role) {
-      this.userSession.setRole(this.role); // 👈 CLAVE
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) return;
+
+    this.userData = await this.usersService.getUserById(currentUser.uid);
+
+    this.lastPayment = await this.paymentsService.getLastPayment(currentUser.uid);
+
+    this.plans = await this.plansService.getAllPlans();
+
+    if (this.userData?.membershipEnd) {
+
+      const endDate = this.userData.membershipEnd.toDate
+        ? this.userData.membershipEnd.toDate()
+        : new Date(this.userData.membershipEnd);
+
+      const today = new Date();
+      const diff = endDate.getTime() - today.getTime();
+
+      this.daysRemaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
+  }
+
+  getPlanName(planId: string) {
+    const plan = this.plans.find(p => p.id === planId);
+    return plan ? plan.name : '';
   }
 
   async logout() {

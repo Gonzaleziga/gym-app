@@ -1,5 +1,5 @@
 import { Injectable, Injector, runInInjectionContext } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs, query, where, orderBy } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, getDocs, query, where, orderBy, limit } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -42,22 +42,21 @@ export class PaymentsService {
 
   // 🔹 Último pago
   async getLastPayment(uid: string) {
-    return runInInjectionContext(this.injector, async () => {
 
-      const paymentsRef = collection(this.firestore, 'payments');
+    const paymentsRef = collection(this.firestore, 'payments');
 
-      const q = query(
-        paymentsRef,
-        where('userId', '==', uid),
-        orderBy('createdAt', 'desc')
-      );
+    const q = query(
+      paymentsRef,
+      where('userId', '==', uid),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
 
-      const snap = await getDocs(q);
+    const snap = await getDocs(q);
 
-      if (snap.empty) return null;
+    if (snap.empty) return null;
 
-      return snap.docs[0].data() as any;
-    });
+    return snap.docs[0].data();
   }
 
   // 🔹 Pagos del mes (para dashboard)

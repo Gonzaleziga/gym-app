@@ -10,6 +10,8 @@ import { membershipGuard } from './core/guards/membership.guard';
 
 
 
+
+
 export const routes: Routes = [
 
     // ===============================
@@ -66,9 +68,16 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/admin/plans/admin-plans/admin-plans.component')
                                 .then(m => m.AdminPlansComponent)
+                    },
+                    {
+                        path: 'exercises',
+                        loadComponent: () =>
+                            import('./features/admin/exercises/admin-exercises/admin-exercises.component')
+                                .then(m => m.AdminExercisesComponent)
                     }
                 ]
             },
+
             {
                 path: 'profile',
                 loadComponent: () =>
