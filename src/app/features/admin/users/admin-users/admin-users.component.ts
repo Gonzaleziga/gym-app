@@ -10,6 +10,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { PaymentHistoryModalComponent }
   from '../payment-history-modal/payment-history-modal.component';
 import { FormsModule } from '@angular/forms';
+import { PlansService } from '../../../../core/services/plans.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatOption, MatSelectModule } from '@angular/material/select';
+import { PaymentsService } from '../../../../core/services/payments.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -19,7 +23,10 @@ import { FormsModule } from '@angular/forms';
     MatCardModule,
     MatButtonModule,
     MatTabsModule,
-    FormsModule
+    FormsModule,
+    MatFormFieldModule,
+    MatOption,
+    MatSelectModule
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
@@ -36,16 +43,21 @@ export class AdminUsersComponent implements OnInit {
   expandedUserId: string | null = null;
   searchTerm: string = '';
   activeTabIndex: number = 0;
+  plans: any[] = [];
 
   constructor(
     private usersService: UsersService,
+    private plansService: PlansService,
     private authService: AuthService,
     private auth: Auth,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private paymentsService: PaymentsService,
   ) { }
 
   async ngOnInit() {
     await this.loadUsers();
+    this.plans = await this.plansService.getAllPlans();
+
   }
 
   async loadUsers() {
@@ -83,8 +95,12 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async changeRole(uid: string, role: string) {
+    // 🔥 Guardar tab actual
+    const currentTab = this.activeTabIndex;
     await this.usersService.updateUser(uid, { role });
     await this.loadUsers();
+    // 🔥 Restaurar tab
+    this.activeTabIndex = currentTab;
   }
 
   async toggleStatus(user: any) {
@@ -115,16 +131,39 @@ export class AdminUsersComponent implements OnInit {
     await this.loadUsers();
   }
 
-  async registerMonthlyPayment(user: any) {
+
+  async registerPayment(user: any) {
+
+    if (!user.planId) {
+      alert('Primero debes asignar un plan');
+      return;
+    }
+
+    const plan = this.plans.find(p => p.id === user.planId);
+    if (!plan) return;
+
     const adminUid = this.auth.currentUser?.uid;
     if (!adminUid) return;
 
-    await this.usersService.registerPayment(
-      user,
-      1,
-      500,
-      adminUid
-    );
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + plan.durationMonths);
+
+    await this.paymentsService.registerPayment({
+      userId: user.uid,
+      amount: plan.price,
+      months: plan.durationMonths,
+      startDate,
+      endDate,
+      createdAt: new Date(),
+      createdBy: adminUid
+    });
+
+    await this.usersService.updateUser(user.uid, {
+      membershipStatus: 'active',
+      membershipStart: startDate,
+      membershipEnd: endDate
+    });
 
     await this.loadUsers();
   }
@@ -142,9 +181,20 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  toggleDetails(uid: string) {
-    this.expandedUserId =
-      this.expandedUserId === uid ? null : uid;
+  async toggleDetails(uid: string) {
+
+    if (this.expandedUserId === uid) {
+      this.expandedUserId = null;
+      return;
+    }
+
+    this.expandedUserId = uid;
+
+    const user = this.users.find(u => u.uid === uid);
+
+    if (user) {
+      await this.loadLastPayment(user);
+    }
   }
 
   getFilteredUsers(list: any[]) {
@@ -153,10 +203,68 @@ export class AdminUsersComponent implements OnInit {
 
     const term = this.searchTerm.toLowerCase();
 
-    return list.filter(user =>
-      user.name?.toLowerCase().includes(term) ||
-      user.email?.toLowerCase().includes(term)
+    return list.filter(user => {
+
+      const fullName =
+        (user.name || '') + ' ' +
+        (user.lastNameFather || '') + ' ' +
+        (user.lastNameMother || '');
+
+      return (
+        fullName.toLowerCase().includes(term) ||
+        user.email?.toLowerCase().includes(term)
+      );
+
+    });
+  }
+
+
+  getPlanName(planId: string | undefined): string {
+
+    if (!planId) return '';
+
+    const plan = this.plans.find(p => p.id === planId);
+
+    return plan ? plan.name : '';
+
+  }
+  async assignPlan(user: any) {
+
+    if (!user.selectedPlan) return;
+    const currentTab = this.activeTabIndex; // 🔥 GUARDAR TAB ACTUAL
+    await this.usersService.assignPlanToUser(
+      user.uid,
+      user.selectedPlan
     );
+
+    user.planId = user.selectedPlan;
+    user.selectedPlan = null;
+
+    await this.loadUsers();
+    this.activeTabIndex = currentTab; // 🔥 RESTAURA TAB
+  }
+
+  async loadPlans() {
+    this.plans = await this.plansService.getAllPlans();
+  }
+
+  async loadLastPayment(user: any) {
+
+    console.log('🔎 Buscando último pago para:', user.uid);
+
+    const lastPayment =
+      await this.paymentsService.getLastPayment(user.uid);
+
+    console.log('💰 Último pago recibido:', lastPayment);
+
+    if (lastPayment) {
+      user.lastPaymentAmount = lastPayment['amount'];
+      console.log('✅ Monto asignado al user:', user.lastPaymentAmount);
+    } else {
+      user.lastPaymentAmount = null;
+      console.log('⚠️ No se encontró pago');
+    }
+
   }
 
 }

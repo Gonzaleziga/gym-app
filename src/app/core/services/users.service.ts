@@ -1,5 +1,5 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, query, where, orderBy } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, query, where, orderBy, limit } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL, getStorage } from '@angular/fire/storage';
 @Injectable({
   providedIn: 'root'
@@ -115,48 +115,6 @@ export class UsersService {
 
   }
 
-  async registerPayment(user: any, months: number, amount: number, adminUid: string) {
-
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + months);
-
-    // 🔥 1. Guardar pago
-    await addDoc(collection(this.firestore, 'payments'), {
-      userId: user.uid,
-      amount,
-      months,
-      startDate,
-      endDate,
-      createdAt: new Date(),
-      createdBy: adminUid
-    });
-
-    // 🔥 2. Activar membresía
-    await this.updateUser(user.uid, {
-      membershipStatus: 'active',
-      membershipStart: startDate,
-      membershipEnd: endDate
-    });
-  }
-
-  async getUserPayments(uid: string) {
-
-    const paymentsRef = collection(this.firestore, 'payments');
-
-    const q = query(
-      paymentsRef,
-      where('userId', '==', uid)
-    );
-
-    const snap = await getDocs(q);
-
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  }
-
   async getFinancialStats() {
     return runInInjectionContext(this.injector, async () => {
 
@@ -224,24 +182,6 @@ export class UsersService {
 
     });
   }
-  // Informacion del Modal 
-
-  async getMonthlyPayments() {
-
-    const paymentsRef = collection(this.firestore, 'payments');
-
-    const snap = await getDocs(paymentsRef);
-
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    return snap.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter((p: any) => {
-        const createdAt = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
-        return createdAt >= firstDayOfMonth;
-      });
-  }
 
   async getUsersByMembershipStatus(status: string) {
 
@@ -279,18 +219,15 @@ export class UsersService {
       });
   }
 
-  async getAllPayments() {
-    return runInInjectionContext(this.injector, async () => {
 
-      const paymentsRef = collection(this.firestore, 'payments');
-      const snap = await getDocs(paymentsRef);
-
-      return snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
+  // 🔥 Asignar plan
+  async assignPlanToUser(uid: string, planId: string) {
+    return this.updateUser(uid, {
+      planId
     });
   }
+
+
+
 
 }

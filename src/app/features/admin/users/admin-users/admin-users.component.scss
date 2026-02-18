@@ -101,3 +101,14 @@
     border-radius: 8px;
     border: 1px solid #ccc;
 }
+
+.plan-assignment {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.plan-select {
+    width: 220px;
+}

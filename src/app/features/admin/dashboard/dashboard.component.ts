@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Auth } from '@angular/fire/auth';
 import { UsersService } from '../../../core/services/users.service';
 import { UserSessionService } from '../../../core/services/user-session.service';
+import { PaymentsService } from '../../../core/services/payments.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,7 +34,8 @@ export class DashboardComponent implements OnInit {
     private usersService: UsersService,
     private authService: AuthService,
     private router: Router,
-    private userSession: UserSessionService
+    private userSession: UserSessionService,
+    private paymentsService: PaymentsService
   ) { }
 
   async ngOnInit() {
@@ -64,7 +66,7 @@ export class DashboardComponent implements OnInit {
     this.detailList = [];
 
     const users = await this.usersService.getAllUsers();
-    const payments = await this.usersService.getAllPayments(); // 👈 nuevo método
+    const payments = await this.paymentsService.getAllPayments();// 👈 nuevo método
 
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);

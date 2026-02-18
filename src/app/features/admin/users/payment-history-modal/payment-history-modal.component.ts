@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from '../../../../core/services/users.service';
 import { MatIconModule } from '@angular/material/icon';
+import { PaymentsService } from '../../../../core/services/payments.service';
 
 @Component({
   selector: 'app-payment-history-modal',
@@ -27,12 +28,12 @@ export class PaymentHistoryModalComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private usersService: UsersService,
+    private paymentsService: PaymentsService,
     private dialogRef: MatDialogRef<PaymentHistoryModalComponent>
   ) { }
 
   async ngOnInit() {
-    this.payments = await this.usersService.getUserPayments(this.data.uid);
+    this.payments = await this.paymentsService.getUserPayments(this.data.uid);
     this.loading = false;
   }
 

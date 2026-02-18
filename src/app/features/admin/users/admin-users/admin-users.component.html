@@ -5,7 +5,7 @@
 <div class="search-bar">
     <input type="text" placeholder="🔍 Buscar por nombre o email..." [(ngModel)]="searchTerm" />
 </div>
-<mat-tab-group *ngIf="!loading">
+<mat-tab-group *ngIf="!loading" [(selectedIndex)]="activeTabIndex">
 
     <!-- ================= ADMIN ================= -->
     <mat-tab label="Administradores">
@@ -131,7 +131,7 @@
 
     </mat-tab>
 
-    <!-- ================= CARD CLIENTES CON FOTO ================= -->
+    <!-- ================= CARD CLIENTES  ================= -->
     <mat-tab label="Clientes">
 
         <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
@@ -172,91 +172,101 @@
                         }}
 
                     </span>
+
+                    <p *ngIf="user.membershipStart">
+                        <strong>Inicio:</strong>
+                        {{ user.membershipStart?.toDate() | date:'mediumDate' }}
+                    </p>
+
+                    <p *ngIf="user.membershipEnd">
+                        <strong>Vence:</strong>
+                        {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
+                    </p>
+
+                    <p *ngIf="user.planId">
+                        <strong>Plan actual:</strong>
+                        {{ getPlanName(user.planId) }}
+                    </p>
+                    <p *ngIf="user.lastPaymentAmount">
+                        <strong>Último pago:</strong> ${{ user.lastPaymentAmount }}
+                    </p>
                 </div>
 
                 <!-- BOTÓN DETALLES -->
                 <button mat-stroked-button color="primary" (click)="toggleDetails(user.uid)">
                     {{ expandedUserId === user.uid ? 'Ocultar' : 'Detalles' }}
                 </button>
-
             </div>
-
 
             <!-- PANEL EXPANDIDO -->
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
-
                 <hr>
-
-                <p *ngIf="user.membershipEnd">
-                    <strong>Vence:</strong>
-                    {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
-                </p>
-
                 <!-- ACCIONES PRINCIPALES -->
                 <div class="action-group">
+                    <div class="plan-assignment">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Seleccionar Plan</mat-label>
+                            <mat-select [(ngModel)]="user.selectedPlan">
+                                <mat-option *ngFor="let plan of plans" [value]="plan.id">
+                                    {{ plan.name }} - ${{ plan.price }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-stroked-button color="primary" (click)="assignPlan(user)" [disabled]="user.planId">
 
-                    <button mat-raised-button color="primary" (click)="registerMonthlyPayment(user)">
-                        💳 Registrar Pago
-                    </button>
+                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
 
-                    <button mat-stroked-button color="accent" (click)="activateMembership(user)">
-                        Activar membresia (1 mes)
-                    </button>
+                        </button>
+                    </div>
+                    <button mat-stroked-button color="primary" (click)="viewPayments(user)"
+                        [disabled]="!user.lastPaymentAmount">
 
-                    <button mat-stroked-button color="primary" (click)="viewPayments(user)">
                         📜 Historial
+
+                    </button>
+                    <button mat-stroked-button color="accent" (click)="registerPayment(user)" [disabled]="!user.planId">
+
+                        Registrar Pago
+
                     </button>
 
                 </div>
 
                 <!-- ADMIN -->
                 <div class="admin-actions">
-
                     <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
                         Bloquear cuenta
                     </button>
-
                     <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
                         Forzar logout
                     </button>
-
                     <button mat-stroked-button (click)="resetPassword(user)">
                         Reset password
                     </button>
-
                 </div>
 
                 <!-- ROLES -->
                 <div class="roles-section">
                     <strong>Cambiar rol:</strong>
-
                     <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
                         [disabled]="user.role === r">
                         {{ r }}
                     </button>
                 </div>
-
             </div>
-
         </mat-card>
-
     </mat-tab>
 
 
     <!-- ================= VISITANTES ================= -->
 
     <mat-tab label="Visitantes">
-
         <mat-card *ngFor="let user of getFilteredUsers(visitors)" class="client-card">
-
             <div class="card-header">
-
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
-
                 <div class="basic-info">
                     <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
                     <p>{{ user.email }}</p>
-
                     <span class="account-status" [ngClass]="{
                       'status-active': user.status === 'active',
                       'status-inactive': user.status === 'inactive'
@@ -264,46 +274,32 @@
                         {{ user.status === 'active' ? 'Cuenta Activa' : 'Cuenta Bloqueada' }}
                     </span>
                 </div>
-
                 <button mat-stroked-button color="primary" (click)="toggleDetails(user.uid)">
                     {{ expandedUserId === user.uid ? 'Ocultar' : 'Detalles' }}
                 </button>
-
             </div>
-
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
-
                 <hr>
-
                 <div class="admin-actions">
-
                     <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
                         Bloquear cuenta
                     </button>
-
                     <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
                         Forzar logout
                     </button>
-
                     <button mat-stroked-button (click)="resetPassword(user)">
                         Reset password
                     </button>
-
                 </div>
 
                 <div class="roles-section">
                     <strong>Cambiar rol:</strong>
-
                     <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
                         [disabled]="user.role === r">
                         {{ r }}
                     </button>
                 </div>
-
             </div>
-
         </mat-card>
-
     </mat-tab>
-
 </mat-tab-group>
