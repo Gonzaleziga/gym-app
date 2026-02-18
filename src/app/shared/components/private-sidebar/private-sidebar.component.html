@@ -12,15 +12,7 @@
 
         <div class="menu-item" *ngFor="let item of menuItems()" [routerLink]="item.route" routerLinkActive="active"
             (click)="closeSidebar()">
-            <mat-icon>
-                {{
-                item.route.includes('users') ? 'people' :
-                item.route.includes('admin') ? 'admin_panel_settings' :
-                item.route.includes('client') ? 'person' :
-                item.route.includes('employee') ? 'badge' :
-                'home'
-                }}
-            </mat-icon>
+            <mat-icon>{{ item.icon }}</mat-icon>
 
             <span>{{ item.label }}</span>
         </div>

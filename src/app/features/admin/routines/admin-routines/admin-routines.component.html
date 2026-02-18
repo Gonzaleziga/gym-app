@@ -1,0 +1,90 @@
+<div class="routines-container">
+
+    <h2 class="title">Gestión de Rutinas</h2>
+
+    <!-- ========================================================= -->
+    <!-- ================= CREAR RUTINA =========================== -->
+    <!-- ========================================================= -->
+
+    <mat-card class="create-routine-card">
+
+        <h3>Nueva Rutina</h3>
+
+        <div class="form-grid">
+
+            <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput [(ngModel)]="newRoutine.name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Duración</mat-label>
+                <input matInput type="number" [(ngModel)]="newRoutine.durationValue">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select [(ngModel)]="newRoutine.durationType">
+                    <mat-option value="weeks">Semanas</mat-option>
+                    <mat-option value="months">Meses</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="newRoutine.description"></textarea>
+            </mat-form-field>
+
+        </div>
+
+        <button mat-raised-button color="primary" (click)="createRoutine()">
+            Crear Rutina
+        </button>
+
+    </mat-card>
+
+    <!-- ========================================================= -->
+    <!-- ================= LISTA DE RUTINAS ======================= -->
+    <!-- ========================================================= -->
+
+    <div *ngIf="loading">
+        <p>Cargando rutinas...</p>
+    </div>
+
+    <div class="routines-grid">
+
+        <mat-card *ngFor="let routine of routines" class="routine-card">
+
+            <div class="routine-header">
+                <div>
+                    <h3>{{ routine.name }}</h3>
+                    <p class="routine-duration">
+                        {{ routine.durationValue }} {{ routine.durationType }}
+                    </p>
+                </div>
+
+                <span class="status-badge" [ngClass]="routine.isActive ? 'active' : 'inactive'">
+                    {{ routine.isActive ? 'Activa' : 'Inactiva' }}
+                </span>
+            </div>
+
+            <div class="routine-description">
+                {{ routine.description }}
+            </div>
+
+            <div class="routine-actions">
+                <button mat-stroked-button [color]="routine.isActive ? 'warn' : 'primary'"
+                    (click)="toggleRoutine(routine)">
+                    {{ routine.isActive ? 'Desactivar' : 'Activar' }}
+                </button>
+
+                <button mat-raised-button color="accent" [routerLink]="['/admin/routines', routine.id]">
+                    Administrar
+                </button>
+            </div>
+
+        </mat-card>
+
+    </div>
+
+</div>

@@ -10,7 +10,11 @@ import { UserSessionService } from '../../../core/services/user-session.service'
 import { AuthService } from '../../../core/services/auth.service';
 import { MatSelectModule } from '@angular/material/select';
 
-
+interface MenuItem {
+  label: string;
+  route: string;
+  icon: string;
+}
 @Component({
   selector: 'app-private-sidebar',
   standalone: true,
@@ -43,32 +47,32 @@ export class PrivateSidebarComponent {
   // ✅ ahora NO se usa antes del constructor
   role = computed(() => this.userSession.role());
 
-  menuItems = computed(() => {
+  menuItems = computed<MenuItem[]>(() => {
     switch (this.role()) {
       case 'admin':
         return [
-          { label: 'Dashboard', route: '/admin' },
-          { label: 'Usuarios', route: '/admin/users' },
-          { label: 'Planes', route: '/admin/plans' },
-          { label: 'Ejercicios', route: '/admin/exercises' },
-          // { label: 'Configuración', route: '/admin/settings' }
+          { label: 'Dashboard', route: '/admin', icon: 'dashboard' },
+          { label: 'Usuarios', route: '/admin/users', icon: 'group' },
+          { label: 'Planes', route: '/admin/plans', icon: 'workspace_premium' },
+          { label: 'Ejercicios', route: '/admin/exercises', icon: 'fitness_center' },
+          { label: 'Rutinas', route: '/admin/routines', icon: 'fitness_center' }
         ];
 
       case 'client':
         return [
-          { label: 'Mi panel', route: '/client' },
-          { label: 'Pagos', route: '/client/payments' }
+          { label: 'Mi panel', route: '/client', icon: 'dashboard' },
+          { label: 'Pagos', route: '/client/payments', icon: 'payments' },
         ];
 
       case 'employee':
         return [
-          { label: 'Dashboard', route: '/employee' },
-          { label: 'Mis grupos', route: '/employee/groups' }
+          { label: 'Dashboard', route: '/employee', icon: 'dashboard' },
+          { label: 'Mis grupos', route: '/employee/groups', icon: 'dashboard' },
         ];
 
       case 'visitor':
         return [
-          { label: 'Inicio', route: '/visitor' }
+          { label: 'Inicio', route: '/visitor', icon: 'dashboard' }
         ];
 
       default:

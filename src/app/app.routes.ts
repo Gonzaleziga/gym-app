@@ -74,6 +74,18 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/admin/exercises/admin-exercises/admin-exercises.component')
                                 .then(m => m.AdminExercisesComponent)
+                    },
+                    {
+                        path: 'routines',
+                        loadComponent: () =>
+                            import('./features/admin/routines/admin-routines/admin-routines.component')
+                                .then(m => m.AdminRoutinesComponent)
+                    },
+                    {
+                        path: 'routines/:id',
+                        loadComponent: () =>
+                            import('./features/admin/routines/routine-detail/routine-detail.component')
+                                .then(m => m.RoutineDetailComponent)
                     }
                 ]
             },
