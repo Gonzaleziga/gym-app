@@ -290,6 +290,10 @@ export class AdminUsersComponent implements OnInit {
       endDate.setMonth(endDate.getMonth() + routine.durationValue);
     }
 
+    // 🔥 1️⃣ Desactivar rutina anterior si existe
+    await this.assignedRoutinesService.deactivateCurrentRoutine(user.uid);
+
+    // 🔥 2️⃣ Crear nueva rutina activa
     await this.assignedRoutinesService.assignRoutine({
       userId: user.uid,
       routineId: routine.id,
@@ -298,6 +302,12 @@ export class AdminUsersComponent implements OnInit {
       assignedBy: adminUid
     });
 
+    // 🔥 3️⃣ Guardar referencia rápida en users
+    await this.usersService.updateUser(user.uid, {
+      assignedRoutineId: routine.id
+    });
+
+    user.assignedRoutineId = routine.id;
     user.selectedRoutine = null;
 
     alert('Rutina asignada correctamente');

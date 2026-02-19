@@ -68,4 +68,24 @@ export class AssignedRoutinesService {
     );
   }
 
+  // 🔥 Desactivar rutina activa anterior
+  async deactivateCurrentRoutine(userId: string) {
+
+    const ref = collection(this.firestore, 'assignedRoutines');
+
+    const q = query(
+      ref,
+      where('userId', '==', userId),
+      where('status', '==', 'active')
+    );
+
+    const snap = await getDocs(q);
+
+    for (const docSnap of snap.docs) {
+      await updateDoc(doc(this.firestore, 'assignedRoutines', docSnap.id), {
+        status: 'completed'
+      });
+    }
+  }
+
 }

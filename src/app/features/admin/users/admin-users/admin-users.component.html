@@ -201,10 +201,14 @@
             <!-- PANEL EXPANDIDO -->
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
                 <hr>
-                <!-- ACCIONES PRINCIPALES -->
-                <div class="action-group">
-                    <div class="plan-assignment">
-                        <mat-form-field appearance="outline">
+
+                <!-- ================= SECCIÓN FINANCIERA ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">💳 Gestión Financiera</h4>
+
+                    <div class="section-row">
+                        <mat-form-field appearance="outline" class="section-field">
                             <mat-label>Seleccionar Plan</mat-label>
                             <mat-select [(ngModel)]="user.selectedPlan">
                                 <mat-option *ngFor="let plan of plans" [value]="plan.id">
@@ -212,63 +216,91 @@
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <button mat-stroked-button color="primary" (click)="assignPlan(user)" [disabled]="user.planId">
+
+                        <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
+                            [disabled]="user.planId">
 
                             {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
 
                         </button>
                     </div>
-                    <button mat-stroked-button color="primary" (click)="viewPayments(user)"
-                        [disabled]="!user.lastPaymentAmount">
 
-                        📜 Historial
+                    <div class="section-row">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
+                            [disabled]="!user.lastPaymentAmount">
 
-                    </button>
-                    <button mat-stroked-button color="accent" (click)="registerPayment(user)" [disabled]="!user.planId">
+                            📜 Historial
 
-                        Registrar Pago
+                        </button>
 
-                    </button>
+                        <button mat-raised-button color="accent" (click)="registerPayment(user)"
+                            [disabled]="!user.planId">
+
+                            Registrar Pago
+
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <!-- ================= SECCIÓN RUTINA ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">💪 Gestión de Rutina</h4>
+
+                    <div class="section-row">
+
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Rutina</mat-label>
+                            <mat-select [(ngModel)]="user.selectedRoutine">
+                                <mat-option *ngFor="let routine of routines" [value]="routine.id">
+                                    {{ routine.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <button mat-raised-button color="primary" (click)="assignRoutine(user)">
+
+                            {{ user.assignedRoutineId ? 'Cambiar Rutina' : 'Asignar Rutina' }}
+
+                        </button>
+
+
+                    </div>
 
                 </div>
 
-                <!-- ADMIN -->
-                <div class="admin-actions">
-                    <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
-                        Bloquear cuenta
-                    </button>
-                    <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
-                        Forzar logout
-                    </button>
-                    <button mat-stroked-button (click)="resetPassword(user)">
-                        Reset password
-                    </button>
-                </div>
 
-                <!-- ROLES -->
-                <div class="roles-section">
-                    <strong>Cambiar rol:</strong>
-                    <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
-                        [disabled]="user.role === r">
-                        {{ r }}
-                    </button>
-                </div>
-                <div class="routine-assignment">
+                <!-- ================= SECCIÓN ADMIN ================= -->
+                <div class="section-card">
 
-                    <mat-form-field appearance="outline">
-                        <mat-label>Seleccionar Rutina</mat-label>
-                        <mat-select [(ngModel)]="user.selectedRoutine">
-                            <mat-option *ngFor="let routine of routines" [value]="routine.id">
-                                {{ routine.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <h4 class="section-title">⚙ Administración</h4>
 
-                    <button mat-raised-button color="primary" (click)="assignRoutine(user)">
-                        💪 Asignar Rutina
-                    </button>
+                    <div class="admin-actions">
+                        <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
+                            Bloquear cuenta
+                        </button>
+
+                        <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
+                            Forzar logout
+                        </button>
+
+                        <button mat-stroked-button (click)="resetPassword(user)">
+                            Reset password
+                        </button>
+                    </div>
+
+                    <div class="roles-section">
+                        <!-- <strong>Cambiar rol:</strong> -->
+                        <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                            [disabled]="user.role === r">
+                            {{ r }}
+                        </button>
+                    </div>
 
                 </div>
+
             </div>
         </mat-card>
     </mat-tab>

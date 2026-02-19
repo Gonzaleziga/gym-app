@@ -102,13 +102,70 @@
     border: 1px solid #ccc;
 }
 
-.plan-assignment {
+/* ===== ALINEACIÓN SELECT + BOTÓN ===== */
+
+.section-row {
     display: flex;
-    gap: 16px;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.section-field {
+    flex: 1;
+    min-width: 240px;
+}
+
+.section-btn {
+    height: 56px;
+    /* mismo alto que mat-form-field outline */
+    min-width: 170px;
+    font-weight: 600;
+}
+
+/* ===== TARJETAS INTERNAS DEL PANEL ===== */
+
+.section-card {
+    margin-top: 14px;
+    /* antes 20px */
+    padding: 16px;
+    /* antes 20px */
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(6px);
+}
+
+.section-title {
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 15px;
+    opacity: 0.85;
+}
+
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 16px;
 }
 
-.plan-select {
-    width: 220px;
+.section-field {
+    flex: 1;
+    min-width: 240px;
+}
+
+.section-btn {
+    height: 56px;
+    min-width: 170px;
+    font-weight: 600;
+}
+
+:host-context(.light-theme) .section-card {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
 }
