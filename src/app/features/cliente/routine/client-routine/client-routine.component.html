@@ -1,0 +1,50 @@
+<div class="routine-container" *ngIf="!loading">
+
+    <mat-card *ngIf="routine" class="routine-header-card">
+        <h2>💪 {{ routine.name }}</h2>
+
+        <p class="instructor-name" *ngIf="instructorName">
+            Instructor: <strong>{{ instructorName }}</strong>
+        </p>
+    </mat-card>
+
+    <div *ngIf="routineDays.length > 0" class="days-grid">
+
+        <mat-card *ngFor="let day of routineDays" class="day-card">
+
+            <h3>📅 Día {{ day.dayNumber }}</h3>
+            <p>{{ day.title }}</p>
+
+            <div *ngFor="let ex of day.exercises" class="exercise-row">
+
+                <ng-container *ngIf="getExerciseById(ex.exerciseId) as exercise">
+
+                    <!-- 👇 AQUÍ SOLO AGREGAMOS EL CLICK -->
+                    <div class="exercise-card" (click)="openExercisePreview(ex.exerciseId)" style="cursor: pointer;">
+
+                        <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" class="exercise-image">
+
+                        <div class="exercise-info">
+                            <h4>{{ exercise.name }}</h4>
+
+                            <div class="exercise-meta">
+                                <span class="badge">{{ ex.sets }} sets</span>
+                                <span class="badge">{{ ex.reps }} reps</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </ng-container>
+
+            </div>
+
+        </mat-card>
+
+    </div>
+
+    <mat-card *ngIf="!routine">
+        <p>No tienes una rutina asignada aún.</p>
+    </mat-card>
+
+</div>

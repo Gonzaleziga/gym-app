@@ -51,7 +51,7 @@ export class PrivateSidebarComponent {
     switch (this.role()) {
       case 'admin':
         return [
-          { label: 'Dashboard', route: '/admin', icon: 'dashboard' },
+          { label: 'Mi panel', route: '/admin', icon: 'dashboard' },
           { label: 'Usuarios', route: '/admin/users', icon: 'group' },
           { label: 'Planes', route: '/admin/plans', icon: 'workspace_premium' },
           { label: 'Ejercicios', route: '/admin/exercises', icon: 'fitness_center' },
@@ -62,17 +62,18 @@ export class PrivateSidebarComponent {
         return [
           { label: 'Mi panel', route: '/client', icon: 'dashboard' },
           { label: 'Pagos', route: '/client/payments', icon: 'payments' },
+          { label: 'Mi Rutina', route: '/client/routine', icon: 'fitness_center' },
         ];
 
       case 'employee':
         return [
-          { label: 'Dashboard', route: '/employee', icon: 'dashboard' },
+          { label: 'Mi panel', route: '/employee', icon: 'dashboard' },
           { label: 'Mis grupos', route: '/employee/groups', icon: 'dashboard' },
         ];
 
       case 'visitor':
         return [
-          { label: 'Inicio', route: '/visitor', icon: 'dashboard' }
+          { label: 'Mi panel', route: '/visitor', icon: 'dashboard' }
         ];
 
       default:

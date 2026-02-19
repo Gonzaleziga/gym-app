@@ -32,13 +32,18 @@
 
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Descripción</mat-label>
-                <textarea matInput rows="3" [(ngModel)]="newRoutine.description"></textarea>
+                <textarea matInput rows="3" [(ngModel)]="newRoutine.description">
+                </textarea>
             </mat-form-field>
 
         </div>
 
-        <button mat-raised-button color="primary" (click)="createRoutine()">
+        <button mat-raised-button color="primary" *ngIf="!editingRoutineId" (click)="createRoutine()">
             Crear Rutina
+        </button>
+
+        <button mat-raised-button color="accent" *ngIf="editingRoutineId" (click)="updateRoutine()">
+            Guardar Cambios
         </button>
 
     </mat-card>
@@ -71,16 +76,21 @@
             <div class="routine-description">
                 {{ routine.description }}
             </div>
-
             <div class="routine-actions">
+
                 <button mat-stroked-button [color]="routine.isActive ? 'warn' : 'primary'"
                     (click)="toggleRoutine(routine)">
                     {{ routine.isActive ? 'Desactivar' : 'Activar' }}
                 </button>
-
-                <button mat-raised-button color="accent" [routerLink]="['/admin/routines', routine.id]">
-                    Administrar
+                <button mat-raised-button color="accent" (click)="goToRoutineDetail(routine)">
+                    Administrar Días
                 </button>
+
+                <!-- 🔹 EDITAR AL FINAL -->
+                <button mat-icon-button color="primary" class="edit-btn" (click)="editRoutine(routine)">
+                    <mat-icon>edit</mat-icon>
+                </button>
+
             </div>
 
         </mat-card>

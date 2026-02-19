@@ -71,6 +71,7 @@ export class RoutineDetailComponent implements OnInit {
 
     this.routineDays =
       await this.routineDaysService.getRoutineDays(this.routineId);
+    this.calculateNextDayNumber();
 
     this.exercises =
       await this.exercisesService.getAllExercises();
@@ -81,7 +82,6 @@ export class RoutineDetailComponent implements OnInit {
     if (!this.routine?.id) return;
 
     if (this.editingDayId) {
-      // 🔥 MODO EDITAR
 
       await this.routineDaysService.updateRoutineDay(
         this.editingDayId,
@@ -95,7 +95,6 @@ export class RoutineDetailComponent implements OnInit {
       this.editingDayId = null;
 
     } else {
-      // 🔥 MODO CREAR
 
       await this.routineDaysService.addRoutineDay({
         routineId: this.routine.id,
@@ -104,17 +103,19 @@ export class RoutineDetailComponent implements OnInit {
         exercises: this.newDay.exercises,
         createdAt: new Date()
       });
+
     }
 
-    // Reset
-    this.newDay = {
-      dayNumber: 1,
-      title: '',
-      exercises: []
-    };
-
+    // 🔥 RECARGAMOS DESDE FIREBASE
     this.routineDays =
       await this.routineDaysService.getRoutineDays(this.routine.id);
+
+    // 🔥 CALCULAMOS SIGUIENTE DÍA
+    this.calculateNextDayNumber();
+
+    // 🔥 LIMPIAMOS SOLO CAMPOS
+    this.newDay.title = '';
+    this.newDay.exercises = [];
   }
 
   addExerciseToDay(exerciseId: string) {
@@ -180,6 +181,20 @@ export class RoutineDetailComponent implements OnInit {
     };
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  calculateNextDayNumber() {
+
+    if (!this.routineDays || this.routineDays.length === 0) {
+      this.newDay.dayNumber = 1;
+      return;
+    }
+
+    const maxDay = Math.max(
+      ...this.routineDays.map(d => Number(d.dayNumber))
+    );
+
+    this.newDay.dayNumber = maxDay + 1;
   }
 
 

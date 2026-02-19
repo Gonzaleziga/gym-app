@@ -253,6 +253,22 @@
                         {{ r }}
                     </button>
                 </div>
+                <div class="routine-assignment">
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Seleccionar Rutina</mat-label>
+                        <mat-select [(ngModel)]="user.selectedRoutine">
+                            <mat-option *ngFor="let routine of routines" [value]="routine.id">
+                                {{ routine.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <button mat-raised-button color="primary" (click)="assignRoutine(user)">
+                        💪 Asignar Rutina
+                    </button>
+
+                </div>
             </div>
         </mat-card>
     </mat-tab>

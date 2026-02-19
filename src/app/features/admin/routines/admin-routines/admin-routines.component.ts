@@ -7,12 +7,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { Router } from '@angular/router';
 import { Firestore, collection, addDoc, getDocs, updateDoc, doc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { RoutineDaysService } from '../../../../core/services/routine-days.service';
 import { ExercisesService } from '../../../../core/services/exercises.service';
-import { RouterLink } from '@angular/router';
+
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-admin-routines',
@@ -25,7 +27,8 @@ import { RouterLink } from '@angular/router';
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
-    RouterLink
+    TextFieldModule,
+    MatIconModule
   ],
   templateUrl: './admin-routines.component.html',
   styleUrl: './admin-routines.component.scss'
@@ -34,7 +37,7 @@ export class AdminRoutinesComponent implements OnInit {
 
   routines: any[] = [];
   loading = true;
-
+  editingRoutineId: string | null = null;
   newRoutine = {
     name: '',
     description: '',
@@ -59,6 +62,8 @@ export class AdminRoutinesComponent implements OnInit {
     private auth: Auth,
     private routineDaysService: RoutineDaysService,
     private exercisesService: ExercisesService,
+    private router: Router
+
   ) { }
 
   async ngOnInit() {
@@ -157,6 +162,43 @@ export class AdminRoutinesComponent implements OnInit {
     const exercise = this.exercises.find(e => e.id === exerciseId);
 
     return exercise ? exercise.name : 'Ejercicio';
+  }
+
+  editRoutine(routine: any) {
+    this.editingRoutineId = routine.id;
+
+    this.newRoutine = {
+      name: routine.name,
+      description: routine.description,
+      durationValue: routine.durationValue,
+      durationType: routine.durationType,
+      isActive: routine.isActive
+    };
+  }
+  async updateRoutine() {
+
+    if (!this.editingRoutineId) return;
+
+    await updateDoc(
+      doc(this.firestore, 'routines', this.editingRoutineId),
+      { ...this.newRoutine }
+    );
+
+    this.editingRoutineId = null;
+
+    this.newRoutine = {
+      name: '',
+      description: '',
+      durationValue: 4,
+      durationType: 'weeks',
+      isActive: true
+    };
+
+    await this.loadRoutines();
+  }
+  goToRoutineDetail(routine: any) {
+    console.log('Navegando a detalle:', routine.id);
+    this.router.navigate(['/admin/routines', routine.id]);
   }
 
 }

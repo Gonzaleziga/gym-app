@@ -14,7 +14,8 @@ import { PlansService } from '../../../../core/services/plans.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOption, MatSelectModule } from '@angular/material/select';
 import { PaymentsService } from '../../../../core/services/payments.service';
-
+import { AssignedRoutinesService } from '../../../../core/services/assigned-routines.service';
+import { RoutinesService } from '../../../../core/services/routines.service';
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -44,10 +45,13 @@ export class AdminUsersComponent implements OnInit {
   searchTerm: string = '';
   activeTabIndex: number = 0;
   plans: any[] = [];
+  routines: any[] = [];
 
   constructor(
     private usersService: UsersService,
     private plansService: PlansService,
+    private routinesService: RoutinesService,
+    private assignedRoutinesService: AssignedRoutinesService,
     private authService: AuthService,
     private auth: Auth,
     private dialog: MatDialog,
@@ -57,6 +61,7 @@ export class AdminUsersComponent implements OnInit {
   async ngOnInit() {
     await this.loadUsers();
     this.plans = await this.plansService.getAllPlans();
+    this.routines = await this.routinesService.getAllRoutines();
 
   }
 
@@ -265,6 +270,37 @@ export class AdminUsersComponent implements OnInit {
       console.log('⚠️ No se encontró pago');
     }
 
+  }
+  async assignRoutine(user: any) {
+
+    if (!user.selectedRoutine) return;
+
+    const routine = this.routines.find(r => r.id === user.selectedRoutine);
+    if (!routine) return;
+
+    const adminUid = this.auth.currentUser?.uid;
+    if (!adminUid) return;
+
+    const startDate = new Date();
+    const endDate = new Date();
+
+    if (routine.durationType === 'weeks') {
+      endDate.setDate(endDate.getDate() + (routine.durationValue * 7));
+    } else {
+      endDate.setMonth(endDate.getMonth() + routine.durationValue);
+    }
+
+    await this.assignedRoutinesService.assignRoutine({
+      userId: user.uid,
+      routineId: routine.id,
+      startDate,
+      endDate,
+      assignedBy: adminUid
+    });
+
+    user.selectedRoutine = null;
+
+    alert('Rutina asignada correctamente');
   }
 
 }

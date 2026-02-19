@@ -10,6 +10,7 @@ import { OnInit } from '@angular/core';
 import { UserSessionService } from '../../../core/services/user-session.service';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { PlansService } from '../../../core/services/plans.service';
+import { RoutinesService } from '../../../core/services/routines.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +26,9 @@ export class DashboardComponent implements OnInit {
   daysRemaining: number = 0;
   loading = true;
   plans: any[] = [];
+  activeRoutine: any = null;
+  routineDays: any[] = [];
+  loadingRoutine = true;
   constructor(
     private auth: Auth,
     private usersService: UsersService,
@@ -32,7 +36,8 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private userSession: UserSessionService,
     private paymentsService: PaymentsService,
-    private plansService: PlansService
+    private plansService: PlansService,
+    private routinesService: RoutinesService,
   ) { }
 
   async ngOnInit() {
@@ -40,12 +45,27 @@ export class DashboardComponent implements OnInit {
     const currentUser = this.auth.currentUser;
     if (!currentUser) return;
 
-    this.userData = await this.usersService.getUserById(currentUser.uid);
+    // =============================
+    // 👤 DATOS DEL USUARIO
+    // =============================
+    this.userData =
+      await this.usersService.getUserById(currentUser.uid);
 
-    this.lastPayment = await this.paymentsService.getLastPayment(currentUser.uid);
+    // =============================
+    // 💳 ÚLTIMO PAGO
+    // =============================
+    this.lastPayment =
+      await this.paymentsService.getLastPayment(currentUser.uid);
 
-    this.plans = await this.plansService.getAllPlans();
+    // =============================
+    // 📦 PLANES
+    // =============================
+    this.plans =
+      await this.plansService.getAllPlans();
 
+    // =============================
+    // 📅 DÍAS RESTANTES MEMBRESÍA
+    // =============================
     if (this.userData?.membershipEnd) {
 
       const endDate = this.userData.membershipEnd.toDate
@@ -55,8 +75,27 @@ export class DashboardComponent implements OnInit {
       const today = new Date();
       const diff = endDate.getTime() - today.getTime();
 
-      this.daysRemaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      this.daysRemaining =
+        Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
+
+    // =============================
+    // 💪 RUTINA ACTIVA
+    // =============================
+    this.activeRoutine =
+      await this.routinesService.getActiveRoutineForUser(
+        currentUser.uid
+      );
+
+    if (this.activeRoutine) {
+
+      this.routineDays =
+        await this.routinesService.getRoutineDaysByRoutineId(
+          this.activeRoutine.routineId
+        );
+
+    }
+
   }
 
   getPlanName(planId: string) {

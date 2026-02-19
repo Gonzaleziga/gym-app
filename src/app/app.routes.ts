@@ -101,10 +101,23 @@ export const routes: Routes = [
             {
                 path: 'client',
                 canMatch: [clientGuard, membershipGuard],
-                loadComponent: () =>
-                    import('./features/cliente/dashboard/dashboard.component')
-                        .then(m => m.DashboardComponent)
+                children: [
 
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import('./features/cliente/dashboard/dashboard.component')
+                                .then(m => m.DashboardComponent)
+                    },
+
+                    {
+                        path: 'routine',
+                        loadComponent: () =>
+                            import('./features/cliente/routine/client-routine/client-routine.component')
+                                .then(m => m.ClientRoutineComponent)
+                    }
+
+                ]
             },
 
             {

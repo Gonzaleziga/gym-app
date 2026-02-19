@@ -14,14 +14,24 @@
                 <input matInput [(ngModel)]="newExercise.name">
             </mat-form-field>
 
+            <!-- GRUPO MUSCULAR -->
             <mat-form-field appearance="outline">
                 <mat-label>Grupo muscular</mat-label>
-                <input matInput [(ngModel)]="newExercise.muscleGroup">
+                <mat-select [(ngModel)]="newExercise.muscleGroup">
+                    <mat-option *ngFor="let group of muscleGroups" [value]="group">
+                        {{ group }}
+                    </mat-option>
+                </mat-select>
             </mat-form-field>
 
+            <!-- DIFICULTAD -->
             <mat-form-field appearance="outline">
                 <mat-label>Dificultad</mat-label>
-                <input matInput [(ngModel)]="newExercise.difficulty">
+                <mat-select [(ngModel)]="newExercise.difficulty">
+                    <mat-option *ngFor="let level of difficultyLevels" [value]="level">
+                        {{ level }}
+                    </mat-option>
+                </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -34,9 +44,14 @@
 
                 <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden>
 
-                <button mat-stroked-button color="primary" type="button" (click)="fileInput.click()">
+                <button mat-stroked-button color="primary" type="button" class="upload-btn" (click)="fileInput.click()">
                     📷 Seleccionar Imagen
                 </button>
+                <div *ngIf="uploading" class="upload-loader">
+                    <mat-progress-spinner mode="indeterminate" diameter="30">
+                    </mat-progress-spinner>
+                    <span>Subiendo imagen...</span>
+                </div>
 
                 <span *ngIf="selectedFile" class="file-name">
                     {{ selectedFile.name }}
@@ -44,15 +59,19 @@
 
             </div>
 
-            <mat-form-field appearance="outline">
+            <!-- <mat-form-field appearance="outline">
                 <mat-label>Video URL</mat-label>
                 <input matInput [(ngModel)]="newExercise.videoUrl">
-            </mat-form-field>
+            </mat-form-field> -->
 
         </div>
 
-        <button mat-raised-button color="primary" class="create-btn" (click)="createExercise()">
+        <button mat-raised-button color="primary" *ngIf="!editingExerciseId" (click)="createExercise()">
             Crear Ejercicio
+        </button>
+
+        <button mat-raised-button color="accent" *ngIf="editingExerciseId" (click)="updateExercise()">
+            Guardar Cambios
         </button>
 
     </mat-card>
@@ -88,6 +107,10 @@
                     (click)="toggleExercise(exercise)">
                     {{ exercise.isActive ? 'Desactivar' : 'Activar' }}
                 </button>
+                <button mat-icon-button color="primary" (click)="editExercise(exercise)">
+                    <mat-icon>edit_note</mat-icon>
+                </button>
+
             </div>
 
         </mat-card>

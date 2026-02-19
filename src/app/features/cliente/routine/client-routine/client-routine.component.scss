@@ -1,0 +1,52 @@
+.exercise-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #1e1e2f;
+    padding: 12px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    transition: transform 0.2s ease;
+}
+
+.exercise-card:hover {
+    transform: scale(1.02);
+}
+
+.exercise-image {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.exercise-info h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.exercise-meta {
+    margin-top: 5px;
+    display: flex;
+    gap: 8px;
+}
+
+.badge {
+    background: #2e2e40;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.routine-container {
+    padding: 20px;
+}
+
+.routine-header-card {
+    margin-bottom: 30px; // 🔥 separación clara
+}
+
+.days-grid {
+    display: grid;
+    gap: 24px; // separación entre días
+}
