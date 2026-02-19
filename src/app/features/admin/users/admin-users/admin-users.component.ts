@@ -16,6 +16,9 @@ import { MatOption, MatSelectModule } from '@angular/material/select';
 import { PaymentsService } from '../../../../core/services/payments.service';
 import { AssignedRoutinesService } from '../../../../core/services/assigned-routines.service';
 import { RoutinesService } from '../../../../core/services/routines.service';
+import { ConfirmModalComponent }
+  from '../../../../features/shared/confirm-modal/confirm-modal.component';
+
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -100,12 +103,62 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async changeRole(uid: string, role: string) {
-    // 🔥 Guardar tab actual
-    const currentTab = this.activeTabIndex;
-    await this.usersService.updateUser(uid, { role });
-    await this.loadUsers();
-    // 🔥 Restaurar tab
-    this.activeTabIndex = currentTab;
+
+    const user = this.users.find(u => u.uid === uid);
+    if (!user) return;
+
+    // 🔔 Modal confirmación
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar Cambio de Rol',
+        message: `¿Seguro que deseas cambiar el rol de ${user.name} a "${role}"?`,
+        confirmText: 'Cambiar',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) return;
+
+    try {
+
+      const currentTab = this.activeTabIndex;
+
+      await this.usersService.updateUser(uid, { role });
+
+      // 🔄 Recargar usuarios
+      await this.loadUsers();
+
+      this.activeTabIndex = currentTab;
+
+      // ✅ Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Rol Actualizado',
+          message: 'El rol fue cambiado correctamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error cambiando rol:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al cambiar el rol.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
 
   async toggleStatus(user: any) {
@@ -113,22 +166,161 @@ export class AdminUsersComponent implements OnInit {
     const newStatus =
       user.status === 'active' ? 'inactive' : 'active';
 
-    await this.usersService.updateUser(user.uid, {
-      status: newStatus
+    const actionText =
+      newStatus === 'inactive'
+        ? 'bloquear'
+        : 'activar';
+
+    // 🔔 Modal confirmación
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar Acción',
+        message: `¿Seguro que deseas ${actionText} la cuenta de ${user.name}?`,
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar'
+      }
     });
 
-    // 🔥 ACTUALIZA SOLO EL OBJETO EN MEMORIA
-    user.status = newStatus;
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) return;
+
+    try {
+
+      await this.usersService.updateUser(user.uid, {
+        status: newStatus
+      });
+
+      user.status = newStatus;
+
+      // ✅ Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Cuenta Actualizada',
+          message: `La cuenta fue ${newStatus === 'inactive' ? 'bloqueada' : 'activada'} correctamente.`,
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error cambiando estado:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al actualizar la cuenta.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
 
   async forceLogout(uid: string) {
-    await this.usersService.updateUser(uid, { forceLogout: true });
-    await this.loadUsers();
+
+    const user = this.users.find(u => u.uid === uid);
+    if (!user) return;
+
+    // 🔔 Modal confirmación
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Forzar Cierre de Sesión',
+        message: `¿Seguro que deseas cerrar la sesión de ${user.name}?`,
+        confirmText: 'Sí, cerrar sesión',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    const confirmed = await dialogRef.afterClosed().toPromise();
+    if (!confirmed) return;
+
+    try {
+
+      await this.usersService.updateUser(uid, {
+        forceLogout: true
+      });
+
+      // ✅ Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Sesión Cerrada',
+          message: 'El usuario deberá iniciar sesión nuevamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error forzando logout:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'No se pudo forzar el cierre de sesión.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
 
   async resetPassword(user: any) {
-    await this.authService.resetPassword(user.email);
-    alert('Correo de recuperación enviado a ' + user.email);
+
+    // 🔔 Modal confirmación
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Restablecer Contraseña',
+        message: `¿Deseas enviar un correo de recuperación a ${user.email}?`,
+        confirmText: 'Sí, enviar correo',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    const confirmed = await dialogRef.afterClosed().toPromise();
+    if (!confirmed) return;
+
+    try {
+
+      await this.authService.resetPassword(user.email);
+
+      // ✅ Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Correo Enviado',
+          message: 'Se envió el correo de recuperación correctamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error enviando reset:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'No se pudo enviar el correo de recuperación.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
 
   async activateMembership(user: any) {
@@ -136,11 +328,18 @@ export class AdminUsersComponent implements OnInit {
     await this.loadUsers();
   }
 
-
   async registerPayment(user: any) {
 
     if (!user.planId) {
-      alert('Primero debes asignar un plan');
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Sin Plan',
+          message: 'Primero debes asignar un plan al cliente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
       return;
     }
 
@@ -150,28 +349,74 @@ export class AdminUsersComponent implements OnInit {
     const adminUid = this.auth.currentUser?.uid;
     if (!adminUid) return;
 
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + plan.durationMonths);
-
-    await this.paymentsService.registerPayment({
-      userId: user.uid,
-      amount: plan.price,
-      months: plan.durationMonths,
-      startDate,
-      endDate,
-      createdAt: new Date(),
-      createdBy: adminUid
+    // 🔹 CONFIRMAR PAGO
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar Pago',
+        message: `¿Registrar pago de $${plan.price} para ${user.name}?`,
+        confirmText: 'Registrar',
+        cancelText: 'Cancelar'
+      }
     });
 
-    await this.usersService.updateUser(user.uid, {
-      membershipStatus: 'active',
-      membershipStart: startDate,
-      membershipEnd: endDate
-    });
+    const confirmed = await dialogRef.afterClosed().toPromise();
 
-    await this.loadUsers();
+    if (!confirmed) return;
+
+    try {
+
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + plan.durationMonths);
+
+      // 🔥 1️⃣ Registrar pago
+      await this.paymentsService.registerPayment({
+        userId: user.uid,
+        amount: plan.price,
+        months: plan.durationMonths,
+        startDate,
+        endDate,
+        createdAt: new Date(),
+        createdBy: adminUid
+      });
+
+      // 🔥 2️⃣ Actualizar membresía
+      await this.usersService.updateUser(user.uid, {
+        membershipStatus: 'active',
+        membershipStart: startDate,
+        membershipEnd: endDate
+      });
+
+      user.membershipStatus = 'active';
+
+      // 🔹 Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Pago Registrado',
+          message: 'El pago fue registrado correctamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error registrando pago:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al registrar el pago.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+    }
   }
+
 
   // ✅ ÚNICO MÉTODO CORRECTO
   viewPayments(user: any) {
@@ -281,6 +526,21 @@ export class AdminUsersComponent implements OnInit {
     const adminUid = this.auth.currentUser?.uid;
     if (!adminUid) return;
 
+    // 🔹 Confirmación antes de asignar
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Asignar Rutina',
+        message: `¿Deseas asignar la rutina "${routine.name}" a ${user.name}?`,
+        confirmText: 'Asignar',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) return;
+
     const startDate = new Date();
     const endDate = new Date();
 
@@ -290,27 +550,54 @@ export class AdminUsersComponent implements OnInit {
       endDate.setMonth(endDate.getMonth() + routine.durationValue);
     }
 
-    // 🔥 1️⃣ Desactivar rutina anterior si existe
-    await this.assignedRoutinesService.deactivateCurrentRoutine(user.uid);
+    try {
 
-    // 🔥 2️⃣ Crear nueva rutina activa
-    await this.assignedRoutinesService.assignRoutine({
-      userId: user.uid,
-      routineId: routine.id,
-      startDate,
-      endDate,
-      assignedBy: adminUid
-    });
+      // 🔥 1️⃣ Desactivar rutina anterior
+      await this.assignedRoutinesService.deactivateCurrentRoutine(user.uid);
 
-    // 🔥 3️⃣ Guardar referencia rápida en users
-    await this.usersService.updateUser(user.uid, {
-      assignedRoutineId: routine.id
-    });
+      // 🔥 2️⃣ Crear nueva
+      await this.assignedRoutinesService.assignRoutine({
+        userId: user.uid,
+        routineId: routine.id,
+        startDate,
+        endDate,
+        assignedBy: adminUid
+      });
 
-    user.assignedRoutineId = routine.id;
-    user.selectedRoutine = null;
+      // 🔥 3️⃣ Guardar referencia rápida
+      await this.usersService.updateUser(user.uid, {
+        assignedRoutineId: routine.id
+      });
 
-    alert('Rutina asignada correctamente');
+      user.assignedRoutineId = routine.id;
+      user.selectedRoutine = null;
+
+      // 🔹 Modal de éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Rutina Asignada',
+          message: 'La rutina fue asignada correctamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('❌ Error asignando rutina:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al asignar la rutina.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
 
 }

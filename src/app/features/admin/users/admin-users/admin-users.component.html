@@ -137,65 +137,90 @@
         <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
 
             <!-- HEADER -->
-            <div class="card-header">
+            <div class="card-header aligned-top">
 
-                <img class="avatar" [src]="user.photoURL || '/images/images.png'">
+                <!-- FOTO -->
+                <img class="avatar-top" [src]="user.photoURL || '/images/images.png'">
 
+                <!-- INFORMACIÓN -->
                 <div class="basic-info">
-                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
-                    <p>{{ user.email }}</p>
-                    <!-- 🔐 ESTADO DE CUENTA -->
-                    <span class="account-status" [ngClass]="{
-    'account-active': user.status === 'active',
-    'account-blocked': user.status === 'inactive'
-  }">
 
-                        {{
-                        user.status === 'active'
-                        ? 'Cuenta Activa'
-                        : 'Cuenta Bloqueada'
-                        }}
+                    <h3>
+                        {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
+                    </h3>
+                    <div class="compact-row">
+                        <span *ngIf="user.email">{{ user.email }}</span>
+                    </div>
+                    <div class="compact-row">
 
-                    </span>
+                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
 
-                    <!-- 💳 ESTADO MEMBRESÍA -->
-                    <span class="membership-status" [ngClass]="{
-                      'membership-active': user.membershipStatus === 'active',
-                      'membership-expired': user.membershipStatus === 'expired',
-                      'membership-none': user.membershipStatus === 'none'
-                    }">
+                        <span *ngIf="user.membershipStart">
+                            Inicio:
+                            {{ user.membershipStart?.toDate() | date:'mediumDate' }}
+                        </span>
 
-                        {{
-                        user.membershipStatus === 'active' ? 'Membresía Activa':
-                        user.membershipStatus === 'expired'? 'Membresía Vencida':
-                        'Sin Membresía'
-                        }}
+                        <span *ngIf="user.membershipEnd">
+                            Vence:
+                            {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
+                        </span>
+                    </div>
 
-                    </span>
+                    <div class="compact-row">
+                        <span *ngIf="user.planId">
+                            Plan: {{ getPlanName(user.planId) }}
+                        </span>
 
-                    <p *ngIf="user.membershipStart">
-                        <strong>Inicio:</strong>
-                        {{ user.membershipStart?.toDate() | date:'mediumDate' }}
-                    </p>
+                        <span *ngIf="user.lastPaymentAmount">
+                            Último pago: ${{ user.lastPaymentAmount }}
+                        </span>
+                    </div>
 
-                    <p *ngIf="user.membershipEnd">
-                        <strong>Vence:</strong>
-                        {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
-                    </p>
+                    <div class="compact-row">
+                        <span *ngIf="user.gender">
+                            Género: {{ user.gender }}
+                        </span>
 
-                    <p *ngIf="user.planId">
-                        <strong>Plan actual:</strong>
-                        {{ getPlanName(user.planId) }}
-                    </p>
-                    <p *ngIf="user.lastPaymentAmount">
-                        <strong>Último pago:</strong> ${{ user.lastPaymentAmount }}
-                    </p>
+                        <span *ngIf="user.emergencyContact?.name || user.emergencyContact?.phone">
+                            Emergencia:
+                            {{ user.emergencyContact?.name }}
+                            <span *ngIf="user.emergencyContact?.phone">
+                                ({{ user.emergencyContact?.phone }})
+                            </span>
+                        </span>
+                    </div>
+
+                    <!-- ESTADOS -->
+                    <div class="status-row">
+                        <span class="account-status" [ngClass]="{
+                                'account-active': user.status === 'active',
+                                'account-blocked': user.status === 'inactive'
+                              }">
+                            {{ user.status === 'active'
+                            ? 'Cuenta Activa'
+                            : 'Cuenta Bloqueada' }}
+                        </span>
+
+                        <span class="membership-status" [ngClass]="{
+                                'membership-active': user.membershipStatus === 'active',
+                                'membership-expired': user.membershipStatus === 'expired',
+                                'membership-none': user.membershipStatus === 'none'
+                              }">
+                            {{
+                            user.membershipStatus === 'active' ? 'Membresía Activa':
+                            user.membershipStatus === 'expired'? 'Membresía Vencida':
+                            'Sin Membresía'
+                            }}
+                        </span>
+                    </div>
+
                 </div>
 
                 <!-- BOTÓN DETALLES -->
                 <button mat-stroked-button color="primary" (click)="toggleDetails(user.uid)">
                     {{ expandedUserId === user.uid ? 'Ocultar' : 'Detalles' }}
                 </button>
+
             </div>
 
             <!-- PANEL EXPANDIDO -->
