@@ -1,10 +1,15 @@
 <div *ngIf="userData as user">
 
+    <div *ngIf="isFromCommunity" class="back-container">
+        <button mat-stroked-button (click)="goBack()">
+            ← Regresar
+        </button>
+    </div>
     <!-- ================= CARD VISUAL (COVER + FOTO) ================= -->
     <mat-card class="profile-visual-card">
 
         <!-- COVER -->
-        <div class="cover-wrapper" (click)="confirmChangeCover(coverInput)">
+        <div class="cover-wrapper" [class.clickable]="isOwner" (click)="isOwner && confirmChangeCover(coverInput)">
 
             <div class="cover" [style.backgroundImage]="
                  user.coverPhotoURL
@@ -12,7 +17,7 @@
                  : 'url(/images/cover-default.jpg)'">
             </div>
 
-            <div class="cover-overlay-text">
+            <div *ngIf="isOwner" class="cover-overlay-text">
                 Cambiar portada
             </div>
 
@@ -26,7 +31,8 @@
         <input type="file" hidden #coverInput accept="image/*" (change)="onCoverSelected($event)">
 
         <!-- FOTO PERFIL -->
-        <div class="profile-avatar-wrapper" (click)="confirmChangeProfilePhoto(fileInput)">
+        <div class="profile-avatar-wrapper" [class.clickable]="isOwner"
+            (click)="isOwner && confirmChangeProfilePhoto(fileInput)">
 
             <img class="profile-photo" [src]="user.photoURL || '/images/images.png'">
 
@@ -51,38 +57,184 @@
             {{ user.lastNameMother }}
         </h2>
 
-        <p class="role">
+        <p *ngIf="isOwner" class="role">
             Rol: {{ user.role }}
         </p>
 
-        <p class="membership">
+        <p *ngIf="isOwner && user.membershipEnd">
             Membresía válida hasta:
             <strong>
-                {{ user.membershipExpiresAt?.toDate() | date:'longDate' }}
+                {{ user.membershipEnd?.toDate() | date:'longDate' }}
             </strong>
         </p>
 
-        <p class="membership-status" [ngClass]="{
-             active: user.membershipStatus === 'active',
-             expired: user.membershipStatus === 'expired'
-           }">
-
-            Estado: {{ user.membershipStatus }}
+        <p *ngIf="isOwner && user.membershipStatus">
+            Estado:
+            <strong>
+                {{ user.membershipStatus === 'active' ? 'Activa' : 'Vencida' }}
+            </strong>
         </p>
 
-        <p class="bio">
-            {{ user.bio || 'Sin biografía aún.' }}
-        </p>
+        <!-- ================= BIO ================= -->
+        <div class="bio-section">
+
+            <div *ngIf="!editingBio">
+                <p class="bio">
+                    {{ user.bio || 'Sin biografía aún.' }}
+                </p>
+
+                <button mat-stroked-button *ngIf="isOwner" (click)="editingBio = true">
+                    Editar biografía
+                </button>
+            </div>
+
+            <div *ngIf="editingBio">
+
+                <textarea [(ngModel)]="newBio" rows="3" class="bio-input">
+      </textarea>
+
+                <div class="bio-actions">
+                    <button mat-button (click)="editingBio = false">
+                        Cancelar
+                    </button>
+
+                    <button mat-raised-button color="primary" (click)="saveBio()">
+                        Guardar
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <hr class="section-divider">
+
+        <div class="extra-info-section">
+
+            <h3>Información adicional</h3>
+
+            <!-- 🔥 MODO VISUAL -->
+            <div *ngIf="!editingExtraInfo">
+
+                <p>
+                    <strong>Género:</strong>
+                    {{ user.gender || 'No especificado' }}
+                </p>
+
+                <div *ngIf="isOwner">
+
+                    <p>
+                        <strong>Contacto de emergencia:</strong>
+                        {{ user.emergencyContact?.name || 'No definido' }}
+                    </p>
+
+                    <p>
+                        <strong>Teléfono emergencia:</strong>
+                        {{ user.emergencyContact?.phone || 'No definido' }}
+                    </p>
+
+                </div>
+
+                <button *ngIf="isOwner" mat-stroked-button (click)="editingExtraInfo = true">
+                    Editar información
+                </button>
+
+            </div>
+
+            <!-- 🔥 MODO EDICIÓN -->
+            <div *ngIf="editingExtraInfo">
+
+                <!-- GÉNERO -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Género</mat-label>
+                    <mat-select [(ngModel)]="selectedGender">
+                        <mat-option value="Masculino">Masculino</mat-option>
+                        <mat-option value="Femenino">Femenino</mat-option>
+                        <mat-option value="Otro">Otro</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- CONTACTO EMERGENCIA -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nombre contacto emergencia</mat-label>
+                    <input matInput [(ngModel)]="emergencyName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Teléfono emergencia</mat-label>
+                    <input matInput [(ngModel)]="emergencyPhone">
+                </mat-form-field>
+
+                <div class="edit-actions">
+                    <button mat-button (click)="editingExtraInfo = false">
+                        Cancelar
+                    </button>
+
+                    <button mat-raised-button color="primary" (click)="saveExtraInfo()">
+                        Guardar
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+        <hr class="section-divider">
+        <!-- ================= VISIBILIDAD ================= -->
+
 
         <div class="profile-visibility">
-            <button mat-raised-button [color]="user.isPublic ? 'primary' : 'warn'" (click)="togglePublicProfile()">
+            <button *ngIf="isOwner" mat-raised-button [color]="user.isPublic ? 'primary' : 'warn'"
+                (click)="togglePublicProfile()">
 
                 <mat-icon>
                     {{ user.isPublic ? 'public' : 'lock' }}
                 </mat-icon>
 
                 {{ user.isPublic ? 'Perfil Público' : 'Perfil Privado' }}
+
             </button>
+        </div>
+
+    </mat-card>
+
+    <mat-card class="gallery-card">
+
+        <div class="gallery-header">
+            <h3>Mi Galería</h3>
+
+            <button *ngIf="isOwner" mat-stroked-button (click)="openGalleryInput()">
+                + Agregar
+            </button>
+        </div>
+
+        <input *ngIf="isOwner" type="file" hidden #galleryInput accept="image/*" (change)="onGallerySelected($event)">
+
+        <div class="gallery-grid">
+
+            <div class="gallery-item" *ngFor="let photo of gallery">
+
+                <!-- Imagen -->
+                <img [src]="photo.imageUrl" (click)="openGalleryPreview(photo.imageUrl)" (load)="photo.loaded = true"
+                    [class.loaded]="photo.loaded">
+
+                <!-- Botón eliminar -->
+                <button *ngIf="isOwner" class="delete-btn" (click)="deletePhoto(photo, $event)">
+                    ✕
+                </button>
+
+                <!-- Botón reemplazar -->
+                <button *ngIf="isOwner" class="replace-btn" (click)="selectPhotoToReplace(photo, $event)">
+                    🔄
+                </button>
+
+            </div>
+
+        </div>
+
+        <div *ngIf="uploadingGallery">
+            <mat-spinner diameter="40"></mat-spinner>
         </div>
 
     </mat-card>

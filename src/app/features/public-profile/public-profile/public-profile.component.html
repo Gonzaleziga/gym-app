@@ -6,22 +6,18 @@
 
     <mat-card *ngFor="let profile of profiles" class="profile-card">
 
-        <img class="profile-photo" [src]="profile.photoURL || '/images/images.png'">
 
+        <img class="profile-photo" [src]="profile.photoURL || '/images/images.png'">
         <h3>
             {{ profile.name }}
             {{ profile.lastNameFather }}
         </h3>
 
-        <p class="role">
-            {{ profile.role }}
-        </p>
-
         <p class="bio">
             {{ profile.bio || 'Sin biografía' }}
         </p>
 
-        <button mat-stroked-button color="primary">
+        <button mat-raised-button color="primary" (click)="goToProfile(profile)">
             Ver perfil
         </button>
 

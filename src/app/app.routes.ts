@@ -99,6 +99,14 @@ export const routes: Routes = [
             },
 
             {
+                path: 'profile/:uid',
+                loadComponent: () =>
+                    import('./features/profile/profile/profile.component')
+                        .then(m => m.ProfileComponent),
+                canMatch: [authGuard]
+            },
+
+            {
                 path: 'client',
                 canMatch: [clientGuard, membershipGuard],
                 children: [
@@ -142,6 +150,7 @@ export const routes: Routes = [
                         .then(m => m.PublicProfileComponent)
 
             }
+
 
 
         ]
