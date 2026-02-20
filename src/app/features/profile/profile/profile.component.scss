@@ -1,41 +1,80 @@
-.cover {
-    height: 220px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 8px 8px 0 0;
+.profile-visual-card {
+    padding: 0;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
-.profile-card {
-    text-align: center;
-    margin-top: -60px;
-    padding-top: 70px;
+.cover {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 140px;
+    margin: -70px auto 20px auto;
+    cursor: pointer;
 }
 
 .profile-photo {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    border: 4px solid white;
     object-fit: cover;
-    position: absolute;
-    top: -60px;
-    left: 50%;
-    transform: translateX(-50%);
+    border: 4px solid white;
     background: white;
+    transition: 0.3s ease;
 }
 
-.role {
-    font-weight: bold;
-    margin-top: 10px;
+
+.profile-avatar-wrapper:hover .profile-photo {
+    opacity: 0.9;
 }
 
-.bio {
-    margin: 10px 0;
-    color: var(--text-muted);
-}
-
-.profile-visibility {
-    margin-top: 16px;
+.spinner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.profile-info-card {
+    padding: 24px;
+}
+
+.cover-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.cover-wrapper:hover .cover-overlay-text {
+    opacity: 1;
+}
+
+.cover-overlay-text {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+.cover-spinner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }

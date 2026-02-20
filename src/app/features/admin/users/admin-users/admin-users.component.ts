@@ -18,6 +18,9 @@ import { AssignedRoutinesService } from '../../../../core/services/assigned-rout
 import { RoutinesService } from '../../../../core/services/routines.service';
 import { ConfirmModalComponent }
   from '../../../../features/shared/confirm-modal/confirm-modal.component';
+import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
+import { deleteObject } from '@angular/fire/storage';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-admin-users',
@@ -30,7 +33,8 @@ import { ConfirmModalComponent }
     FormsModule,
     MatFormFieldModule,
     MatOption,
-    MatSelectModule
+    MatSelectModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
@@ -49,6 +53,8 @@ export class AdminUsersComponent implements OnInit {
   activeTabIndex: number = 0;
   plans: any[] = [];
   routines: any[] = [];
+  uploadingPhotoUserId: string | null = null;
+
 
   constructor(
     private usersService: UsersService,
@@ -59,6 +65,7 @@ export class AdminUsersComponent implements OnInit {
     private auth: Auth,
     private dialog: MatDialog,
     private paymentsService: PaymentsService,
+    private storage: Storage
   ) { }
 
   async ngOnInit() {
@@ -600,4 +607,122 @@ export class AdminUsersComponent implements OnInit {
     }
   }
 
+
+  async uploadAdminPhoto(user: any, event: any) {
+
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 🔒 Validar tipo
+    if (!file.type.startsWith('image/')) {
+      alert('Solo se permiten imágenes');
+      return;
+    }
+
+    this.uploadingPhotoUserId = user.uid;
+
+    try {
+
+      const oldPhotoURL = user.adminPhotoURL || null;
+
+      // 🔥 Redimensionar antes de subir
+      const resizedFile = await this.resizeImage(file, 600);
+
+      const filePath = `admin-photos/${user.uid}_${Date.now()}`;
+      const storageRef = ref(this.storage, filePath);
+
+      await uploadBytes(storageRef, resizedFile);
+
+      const downloadURL = await getDownloadURL(storageRef);
+
+      await this.usersService.updateUser(user.uid, {
+        adminPhotoURL: downloadURL
+      });
+
+      user.adminPhotoURL = downloadURL;
+
+      // 🔥 Eliminar foto anterior
+      if (oldPhotoURL) {
+        await this.deleteOldAdminPhoto(oldPhotoURL);
+      }
+
+    } catch (error) {
+      console.error('Error subiendo foto admin:', error);
+    }
+
+    this.uploadingPhotoUserId = null;
+  }
+
+
+  async deleteOldAdminPhoto(url: string) {
+    try {
+      const photoRef = ref(this.storage, url);
+      await deleteObject(photoRef);
+    } catch (error) {
+      console.warn('No se pudo borrar la foto anterior:', error);
+    }
+  }
+
+  async confirmChangeAdminPhoto(user: any, fileInput: HTMLInputElement) {
+
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '350px',
+      data: {
+        title: 'Cambiar Foto Oficial',
+        message: '¿Deseas cambiar la foto oficial de este usuario?'
+      }
+    });
+
+    const result = await dialogRef.afterClosed().toPromise();
+
+    if (result) {
+      fileInput.click();
+    }
+  }
+
+  async resizeImage(file: File, maxSize = 600): Promise<File> {
+
+    return new Promise((resolve) => {
+
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        img.src = e.target.result;
+      };
+
+      img.onload = () => {
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d')!;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          resolve(new File([blob!], file.name, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.8);
+
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
 }

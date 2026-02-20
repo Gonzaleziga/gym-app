@@ -247,3 +247,19 @@
     display: flex;
     gap: 8px;
 }
+
+.avatar-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.spinner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}

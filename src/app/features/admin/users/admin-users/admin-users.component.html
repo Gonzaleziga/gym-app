@@ -140,8 +140,21 @@
             <div class="card-header aligned-top">
 
                 <!-- FOTO -->
-                <img class="avatar-top" [src]="user.photoURL || '/images/images.png'">
+                <!-- FOTO -->
+                <div class="avatar-wrapper" (click)="confirmChangeAdminPhoto(user, fileInput)">
 
+                    <img class="avatar-top" [src]="user.adminPhotoURL || user.photoURL || '/images/images.png'">
+
+                    <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+
+                        <mat-spinner diameter="40"></mat-spinner>
+
+                    </div>
+
+                </div>
+
+                <!-- INPUT OCULTO -->
+                <input type="file" #fileInput hidden accept="image/*" (change)="uploadAdminPhoto(user, $event)">
                 <!-- INFORMACIÓN -->
                 <div class="basic-info">
 

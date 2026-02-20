@@ -60,19 +60,96 @@ export class UsersService {
 
     return runInInjectionContext(this.injector, async () => {
 
-      const filePath = `profile-photos/${uid}/profile.jpg`;
+      // 🔒 Validar tipo
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Solo se permiten imágenes');
+      }
 
+      // 🔥 Redimensionar antes de subir
+      const resizedFile = await this.resizeImage(file, 600);
+
+      const filePath = `profile-photos/${uid}/profile.jpg`;
       const storageRef = ref(this.storage, filePath);
 
-      // ⬆ subir imagen
-      await uploadBytes(storageRef, file);
+      // ⬆ Subir versión optimizada (sobrescribe)
+      await uploadBytes(storageRef, resizedFile);
 
-      // 🔗 obtener URL
+      // 🔗 Obtener URL
       const downloadURL = await getDownloadURL(storageRef);
 
-      // 💾 guardar URL en Firestore
+      // 💾 Guardar en Firestore
       await this.updateUser(uid, {
         photoURL: downloadURL
+      });
+
+      return downloadURL;
+    });
+  }
+
+  private async resizeImage(file: File, maxSize = 600): Promise<File> {
+
+    return new Promise((resolve) => {
+
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        img.src = e.target.result;
+      };
+
+      img.onload = () => {
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d')!;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          resolve(new File([blob!], file.name, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.8);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async uploadCoverPhoto(uid: string, file: File) {
+
+    return runInInjectionContext(this.injector, async () => {
+
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Solo se permiten imágenes');
+      }
+
+      const resizedFile = await this.resizeImage(file, 1200);
+
+      const filePath = `cover-photos/${uid}/cover.jpg`;
+      const storageRef = ref(this.storage, filePath);
+
+      await uploadBytes(storageRef, resizedFile);
+
+      const downloadURL = await getDownloadURL(storageRef);
+
+      await this.updateUser(uid, {
+        coverPhotoURL: downloadURL
       });
 
       return downloadURL;

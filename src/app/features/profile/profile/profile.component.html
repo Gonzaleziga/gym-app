@@ -1,63 +1,88 @@
-<div *ngIf="loading">
-    <p>Cargando perfil...</p>
-</div>
+<div *ngIf="userData as user">
 
-<div *ngIf="!loading && userData">
+    <!-- ================= CARD VISUAL (COVER + FOTO) ================= -->
+    <mat-card class="profile-visual-card">
 
-    <!-- COVER -->
-    <div class="cover" [style.backgroundImage]="
-         userData.coverPhotoURL 
-         ? 'url(' + userData.coverPhotoURL + ')' 
-         : 'url(/images/cover-default.jpg)'">
-    </div>
+        <!-- COVER -->
+        <div class="cover-wrapper" (click)="confirmChangeCover(coverInput)">
 
-    <!-- PROFILE CARD -->
-    <mat-card class="profile-card">
+            <div class="cover" [style.backgroundImage]="
+                 user.coverPhotoURL
+                 ? 'url(' + user.coverPhotoURL + ')'
+                 : 'url(/images/cover-default.jpg)'">
+            </div>
 
-        <img class="profile-photo" [src]="userData.photoURL || '/images/images.png'">
+            <div class="cover-overlay-text">
+                Cambiar portada
+            </div>
+
+            <!-- SPINNER COVER -->
+            <div class="cover-spinner-overlay" *ngIf="uploadingCover">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+
+        </div>
+
+        <input type="file" hidden #coverInput accept="image/*" (change)="onCoverSelected($event)">
+
+        <!-- FOTO PERFIL -->
+        <div class="profile-avatar-wrapper" (click)="confirmChangeProfilePhoto(fileInput)">
+
+            <img class="profile-photo" [src]="user.photoURL || '/images/images.png'">
+
+            <!-- SPINNER FOTO -->
+            <div class="spinner-overlay" *ngIf="uploadingPhoto">
+                <mat-spinner diameter="40"></mat-spinner>
+            </div>
+
+        </div>
+
         <input type="file" hidden #fileInput accept="image/*" (change)="onFileSelected($event)">
 
-        <button mat-stroked-button (click)="fileInput.click()">
-            Cambiar foto
-        </button>
+    </mat-card>
+
+
+    <!-- ================= CARD INFO ================= -->
+    <mat-card class="profile-info-card">
+
         <h2>
-            {{ userData.name }} {{ userData.lastNameFather }} {{ userData.lastNameMother}}
+            {{ user.name }}
+            {{ user.lastNameFather }}
+            {{ user.lastNameMother }}
         </h2>
 
         <p class="role">
-            Rol: {{ userData.role }}
+            Rol: {{ user.role }}
         </p>
 
         <p class="membership">
             Membresía válida hasta:
             <strong>
-                {{ userData.membershipExpiresAt?.toDate() | date:'longDate' }}
+                {{ user.membershipExpiresAt?.toDate() | date:'longDate' }}
             </strong>
         </p>
+
         <p class="membership-status" [ngClass]="{
-          active: userData.membershipStatus === 'active',
-          expired: userData.membershipStatus === 'expired'
-        }">
+             active: user.membershipStatus === 'active',
+             expired: user.membershipStatus === 'expired'
+           }">
 
-            Estado: {{ userData.membershipStatus }}
-
+            Estado: {{ user.membershipStatus }}
         </p>
+
         <p class="bio">
-            {{ userData.bio || 'Sin biografía aún.' }}
+            {{ user.bio || 'Sin biografía aún.' }}
         </p>
 
         <div class="profile-visibility">
-
-            <button mat-raised-button [color]="userData?.isPublic ? 'primary' : 'warn'" (click)="togglePublicProfile()">
+            <button mat-raised-button [color]="user.isPublic ? 'primary' : 'warn'" (click)="togglePublicProfile()">
 
                 <mat-icon>
-                    {{ userData?.isPublic ? 'public' : 'lock' }}
+                    {{ user.isPublic ? 'public' : 'lock' }}
                 </mat-icon>
 
-                {{ userData?.isPublic ? 'Perfil Público' : 'Perfil Privado' }}
-
+                {{ user.isPublic ? 'Perfil Público' : 'Perfil Privado' }}
             </button>
-
         </div>
 
     </mat-card>
