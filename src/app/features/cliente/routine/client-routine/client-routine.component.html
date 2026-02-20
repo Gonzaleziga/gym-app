@@ -15,11 +15,11 @@
             <h3>📅 Día {{ day.dayNumber }}</h3>
             <p>{{ day.title }}</p>
 
+            <!-- 🔥 EJERCICIOS -->
             <div *ngFor="let ex of day.exercises" class="exercise-row">
 
                 <ng-container *ngIf="getExerciseById(ex.exerciseId) as exercise">
 
-                    <!-- 👇 AQUÍ SOLO AGREGAMOS EL CLICK -->
                     <div class="exercise-card" (click)="openExercisePreview(ex.exerciseId)" style="cursor: pointer;">
 
                         <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" class="exercise-image">
@@ -36,6 +36,22 @@
                     </div>
 
                 </ng-container>
+
+            </div>
+
+            <!-- 🔥 AQUÍ VA EL BOTÓN (FUERA DEL LOOP DE EJERCICIOS) -->
+            <div class="complete-workout">
+
+                <button mat-raised-button [color]="day.completedToday ? 'accent' : 'primary'" class="complete-btn"
+                    [disabled]="day.completedToday" (click)="completeWorkout(day)">
+
+                    <mat-icon>
+                        {{ day.completedToday ? 'check_circle' : 'check_circle_outline' }}
+                    </mat-icon>
+
+                    {{ day.completedToday ? 'Entrenamiento completado' : 'Finalizar entrenamiento' }}
+
+                </button>
 
             </div>
 

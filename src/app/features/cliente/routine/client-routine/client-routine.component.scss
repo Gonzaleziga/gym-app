@@ -50,3 +50,14 @@
     display: grid;
     gap: 24px; // separación entre días
 }
+
+.complete-workout {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.complete-btn {
+    background-color: #1976d2 !important;
+    color: white !important;
+}

@@ -55,6 +55,7 @@
             {{ user.name }}
             {{ user.lastNameFather }}
             {{ user.lastNameMother }}
+            {{ user.uid }}
         </h2>
 
         <p *ngIf="isOwner" class="role">
@@ -107,8 +108,29 @@
 
         </div>
 
+        <hr class="section-divider">
+        <h3>Progresos</h3>
+        <div class="workout-stats">
+            <p>💪 Total: <strong>{{ totalWorkouts }}</strong></p>
+            <p>📆 Este mes: <strong>{{ monthlyWorkouts }}</strong></p>
+        </div>
 
+        <div class="weekly-chart">
 
+            <h3>Actividad últimos 7 días</h3>
+
+            <div class="chart-container">
+                <div class="chart-bar" *ngFor="let day of weeklyStats">
+
+                    <div class="bar" [style.height.px]="(day.count / maxWeeklyCount) * 100">
+                    </div>
+
+                    <span class="label">{{ day.label }}</span>
+
+                </div>
+            </div>
+
+        </div>
         <hr class="section-divider">
 
         <div class="extra-info-section">
@@ -244,7 +266,7 @@
                     </div>
 
                     <!-- 💬 COMMENTS -->
-                    <div class="comments-section" *ngIf="!isOwner">
+                    <div class="comments-section">
 
                         <div class="comment" *ngFor="let comment of (photo.comments || []) | slice:-3">
 

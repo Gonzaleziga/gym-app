@@ -19,6 +19,8 @@ import { Location } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { collection, getDocs, query, where } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
 
 
 interface GalleryPhoto {
@@ -58,6 +60,7 @@ export class ProfileComponent implements OnInit {
   private galleryService = inject(GalleryService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
+  private firestore = inject(Firestore);
 
   userData: any = null;
   loading = true;
@@ -77,9 +80,12 @@ export class ProfileComponent implements OnInit {
   currentUserId!: string;
   newCommentText: { [photoId: string]: string } = {};
   currentUserData: any = null;
+  totalWorkouts = 0;
+  monthlyWorkouts = 0;
+  weeklyStats: { label: string; count: number }[] = [];
+  maxWeeklyCount = 1;
 
   async ngOnInit() {
-
     const routeUid = this.route.snapshot.paramMap.get('uid');
     const currentUser = this.auth.currentUser;
     if (currentUser) {
@@ -88,60 +94,51 @@ export class ProfileComponent implements OnInit {
         this.currentUserData = currentSnap.data();
       }
     }
-
     if (!currentUser) {
       this.loading = false;
       return;
     }
-
     // 🔥 ASIGNAR SIEMPRE
     this.currentUserId = currentUser.uid;
 
     // 🔥 CASO 1
     if (routeUid) {
-
       this.isOwner = currentUser.uid === routeUid;
       this.isFromCommunity = !this.isOwner;
-
       const snap = await this.usersService.getUser(routeUid);
-
       if (snap.exists()) {
-
         this.userData = snap.data();
         this.userData.uid = routeUid;
-
         this.newBio = this.userData.bio || '';
         this.selectedGender = this.userData.gender || '';
         this.emergencyName = this.userData.emergencyContact?.name || '';
         this.emergencyPhone = this.userData.emergencyContact?.phone || '';
-
         await this.loadGallery();
+        await this.loadWorkoutStats(this.userData.uid);
+        await this.loadWeeklyStats(this.userData.uid);
       }
-
       this.loading = false;
       return;
     }
-
     // 🔥 CASO 2
     this.isOwner = true;
 
     const snap = await this.usersService.getUser(currentUser.uid);
 
     if (snap.exists()) {
-
       this.userData = snap.data();
       this.userData.uid = currentUser.uid;
-
       this.newBio = this.userData.bio || '';
       this.selectedGender = this.userData.gender || '';
       this.emergencyName = this.userData.emergencyContact?.name || '';
       this.emergencyPhone = this.userData.emergencyContact?.phone || '';
-
       await this.loadGallery();
     }
-
     this.loading = false;
+    await this.loadWorkoutStats(this.userData.uid);
+    await this.loadWeeklyStats(this.userData.uid);
   }
+
   // 🔥 SUBIR FOTO
   async onFileSelected(event: Event) {
 
@@ -472,5 +469,96 @@ export class ProfileComponent implements OnInit {
 
     photo.comments = updated;
     this.newCommentText[photo.id] = '';
+  }
+
+  async loadWorkoutStats(userId: string) {
+
+    const workoutsRef = collection(this.firestore, 'workoutHistory');
+
+    const q = query(
+      workoutsRef,
+      where('userId', '==', userId)
+    );
+
+    const snap = await getDocs(q);
+
+    this.totalWorkouts = snap.size;
+
+    // 🔥 Calcular entrenamientos del mes actual
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    this.monthlyWorkouts = 0;
+
+    snap.forEach(doc => {
+      const data: any = doc.data();
+
+      if (!data.completedAt) return;
+
+      const completedDate = data.completedAt.toDate
+        ? data.completedAt.toDate()
+        : new Date(data.completedAt);
+
+      if (completedDate >= firstDayOfMonth) {
+        this.monthlyWorkouts++;
+      }
+    });
+  }
+
+  async loadWeeklyStats(userId: string) {
+    console.log("Cargando weekly stats para:", userId);
+    const workoutsRef = collection(this.firestore, 'workoutHistory');
+
+    const q = query(
+      workoutsRef,
+      where('userId', '==', userId)
+    );
+
+    const snap = await getDocs(q);
+
+    const today = new Date();
+    const days: { date: Date; label: string; count: number }[] = [];
+
+    const labels = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - i
+      );
+
+      days.push({
+        date,
+        label: labels[date.getDay()],
+        count: 0
+      });
+    }
+
+    snap.forEach(doc => {
+      const data: any = doc.data();
+      const completedDate = data.completedAt.toDate();
+
+      days.forEach(day => {
+        if (
+          completedDate.getFullYear() === day.date.getFullYear() &&
+          completedDate.getMonth() === day.date.getMonth() &&
+          completedDate.getDate() === day.date.getDate()
+        ) {
+          day.count++;
+        }
+      });
+    });
+
+    this.weeklyStats = days.map(d => ({
+      label: d.label,
+      count: d.count
+    }));
+
+    this.maxWeeklyCount = Math.max(
+      ...this.weeklyStats.map(d => d.count),
+      1
+    );
+    console.log("Resultado semanal:", this.weeklyStats);
   }
 }
