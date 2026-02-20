@@ -244,7 +244,7 @@
                     </div>
 
                     <!-- 💬 COMMENTS -->
-                    <div class="comments-section">
+                    <div class="comments-section" *ngIf="!isOwner">
 
                         <div class="comment" *ngFor="let comment of (photo.comments || []) | slice:-3">
 
