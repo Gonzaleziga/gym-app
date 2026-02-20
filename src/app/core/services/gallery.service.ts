@@ -1,5 +1,5 @@
 import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL, deleteObject } from '@angular/fire/storage';
 
 @Injectable({
@@ -137,6 +137,51 @@ export class GalleryService {
       };
 
       reader.readAsDataURL(file);
+    });
+  }
+  async toggleLike(uid: string, photo: any, currentUserId: string) {
+
+    return runInInjectionContext(this.injector, async () => {
+
+      const photoRef = doc(
+        this.firestore,
+        `users/${uid}/gallery/${photo.id}`
+      );
+
+      const likes: string[] = photo.likes || [];
+
+      let updatedLikes;
+
+      if (likes.includes(currentUserId)) {
+        // 🔥 quitar like
+        updatedLikes = likes.filter(id => id !== currentUserId);
+      } else {
+        // 🔥 agregar like
+        updatedLikes = [...likes, currentUserId];
+      }
+
+      await updateDoc(photoRef, {
+        likes: updatedLikes
+      });
+
+      return updatedLikes;
+    });
+  }
+
+  async addComment(ownerUid: string, photo: any, commentData: any) {
+
+    return runInInjectionContext(this.injector, async () => {
+
+      const updatedComments = photo.comments
+        ? [...photo.comments, commentData]
+        : [commentData];
+
+      await updateDoc(
+        doc(this.firestore, `users/${ownerUid}/gallery/${photo.id}`),
+        { comments: updatedComments }
+      );
+
+      return updatedComments;
     });
   }
 

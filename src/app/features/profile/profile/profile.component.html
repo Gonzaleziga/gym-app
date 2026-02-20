@@ -198,7 +198,7 @@
         </div>
 
     </mat-card>
-
+    <!-- GALERIA -->
     <mat-card class="gallery-card">
 
         <div class="gallery-header">
@@ -212,25 +212,66 @@
         <input *ngIf="isOwner" type="file" hidden #galleryInput accept="image/*" (change)="onGallerySelected($event)">
 
         <div class="gallery-grid">
-
             <div class="gallery-item" *ngFor="let photo of gallery">
 
-                <!-- Imagen -->
-                <img [src]="photo.imageUrl" (click)="openGalleryPreview(photo.imageUrl)" (load)="photo.loaded = true"
-                    [class.loaded]="photo.loaded">
+                <!-- 🖼 IMAGEN -->
+                <div class="image-wrapper">
 
-                <!-- Botón eliminar -->
-                <button *ngIf="isOwner" class="delete-btn" (click)="deletePhoto(photo, $event)">
-                    ✕
-                </button>
+                    <img [src]="photo.imageUrl" (click)="openGalleryPreview(photo.imageUrl)"
+                        (load)="photo.loaded = true" [class.loaded]="photo.loaded">
 
-                <!-- Botón reemplazar -->
-                <button *ngIf="isOwner" class="replace-btn" (click)="selectPhotoToReplace(photo, $event)">
-                    🔄
-                </button>
+                    <button *ngIf="isOwner" class="delete-btn" (click)="deletePhoto(photo, $event)">
+                        ✕
+                    </button>
+
+                    <button *ngIf="isOwner" class="replace-btn" (click)="selectPhotoToReplace(photo, $event)">
+                        🔄
+                    </button>
+
+                </div>
+
+                <!-- 📦 CONTENEDOR INFO -->
+                <div class="photo-info">
+
+                    <!-- ❤️ LIKE -->
+                    <div class="photo-actions">
+                        <button mat-icon-button (click)="toggleLike(photo)" [color]="hasLiked(photo) ? 'warn' : ''">
+                            <mat-icon>
+                                {{ hasLiked(photo) ? 'favorite' : 'favorite_border' }}
+                            </mat-icon>
+                        </button>
+                        <span>{{ photo.likes?.length || 0 }}</span>
+                    </div>
+
+                    <!-- 💬 COMMENTS -->
+                    <div class="comments-section">
+
+                        <div class="comment" *ngFor="let comment of (photo.comments || []) | slice:-3">
+
+                            <strong>{{ comment.name }}</strong>
+                            <span> - {{ comment.text }}</span>
+
+                        </div>
+
+                        <div class="comment-input">
+
+                            <input type="text" maxlength="100" placeholder="Escribe un comentario..."
+                                [(ngModel)]="newCommentText[photo.id]" (keyup.enter)="addComment(photo)">
+                            <small class="char-counter">
+                                {{ (newCommentText[photo.id]?.length || 0) }}/100
+                            </small>
+
+                            <button mat-raised-button color="primary" (click)="addComment(photo)">
+                                Enviar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
-
         </div>
 
         <div *ngIf="uploadingGallery">

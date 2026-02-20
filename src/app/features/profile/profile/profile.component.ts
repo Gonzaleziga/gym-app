@@ -19,6 +19,15 @@ import { Location } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+
+
+interface GalleryPhoto {
+  id: string;
+  imageUrl: string;
+  likes?: string[];
+  comments?: any[];
+  loaded?: boolean;
+}
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -39,6 +48,8 @@ import { MatSelectModule } from '@angular/material/select';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
+
+
 export class ProfileComponent implements OnInit {
   @ViewChild('galleryInput') galleryInputRef!: ElementRef<HTMLInputElement>;
   private auth = inject(Auth);
@@ -52,7 +63,7 @@ export class ProfileComponent implements OnInit {
   loading = true;
   uploadingPhoto = false;
   uploadingCover = false;
-  gallery: any[] = [];
+  gallery: GalleryPhoto[] = [];
   uploadingGallery = false;
   isOwner = false;
   photoToReplace: any = null;
@@ -63,18 +74,30 @@ export class ProfileComponent implements OnInit {
   selectedGender = '';
   emergencyName = '';
   emergencyPhone = '';
+  currentUserId!: string;
+  newCommentText: { [photoId: string]: string } = {};
+  currentUserData: any = null;
 
   async ngOnInit() {
 
     const routeUid = this.route.snapshot.paramMap.get('uid');
     const currentUser = this.auth.currentUser;
+    if (currentUser) {
+      const currentSnap = await this.usersService.getUser(currentUser.uid);
+      if (currentSnap.exists()) {
+        this.currentUserData = currentSnap.data();
+      }
+    }
 
     if (!currentUser) {
       this.loading = false;
       return;
     }
 
-    // 🔥 CASO 1: Perfil desde comunidad (/profile/:uid)
+    // 🔥 ASIGNAR SIEMPRE
+    this.currentUserId = currentUser.uid;
+
+    // 🔥 CASO 1
     if (routeUid) {
 
       this.isOwner = currentUser.uid === routeUid;
@@ -87,13 +110,8 @@ export class ProfileComponent implements OnInit {
         this.userData = snap.data();
         this.userData.uid = routeUid;
 
-        // 🔥 BIO
         this.newBio = this.userData.bio || '';
-
-        // 🔥 GÉNERO
         this.selectedGender = this.userData.gender || '';
-
-        // 🔥 CONTACTO EMERGENCIA
         this.emergencyName = this.userData.emergencyContact?.name || '';
         this.emergencyPhone = this.userData.emergencyContact?.phone || '';
 
@@ -104,7 +122,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    // 🔥 CASO 2: Mi perfil (/profile)
+    // 🔥 CASO 2
     this.isOwner = true;
 
     const snap = await this.usersService.getUser(currentUser.uid);
@@ -114,13 +132,8 @@ export class ProfileComponent implements OnInit {
       this.userData = snap.data();
       this.userData.uid = currentUser.uid;
 
-      // 🔥 BIO
       this.newBio = this.userData.bio || '';
-
-      // 🔥 GÉNERO
       this.selectedGender = this.userData.gender || '';
-
-      // 🔥 CONTACTO EMERGENCIA
       this.emergencyName = this.userData.emergencyContact?.name || '';
       this.emergencyPhone = this.userData.emergencyContact?.phone || '';
 
@@ -129,7 +142,6 @@ export class ProfileComponent implements OnInit {
 
     this.loading = false;
   }
-
   // 🔥 SUBIR FOTO
   async onFileSelected(event: Event) {
 
@@ -245,9 +257,9 @@ export class ProfileComponent implements OnInit {
 
     if (!this.userData) return;
 
-    this.gallery = await this.galleryService.getGallery(
+    this.gallery = (await this.galleryService.getGallery(
       this.userData.uid
-    );
+    )) as GalleryPhoto[];
   }
 
   async onGallerySelected(event: Event) {
@@ -416,5 +428,49 @@ export class ProfileComponent implements OnInit {
     } catch (error) {
       console.error('Error actualizando info extra', error);
     }
+  }
+  async toggleLike(photo: any) {
+
+    console.log("CLICK LIKE", photo);
+
+    if (!this.currentUserId) {
+      console.log("NO USER ID");
+      return;
+    }
+
+    const updatedLikes = await this.galleryService.toggleLike(
+      this.userData.uid,
+      photo,
+      this.currentUserId
+    );
+
+    console.log("UPDATED LIKES", updatedLikes);
+
+    photo.likes = updatedLikes;
+  }
+  hasLiked(photo: any): boolean {
+    return photo.likes?.includes(this.currentUserId);
+  }
+  async addComment(photo: any) {
+
+    const text = this.newCommentText[photo.id];
+    if (!text?.trim()) return;
+
+    const commentData = {
+      uid: this.currentUserId,
+      name: this.currentUserData?.name || 'Usuario',
+      photoURL: this.currentUserData?.photoURL || '',
+      text: text.trim(),
+      createdAt: new Date()
+    };
+
+    const updated = await this.galleryService.addComment(
+      this.userData.uid,
+      photo,
+      commentData
+    );
+
+    photo.comments = updated;
+    this.newCommentText[photo.id] = '';
   }
 }
