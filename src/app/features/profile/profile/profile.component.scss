@@ -428,3 +428,31 @@
     margin-top: 6px;
     font-size: 12px;
 }
+
+.nickname {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.nickname-input {
+    width: 100%;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.delete-comment-btn {
+    background: transparent;
+    border: none;
+    margin-left: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.delete-comment-btn:hover {
+    opacity: 1;
+    color: red;
+}

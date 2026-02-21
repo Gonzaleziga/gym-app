@@ -14,7 +14,20 @@
 
             <div class="card-header">
 
-                <img class="avatar" [src]="user.photoURL || '/images/images.png'">
+                <div class="avatar-wrapper">
+
+                    <!-- FOTO ADMIN (principal) -->
+                    <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                    <!-- MINI FOTO PERFIL USUARIO -->
+                    <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+
+                    <!-- SPINNER -->
+                    <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                        <mat-spinner diameter="35"></mat-spinner>
+                    </div>
+
+                </div>
 
                 <div class="basic-info">
                     <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
@@ -40,8 +53,17 @@
 
                 <div class="admin-actions">
 
-                    <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
-                        Bloquear cuenta
+                    <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                        (click)="toggleStatus(user)">
+
+                        <mat-icon>
+                            {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                        </mat-icon>
+
+                        {{ user.status === 'inactive'
+                        ? 'Desbloquear cuenta'
+                        : 'Bloquear cuenta' }}
+
                     </button>
 
                     <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
@@ -76,7 +98,20 @@
 
             <div class="card-header">
 
-                <img class="avatar" [src]="user.photoURL || '/images/images.png'">
+                <div class="avatar-wrapper">
+
+                    <!-- FOTO ADMIN (principal) -->
+                    <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                    <!-- MINI FOTO PERFIL USUARIO -->
+                    <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+
+                    <!-- SPINNER -->
+                    <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                        <mat-spinner diameter="35"></mat-spinner>
+                    </div>
+
+                </div>
 
                 <div class="basic-info">
                     <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
@@ -102,8 +137,17 @@
 
                 <div class="admin-actions">
 
-                    <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
-                        Bloquear cuenta
+                    <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                        (click)="toggleStatus(user)">
+
+                        <mat-icon>
+                            {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                        </mat-icon>
+
+                        {{ user.status === 'inactive'
+                        ? 'Desbloquear cuenta'
+                        : 'Bloquear cuenta' }}
+
                     </button>
 
                     <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
@@ -139,11 +183,24 @@
             <!-- HEADER -->
             <div class="card-header aligned-top">
 
-                <!-- FOTO -->
+
                 <!-- FOTO -->
                 <div class="avatar-wrapper" (click)="confirmChangeAdminPhoto(user, fileInput)">
 
-                    <img class="avatar-top" [src]="user.adminPhotoURL || user.photoURL || '/images/images.png'">
+                    <div class="avatar-wrapper">
+
+                        <!-- FOTO ADMIN (principal) -->
+                        <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                        <!-- MINI FOTO PERFIL USUARIO -->
+                        <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+
+                        <!-- SPINNER -->
+                        <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                            <mat-spinner diameter="35"></mat-spinner>
+                        </div>
+
+                    </div>
 
                     <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
 
@@ -316,8 +373,17 @@
                     <h4 class="section-title">⚙ Administración</h4>
 
                     <div class="admin-actions">
-                        <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
-                            Bloquear cuenta
+                        <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                            (click)="toggleStatus(user)">
+
+                            <mat-icon>
+                                {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                            </mat-icon>
+
+                            {{ user.status === 'inactive'
+                            ? 'Desbloquear cuenta'
+                            : 'Bloquear cuenta' }}
+
                         </button>
 
                         <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
@@ -367,8 +433,17 @@
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
                 <hr>
                 <div class="admin-actions">
-                    <button mat-stroked-button color="warn" (click)="toggleStatus(user)">
-                        Bloquear cuenta
+                    <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                        (click)="toggleStatus(user)">
+
+                        <mat-icon>
+                            {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                        </mat-icon>
+
+                        {{ user.status === 'inactive'
+                        ? 'Desbloquear cuenta'
+                        : 'Bloquear cuenta' }}
+
                     </button>
                     <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
                         Forzar logout

@@ -84,6 +84,8 @@ export class ProfileComponent implements OnInit {
   monthlyWorkouts = 0;
   weeklyStats: { label: string; count: number }[] = [];
   maxWeeklyCount = 1;
+  editingNickname = false;
+  newNickname = '';
 
   async ngOnInit() {
     const routeUid = this.route.snapshot.paramMap.get('uid');
@@ -92,6 +94,8 @@ export class ProfileComponent implements OnInit {
       const currentSnap = await this.usersService.getUser(currentUser.uid);
       if (currentSnap.exists()) {
         this.currentUserData = currentSnap.data();
+
+
       }
     }
     if (!currentUser) {
@@ -113,6 +117,7 @@ export class ProfileComponent implements OnInit {
         this.selectedGender = this.userData.gender || '';
         this.emergencyName = this.userData.emergencyContact?.name || '';
         this.emergencyPhone = this.userData.emergencyContact?.phone || '';
+        this.newNickname = this.userData.nickname || '';
         await this.loadGallery();
         await this.loadWorkoutStats(this.userData.uid);
         await this.loadWeeklyStats(this.userData.uid);
@@ -186,6 +191,25 @@ export class ProfileComponent implements OnInit {
     } catch (error) {
       console.error('❌ Error actualizando visibilidad:', error);
     }
+  }
+
+  async saveNickname() {
+
+    if (!this.userData) return;
+
+    const cleanNickname = this.newNickname.trim();
+
+    if (cleanNickname.length < 3) {
+      alert('El nickname debe tener al menos 3 caracteres');
+      return;
+    }
+
+    await this.usersService.updateUser(this.userData.uid, {
+      nickname: cleanNickname
+    });
+
+    this.userData.nickname = cleanNickname;
+    this.editingNickname = false;
   }
   async onCoverSelected(event: Event) {
 
@@ -560,5 +584,32 @@ export class ProfileComponent implements OnInit {
       1
     );
     console.log("Resultado semanal:", this.weeklyStats);
+  }
+  canDeleteComment(comment: any): boolean {
+
+    const isCommentOwner = comment.uid === this.currentUserId;
+    const isPhotoOwner = this.isOwner;
+
+    return isCommentOwner || isPhotoOwner;
+  }
+  async deleteComment(photoId: string, commentId: string) {
+    console.log("Eliminar:", photoId, commentId);
+    const confirmed = confirm('¿Eliminar comentario?');
+    if (!confirmed) return;
+
+    try {
+
+      await this.galleryService.deleteComment(
+        this.userData.uid,
+        photoId,
+        commentId
+      );
+
+      // 🔥 recargar comentarios
+      await this.loadGallery();
+
+    } catch (error) {
+      console.error('Error eliminando comentario:', error);
+    }
   }
 }

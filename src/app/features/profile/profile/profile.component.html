@@ -51,11 +51,11 @@
     <!-- ================= CARD INFO ================= -->
     <mat-card class="profile-info-card">
 
-        <h2>
+        <h2 *ngIf="isOwner">
             {{ user.name }}
             {{ user.lastNameFather }}
             {{ user.lastNameMother }}
-            {{ user.uid }}
+            <!-- {{ user.uid }} -->
         </h2>
 
         <p *ngIf="isOwner" class="role">
@@ -75,6 +75,40 @@
                 {{ user.membershipStatus === 'active' ? 'Activa' : 'Vencida' }}
             </strong>
         </p>
+        <!-- ================= NICKNAME ================= -->
+
+        <div class="nickname-section">
+
+            <div *ngIf="!editingNickname">
+
+                <h2 class="nickname">
+                    {{ user.nickname || 'Sin nickname' }}
+                </h2>
+
+                <button *ngIf="isOwner" mat-stroked-button (click)="editingNickname = true">
+                    Editar nickname
+                </button>
+
+            </div>
+
+            <div *ngIf="editingNickname && isOwner">
+
+                <input type="text" [(ngModel)]="newNickname" maxlength="20" placeholder="Tu nickname"
+                    class="nickname-input">
+
+                <div class="edit-actions">
+                    <button mat-button (click)="editingNickname = false">
+                        Cancelar
+                    </button>
+
+                    <button mat-raised-button color="primary" (click)="saveNickname()">
+                        Guardar
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
 
         <!-- ================= BIO ================= -->
         <div class="bio-section">
@@ -272,6 +306,13 @@
 
                             <strong>{{ comment.name }}</strong>
                             <span> - {{ comment.text }}</span>
+
+                            <!-- 🔥 BOTÓN BORRAR -->
+                            <button *ngIf="canDeleteComment(comment)" class="delete-comment-btn"
+                                (click)="deleteComment(photo.id, comment.id)">
+
+                                ✕
+                            </button>
 
                         </div>
 

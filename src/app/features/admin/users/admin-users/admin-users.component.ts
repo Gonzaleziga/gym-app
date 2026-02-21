@@ -21,6 +21,7 @@ import { ConfirmModalComponent }
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { deleteObject } from '@angular/fire/storage';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-admin-users',
@@ -34,7 +35,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatFormFieldModule,
     MatOption,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'

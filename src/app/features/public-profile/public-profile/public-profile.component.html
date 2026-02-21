@@ -9,8 +9,10 @@
 
         <img class="profile-photo" [src]="profile.photoURL || '/images/images.png'">
         <h3>
-            {{ profile.name }}
-            {{ profile.lastNameFather }}
+            <h3>
+                {{ profile.nickname || profile.name }}
+            </h3>
+
         </h3>
 
         <p class="bio">

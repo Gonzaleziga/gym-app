@@ -184,5 +184,18 @@ export class GalleryService {
       return updatedComments;
     });
   }
+  async deleteComment(uid: string, photoId: string, commentId: string) {
+
+    return runInInjectionContext(this.injector, async () => {
+
+      const commentRef = doc(
+        this.firestore,
+        `users/${uid}/gallery/${photoId}/comments/${commentId}`
+      );
+
+      await deleteDoc(commentRef);
+
+    });
+  }
 
 }
