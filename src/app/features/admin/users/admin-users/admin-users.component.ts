@@ -111,6 +111,7 @@ export class AdminUsersComponent implements OnInit {
     this.loading = false;
   }
 
+
   async changeRole(uid: string, role: string) {
 
     const user = this.users.find(u => u.uid === uid);

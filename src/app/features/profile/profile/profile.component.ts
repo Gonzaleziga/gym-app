@@ -86,6 +86,8 @@ export class ProfileComponent implements OnInit {
   maxWeeklyCount = 1;
   editingNickname = false;
   newNickname = '';
+  birthDate: string | null = null;
+  isBirthdayToday = false;
 
   async ngOnInit() {
     const routeUid = this.route.snapshot.paramMap.get('uid');
@@ -94,8 +96,6 @@ export class ProfileComponent implements OnInit {
       const currentSnap = await this.usersService.getUser(currentUser.uid);
       if (currentSnap.exists()) {
         this.currentUserData = currentSnap.data();
-
-
       }
     }
     if (!currentUser) {
@@ -118,6 +118,15 @@ export class ProfileComponent implements OnInit {
         this.emergencyName = this.userData.emergencyContact?.name || '';
         this.emergencyPhone = this.userData.emergencyContact?.phone || '';
         this.newNickname = this.userData.nickname || '';
+        if (this.userData.birthDate) {
+
+          const date = this.userData.birthDate.toDate();
+
+          this.birthDate = date.toISOString().split('T')[0];
+
+        } else {
+          this.birthDate = null;
+        }
         await this.loadGallery();
         await this.loadWorkoutStats(this.userData.uid);
         await this.loadWeeklyStats(this.userData.uid);
@@ -137,6 +146,17 @@ export class ProfileComponent implements OnInit {
       this.selectedGender = this.userData.gender || '';
       this.emergencyName = this.userData.emergencyContact?.name || '';
       this.emergencyPhone = this.userData.emergencyContact?.phone || '';
+      if (this.userData.birthDate) {
+
+        const date = this.userData.birthDate.toDate();
+        this.birthDate = date;
+
+        const today = new Date();
+
+        this.isBirthdayToday =
+          date.getDate() === today.getDate() &&
+          date.getMonth() === today.getMonth();
+      }
       await this.loadGallery();
     }
     this.loading = false;
@@ -429,20 +449,38 @@ export class ProfileComponent implements OnInit {
 
     try {
 
+      let birthTimestamp = null;
+
+      // 🔥 Ahora birthDate es string (YYYY-MM-DD)
+      if (this.birthDate) {
+
+        const [year, month, day] = this.birthDate.split('-');
+
+        const localDate = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day)
+        );
+
+        birthTimestamp = localDate;
+      }
+
       await this.usersService.updateUser(this.userData.uid, {
         gender: this.selectedGender,
         emergencyContact: {
           name: this.emergencyName,
           phone: this.emergencyPhone
-        }
+        },
+        birthDate: birthTimestamp
       });
 
-      // actualizar vista
+      // 🔥 actualizar vista
       this.userData.gender = this.selectedGender;
       this.userData.emergencyContact = {
         name: this.emergencyName,
         phone: this.emergencyPhone
       };
+      this.userData.birthDate = birthTimestamp;
 
       this.editingExtraInfo = false;
 
@@ -450,6 +488,7 @@ export class ProfileComponent implements OnInit {
       console.error('Error actualizando info extra', error);
     }
   }
+
   async toggleLike(photo: any) {
 
     console.log("CLICK LIKE", photo);
@@ -478,20 +517,20 @@ export class ProfileComponent implements OnInit {
     if (!text?.trim()) return;
 
     const commentData = {
+      id: crypto.randomUUID(),
       uid: this.currentUserId,
-      name: this.currentUserData?.name || 'Usuario',
-      photoURL: this.currentUserData?.photoURL || '',
+      name: this.auth.currentUser?.displayName || 'Usuario',
+      photoURL: this.auth.currentUser?.photoURL || '',
       text: text.trim(),
       createdAt: new Date()
     };
 
-    const updated = await this.galleryService.addComment(
-      this.userData.uid,
+    photo.comments = await this.galleryService.addComment(
+      this.userData.uid, // 🔥 dueño del perfil
       photo,
       commentData
     );
 
-    photo.comments = updated;
     this.newCommentText[photo.id] = '';
   }
 
@@ -592,24 +631,14 @@ export class ProfileComponent implements OnInit {
 
     return isCommentOwner || isPhotoOwner;
   }
-  async deleteComment(photoId: string, commentId: string) {
-    console.log("Eliminar:", photoId, commentId);
-    const confirmed = confirm('¿Eliminar comentario?');
-    if (!confirmed) return;
+  async deleteComment(photo: any, commentId: string) {
 
-    try {
+    const updated = await this.galleryService.deleteComment(
+      this.userData.uid,
+      photo,
+      commentId
+    );
 
-      await this.galleryService.deleteComment(
-        this.userData.uid,
-        photoId,
-        commentId
-      );
-
-      // 🔥 recargar comentarios
-      await this.loadGallery();
-
-    } catch (error) {
-      console.error('Error eliminando comentario:', error);
-    }
+    photo.comments = updated; // 🔥 actualiza en pantalla sin recargar todo
   }
 }

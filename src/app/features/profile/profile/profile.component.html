@@ -55,12 +55,12 @@
             {{ user.name }}
             {{ user.lastNameFather }}
             {{ user.lastNameMother }}
-            <!-- {{ user.uid }} -->
+            {{ user.uid }}
         </h2>
 
-        <p *ngIf="isOwner" class="role">
+        <!-- <p *ngIf="isOwner" class="role">
             Rol: {{ user.role }}
-        </p>
+        </p> -->
 
         <p *ngIf="isOwner && user.membershipEnd">
             Membresía válida hasta:
@@ -191,6 +191,15 @@
                         {{ user.emergencyContact?.phone || 'No definido' }}
                     </p>
 
+                    <p *ngIf="user.birthDate">
+                        <strong>Cumpleaños:</strong>
+                        {{ user.birthDate?.toDate() | date:'longDate' }}
+                    </p>
+
+                    <div *ngIf="isBirthdayToday" class="birthday-banner">
+                        🎉 Muchas Felicidades, ¡Hoy es tu cumpleaños! 🎂
+                    </div>
+
                 </div>
 
                 <button *ngIf="isOwner" mat-stroked-button (click)="editingExtraInfo = true">
@@ -222,6 +231,11 @@
                     <mat-label>Teléfono emergencia</mat-label>
                     <input matInput [(ngModel)]="emergencyPhone">
                 </mat-form-field>
+                <!-- CUMPLEAÑOS -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Cumpleaños</mat-label>
+                    <input matInput type="date" [(ngModel)]="birthDate">
+                </mat-form-field>
 
                 <div class="edit-actions">
                     <button mat-button (click)="editingExtraInfo = false">
@@ -237,7 +251,8 @@
 
         </div>
         <hr class="section-divider">
-        <!-- ================= VISIBILIDAD ================= -->
+
+        <!-- ================= BOTON VISIBILIDAD PUBLICO/PRIVADO ================= -->
 
 
         <div class="profile-visibility">
@@ -254,6 +269,7 @@
         </div>
 
     </mat-card>
+
     <!-- GALERIA -->
     <mat-card class="gallery-card">
 
@@ -308,10 +324,9 @@
                             <span> - {{ comment.text }}</span>
 
                             <!-- 🔥 BOTÓN BORRAR -->
-                            <button *ngIf="canDeleteComment(comment)" class="delete-comment-btn"
-                                (click)="deleteComment(photo.id, comment.id)">
-
-                                ✕
+                            <button *ngIf="isOwner || comment.uid === currentUserId" mat-icon-button
+                                (click)="deleteComment(photo, comment.id)">
+                                <mat-icon>delete</mat-icon>
                             </button>
 
                         </div>

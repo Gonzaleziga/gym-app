@@ -65,14 +65,21 @@ export class GalleryService {
       );
 
       const q = query(galleryRef, orderBy('createdAt', 'desc'));
-
       const snap = await getDocs(q);
 
-      return snap.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }));
+      return snap.docs.map(photoDoc => {
 
+        const data: any = photoDoc.data();
+
+        return {
+          id: photoDoc.id,
+          photoId: data.photoId,   // 🔥 IMPORTANTE
+          imageUrl: data.imageUrl,
+          likes: data.likes || [],
+          comments: data.comments || [],
+          createdAt: data.createdAt
+        };
+      });
     });
   }
 
@@ -84,17 +91,15 @@ export class GalleryService {
 
     return runInInjectionContext(this.injector, async () => {
 
-      // eliminar de storage
+      // 🔥 borrar imagen
       const filePath = `gallery/${uid}/${photo.photoId}.jpg`;
       const storageRef = ref(this.storage, filePath);
-
       await deleteObject(storageRef);
 
-      // eliminar documento
+      // 🔥 borrar documento
       await deleteDoc(
         doc(this.firestore, `users/${uid}/gallery/${photo.id}`)
       );
-
     });
   }
 
@@ -138,43 +143,38 @@ export class GalleryService {
 
       reader.readAsDataURL(file);
     });
-  }
-  async toggleLike(uid: string, photo: any, currentUserId: string) {
+  } async toggleLike(ownerUid: string, photo: any, userId: string) {
 
-    return runInInjectionContext(this.injector, async () => {
+    const likes = photo.likes || [];
 
-      const photoRef = doc(
-        this.firestore,
-        `users/${uid}/gallery/${photo.id}`
-      );
+    let updatedLikes;
 
-      const likes: string[] = photo.likes || [];
+    if (likes.includes(userId)) {
+      updatedLikes = likes.filter((id: string) => id !== userId);
+    } else {
+      updatedLikes = [...likes, userId];
+    }
 
-      let updatedLikes;
+    await updateDoc(
+      doc(this.firestore, `users/${ownerUid}/gallery/${photo.id}`),
+      { likes: updatedLikes }
+    );
 
-      if (likes.includes(currentUserId)) {
-        // 🔥 quitar like
-        updatedLikes = likes.filter(id => id !== currentUserId);
-      } else {
-        // 🔥 agregar like
-        updatedLikes = [...likes, currentUserId];
-      }
-
-      await updateDoc(photoRef, {
-        likes: updatedLikes
-      });
-
-      return updatedLikes;
-    });
+    return updatedLikes;
   }
 
   async addComment(ownerUid: string, photo: any, commentData: any) {
 
     return runInInjectionContext(this.injector, async () => {
 
+      const newComment = {
+        id: crypto.randomUUID(), // 🔥 ID único
+        ...commentData
+      };
+
       const updatedComments = photo.comments
-        ? [...photo.comments, commentData]
-        : [commentData];
+        ? [...photo.comments, newComment]
+        : [newComment];
 
       await updateDoc(
         doc(this.firestore, `users/${ownerUid}/gallery/${photo.id}`),
@@ -184,17 +184,24 @@ export class GalleryService {
       return updatedComments;
     });
   }
-  async deleteComment(uid: string, photoId: string, commentId: string) {
+
+  // ===============================
+  // DELETE COMMENT
+  // ===============================
+  async deleteComment(ownerUid: string, photo: any, commentId: string) {
 
     return runInInjectionContext(this.injector, async () => {
 
-      const commentRef = doc(
-        this.firestore,
-        `users/${uid}/gallery/${photoId}/comments/${commentId}`
+      const filtered = (photo.comments || []).filter(
+        (c: any) => c.id !== commentId
       );
 
-      await deleteDoc(commentRef);
+      await updateDoc(
+        doc(this.firestore, `users/${ownerUid}/gallery/${photo.id}`),
+        { comments: filtered }
+      );
 
+      return filtered;
     });
   }
 

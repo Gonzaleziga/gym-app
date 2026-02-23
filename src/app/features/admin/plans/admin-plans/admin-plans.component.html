@@ -71,6 +71,11 @@
                 <ng-container *ngIf="editingPlanId === plan.id">
 
                     <mat-form-field appearance="outline">
+                        <mat-label>Nombre del Plan</mat-label>
+                        <input matInput type="text" [(ngModel)]="plan.name">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
                         <mat-label>Precio</mat-label>
                         <input matInput type="number" [(ngModel)]="plan.price">
                     </mat-form-field>

@@ -12,83 +12,238 @@
 
         <mat-card *ngFor="let user of getFilteredUsers(admins)" class="client-card">
 
-            <div class="card-header">
 
-                <div class="avatar-wrapper">
+            <!-- HEADER -->
+            <div class="card-header aligned-top">
 
-                    <!-- FOTO ADMIN (principal) -->
-                    <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
 
-                    <!-- MINI FOTO PERFIL USUARIO -->
-                    <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+                <!-- FOTO -->
+                <div class="avatar-wrapper" (click)="confirmChangeAdminPhoto(user, fileInput)">
 
-                    <!-- SPINNER -->
+                    <div class="avatar-wrapper">
+
+                        <!-- FOTO ADMIN (principal) -->
+                        <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                        <!-- MINI FOTO PERFIL USUARIO -->
+                        <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+
+                        <!-- SPINNER -->
+                        <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                            <mat-spinner diameter="35"></mat-spinner>
+                        </div>
+
+                    </div>
+
                     <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
-                        <mat-spinner diameter="35"></mat-spinner>
+
+                        <mat-spinner diameter="40"></mat-spinner>
+
                     </div>
 
                 </div>
 
+                <!-- INPUT OCULTO -->
+                <input type="file" #fileInput hidden accept="image/*" (change)="uploadAdminPhoto(user, $event)">
+                <!-- INFORMACIÓN -->
                 <div class="basic-info">
-                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
-                    <p>{{ user.email }}</p>
 
-                    <span class="account-status" [ngClass]="{
-                  'status-active': user.status === 'active',
-                  'status-inactive': user.status === 'inactive'
-                }">
-                        {{ user.status === 'active' ? 'Cuenta Activa' : 'Cuenta Bloqueada' }}
-                    </span>
+                    <h3>
+                        {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
+                    </h3>
+                    <div class="compact-row">
+                        <span *ngIf="user.email">{{ user.email }}</span>
+                    </div>
+                    <div class="compact-row">
+
+                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
+
+                        <span *ngIf="user.membershipStart">
+                            Inicio:
+                            {{ user.membershipStart?.toDate() | date:'mediumDate' }}
+                        </span>
+
+                        <span *ngIf="user.membershipEnd">
+                            Vence:
+                            {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
+                        </span>
+                    </div>
+
+                    <div class="compact-row">
+                        <span *ngIf="user.planId">
+                            Plan: {{ getPlanName(user.planId) }}
+                        </span>
+
+                        <span *ngIf="user.lastPaymentAmount">
+                            Último pago: ${{ user.lastPaymentAmount }}
+                        </span>
+                    </div>
+
+                    <div class="compact-row">
+                        <span *ngIf="user.gender">
+                            Género: {{ user.gender }}
+                        </span>
+
+                        <span *ngIf="user.emergencyContact?.name || user.emergencyContact?.phone">
+                            Emergencia:
+                            {{ user.emergencyContact?.name }}
+                            <span *ngIf="user.emergencyContact?.phone">
+                                ({{ user.emergencyContact?.phone }})
+                            </span>
+                        </span>
+
+                        <span *ngIf="user.gender">
+                            cumpleaños: {{ user.gender }}
+                        </span>
+                    </div>
+
+                    <!-- ESTADOS -->
+                    <div class="status-row">
+                        <span class="account-status" [ngClass]="{
+                                'account-active': user.status === 'active',
+                                'account-blocked': user.status === 'inactive'
+                              }">
+                            {{ user.status === 'active'
+                            ? 'Cuenta Activa'
+                            : 'Cuenta Bloqueada' }}
+                        </span>
+
+                        <span class="membership-status" [ngClass]="{
+                                'membership-active': user.membershipStatus === 'active',
+                                'membership-expired': user.membershipStatus === 'expired',
+                                'membership-none': user.membershipStatus === 'none'
+                              }">
+                            {{
+                            user.membershipStatus === 'active' ? 'Membresía Activa':
+                            user.membershipStatus === 'expired'? 'Membresía Vencida':
+                            'Sin Membresía'
+                            }}
+                        </span>
+                    </div>
+
                 </div>
 
+                <!-- BOTÓN DETALLES -->
                 <button mat-stroked-button color="primary" (click)="toggleDetails(user.uid)">
                     {{ expandedUserId === user.uid ? 'Ocultar' : 'Detalles' }}
                 </button>
 
             </div>
 
+            <!-- PANEL EXPANDIDO -->
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
-
                 <hr>
 
-                <div class="admin-actions">
+                <!-- ================= SECCIÓN FINANCIERA ================= -->
+                <div class="section-card">
 
-                    <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
-                        (click)="toggleStatus(user)">
+                    <h4 class="section-title">💳 Gestión Financiera</h4>
 
-                        <mat-icon>
-                            {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
-                        </mat-icon>
+                    <div class="section-row">
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Plan</mat-label>
+                            <mat-select [(ngModel)]="user.selectedPlan">
+                                <mat-option *ngFor="let plan of plans" [value]="plan.id">
+                                    {{ plan.name }} - ${{ plan.price }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        {{ user.status === 'inactive'
-                        ? 'Desbloquear cuenta'
-                        : 'Bloquear cuenta' }}
+                        <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
+                            [disabled]="user.planId">
 
-                    </button>
+                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
 
-                    <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
-                        Forzar logout
-                    </button>
+                        </button>
+                    </div>
 
-                    <button mat-stroked-button (click)="resetPassword(user)">
-                        Reset password
-                    </button>
+                    <div class="section-row">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
+                            [disabled]="!user.lastPaymentAmount">
+
+                            📜 Historial
+
+                        </button>
+
+                        <button mat-raised-button color="accent" (click)="registerPayment(user)"
+                            [disabled]="!user.planId">
+
+                            Registrar Pago
+
+                        </button>
+                    </div>
 
                 </div>
 
-                <div class="roles-section">
-                    <strong>Cambiar rol:</strong>
 
-                    <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
-                        [disabled]="user.role === r">
-                        {{ r }}
-                    </button>
+                <!-- ================= SECCIÓN RUTINA ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">💪 Gestión de Rutina</h4>
+
+                    <div class="section-row">
+
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Rutina</mat-label>
+                            <mat-select [(ngModel)]="user.selectedRoutine">
+                                <mat-option *ngFor="let routine of routines" [value]="routine.id">
+                                    {{ routine.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <button mat-raised-button color="primary" (click)="assignRoutine(user)">
+
+                            {{ user.assignedRoutineId ? 'Cambiar Rutina' : 'Asignar Rutina' }}
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= SECCIÓN ADMIN ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">⚙ Administración</h4>
+
+                    <div class="admin-actions">
+                        <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                            (click)="toggleStatus(user)">
+
+                            <mat-icon>
+                                {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                            </mat-icon>
+
+                            {{ user.status === 'inactive'
+                            ? 'Desbloquear cuenta'
+                            : 'Bloquear cuenta' }}
+
+                        </button>
+
+                        <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
+                            Forzar logout
+                        </button>
+
+                        <button mat-stroked-button (click)="resetPassword(user)">
+                            Reset password
+                        </button>
+                    </div>
+
+                    <div class="roles-section">
+                        <!-- <strong>Cambiar rol:</strong> -->
+                        <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                            [disabled]="user.role === r">
+                            {{ r }}
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
-
         </mat-card>
-
     </mat-tab>
 
     <!-- ================= EMPLEADOS ================= -->
@@ -96,83 +251,233 @@
 
         <mat-card *ngFor="let user of getFilteredUsers(employees)" class="client-card">
 
-            <div class="card-header">
+            <!-- HEADER -->
+            <div class="card-header aligned-top">
 
-                <div class="avatar-wrapper">
 
-                    <!-- FOTO ADMIN (principal) -->
-                    <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+                <!-- FOTO -->
+                <div class="avatar-wrapper" (click)="confirmChangeAdminPhoto(user, fileInput)">
 
-                    <!-- MINI FOTO PERFIL USUARIO -->
-                    <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+                    <div class="avatar-wrapper">
 
-                    <!-- SPINNER -->
+                        <!-- FOTO ADMIN (principal) -->
+                        <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                        <!-- MINI FOTO PERFIL USUARIO -->
+                        <img *ngIf="user.photoURL" class="avatar-user-mini" [src]="user.photoURL">
+
+                        <!-- SPINNER -->
+                        <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                            <mat-spinner diameter="35"></mat-spinner>
+                        </div>
+
+                    </div>
+
                     <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
-                        <mat-spinner diameter="35"></mat-spinner>
+
+                        <mat-spinner diameter="40"></mat-spinner>
+
                     </div>
 
                 </div>
 
+                <!-- INPUT OCULTO -->
+                <input type="file" #fileInput hidden accept="image/*" (change)="uploadAdminPhoto(user, $event)">
+                <!-- INFORMACIÓN -->
                 <div class="basic-info">
-                    <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
-                    <p>{{ user.email }}</p>
 
-                    <span class="account-status" [ngClass]="{
-                      'status-active': user.status === 'active',
-                      'status-inactive': user.status === 'inactive'
-                    }">
-                        {{ user.status === 'active' ? 'Cuenta Activa' : 'Cuenta Bloqueada' }}
-                    </span>
+                    <h3>
+                        {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
+                    </h3>
+                    <div class="compact-row">
+                        <span *ngIf="user.email">{{ user.email }}</span>
+                    </div>
+                    <div class="compact-row">
+
+                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
+
+                        <span *ngIf="user.membershipStart">
+                            Inicio:
+                            {{ user.membershipStart?.toDate() | date:'mediumDate' }}
+                        </span>
+
+                        <span *ngIf="user.membershipEnd">
+                            Vence:
+                            {{ user.membershipEnd?.toDate() | date:'mediumDate' }}
+                        </span>
+                    </div>
+
+                    <div class="compact-row">
+                        <span *ngIf="user.planId">
+                            Plan: {{ getPlanName(user.planId) }}
+                        </span>
+
+                        <span *ngIf="user.lastPaymentAmount">
+                            Último pago: ${{ user.lastPaymentAmount }}
+                        </span>
+                    </div>
+
+                    <div class="compact-row">
+                        <span *ngIf="user.gender">
+                            Género: {{ user.gender }}
+                        </span>
+
+                        <span *ngIf="user.emergencyContact?.name || user.emergencyContact?.phone">
+                            Emergencia:
+                            {{ user.emergencyContact?.name }}
+                            <span *ngIf="user.emergencyContact?.phone">
+                                ({{ user.emergencyContact?.phone }})
+                            </span>
+                        </span>
+                    </div>
+
+                    <!-- ESTADOS -->
+                    <div class="status-row">
+                        <span class="account-status" [ngClass]="{
+                                'account-active': user.status === 'active',
+                                'account-blocked': user.status === 'inactive'
+                              }">
+                            {{ user.status === 'active'
+                            ? 'Cuenta Activa'
+                            : 'Cuenta Bloqueada' }}
+                        </span>
+
+                        <span class="membership-status" [ngClass]="{
+                                'membership-active': user.membershipStatus === 'active',
+                                'membership-expired': user.membershipStatus === 'expired',
+                                'membership-none': user.membershipStatus === 'none'
+                              }">
+                            {{
+                            user.membershipStatus === 'active' ? 'Membresía Activa':
+                            user.membershipStatus === 'expired'? 'Membresía Vencida':
+                            'Sin Membresía'
+                            }}
+                        </span>
+                    </div>
+
                 </div>
 
+                <!-- BOTÓN DETALLES -->
                 <button mat-stroked-button color="primary" (click)="toggleDetails(user.uid)">
                     {{ expandedUserId === user.uid ? 'Ocultar' : 'Detalles' }}
                 </button>
 
             </div>
 
+            <!-- PANEL EXPANDIDO -->
             <div class="details-panel" *ngIf="expandedUserId === user.uid">
-
                 <hr>
 
-                <div class="admin-actions">
+                <!-- ================= SECCIÓN FINANCIERA ================= -->
+                <div class="section-card">
 
-                    <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
-                        (click)="toggleStatus(user)">
+                    <h4 class="section-title">💳 Gestión Financiera</h4>
 
-                        <mat-icon>
-                            {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
-                        </mat-icon>
+                    <div class="section-row">
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Plan</mat-label>
+                            <mat-select [(ngModel)]="user.selectedPlan">
+                                <mat-option *ngFor="let plan of plans" [value]="plan.id">
+                                    {{ plan.name }} - ${{ plan.price }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        {{ user.status === 'inactive'
-                        ? 'Desbloquear cuenta'
-                        : 'Bloquear cuenta' }}
+                        <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
+                            [disabled]="user.planId">
 
-                    </button>
+                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
 
-                    <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
-                        Forzar logout
-                    </button>
+                        </button>
+                    </div>
 
-                    <button mat-stroked-button (click)="resetPassword(user)">
-                        Reset password
-                    </button>
+                    <div class="section-row">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
+                            [disabled]="!user.lastPaymentAmount">
+
+                            📜 Historial
+
+                        </button>
+
+                        <button mat-raised-button color="accent" (click)="registerPayment(user)"
+                            [disabled]="!user.planId">
+
+                            Registrar Pago
+
+                        </button>
+                    </div>
 
                 </div>
 
-                <div class="roles-section">
-                    <strong>Cambiar rol:</strong>
 
-                    <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
-                        [disabled]="user.role === r">
-                        {{ r }}
-                    </button>
+                <!-- ================= SECCIÓN RUTINA ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">💪 Gestión de Rutina</h4>
+
+                    <div class="section-row">
+
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Rutina</mat-label>
+                            <mat-select [(ngModel)]="user.selectedRoutine">
+                                <mat-option *ngFor="let routine of routines" [value]="routine.id">
+                                    {{ routine.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <button mat-raised-button color="primary" (click)="assignRoutine(user)">
+
+                            {{ user.assignedRoutineId ? 'Cambiar Rutina' : 'Asignar Rutina' }}
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= SECCIÓN ADMIN ================= -->
+                <div class="section-card">
+
+                    <h4 class="section-title">⚙ Administración</h4>
+
+                    <div class="admin-actions">
+                        <button mat-stroked-button [color]="user.status === 'inactive' ? 'primary' : 'warn'"
+                            (click)="toggleStatus(user)">
+
+                            <mat-icon>
+                                {{ user.status === 'inactive' ? 'lock_open' : 'lock' }}
+                            </mat-icon>
+
+                            {{ user.status === 'inactive'
+                            ? 'Desbloquear cuenta'
+                            : 'Bloquear cuenta' }}
+
+                        </button>
+
+                        <button mat-stroked-button color="accent" (click)="forceLogout(user.uid)">
+                            Forzar logout
+                        </button>
+
+                        <button mat-stroked-button (click)="resetPassword(user)">
+                            Reset password
+                        </button>
+                    </div>
+
+                    <div class="roles-section">
+                        <!-- <strong>Cambiar rol:</strong> -->
+                        <button mat-stroked-button *ngFor="let r of roles" (click)="changeRole(user.uid, r)"
+                            [disabled]="user.role === r">
+                            {{ r }}
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
-
         </mat-card>
-
     </mat-tab>
 
     <!-- ================= CARD CLIENTES  ================= -->
@@ -217,6 +522,7 @@
 
                     <h3>
                         {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
+
                     </h3>
                     <div class="compact-row">
                         <span *ngIf="user.email">{{ user.email }}</span>
