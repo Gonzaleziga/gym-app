@@ -1,0 +1,38 @@
+<mat-card>
+
+    <h2>💳 Historial de Pagos</h2>
+
+    <p><strong>Total histórico pagado:</strong> ${{ totalPaid }}</p>
+
+    <div *ngIf="loading">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading && payments.length === 0">
+        No tienes pagos registrados.
+    </div>
+
+    <div *ngFor="let payment of payments" class="payment-row">
+
+        <div>
+            <strong>{{ payment.createdAt?.toDate() | date:'mediumDate' }}</strong>
+            <p>
+                Vigencia:
+                {{ payment.startDate?.toDate() | date:'mediumDate' }}
+                -
+                {{ payment.endDate?.toDate() | date:'mediumDate' }}
+            </p>
+        </div>
+
+        <div>
+            ${{ payment.amount }}
+        </div>
+
+        <button mat-raised-button color="primary" (click)="downloadReceipt(payment)">
+            Descargar PDF
+        </button>
+        <hr>
+
+    </div>
+
+</mat-card>

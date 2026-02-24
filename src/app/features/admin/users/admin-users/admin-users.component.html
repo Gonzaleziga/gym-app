@@ -150,16 +150,21 @@
                         </mat-form-field>
 
                         <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
-                            [disabled]="user.planId">
+                            [disabled]="!user.selectedPlan">
 
-                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
+                            {{
+                            user.membershipStatus === 'active'
+                            ? 'Cambiar Plan'
+                            : user.planId
+                            ? 'Renovar Plan'
+                            : 'Asignar Plan'
+                            }}
 
                         </button>
                     </div>
 
                     <div class="section-row">
-                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
-                            [disabled]="!user.lastPaymentAmount">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)" [disabled]="false">
 
                             📜 Historial
 
@@ -384,16 +389,21 @@
                         </mat-form-field>
 
                         <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
-                            [disabled]="user.planId">
+                            [disabled]="!user.selectedPlan">
 
-                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
+                            {{
+                            user.membershipStatus === 'active'
+                            ? 'Cambiar Plan'
+                            : user.planId
+                            ? 'Renovar Plan'
+                            : 'Asignar Plan'
+                            }}
 
                         </button>
                     </div>
 
                     <div class="section-row">
-                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
-                            [disabled]="!user.lastPaymentAmount">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)" [disabled]="false">
 
                             📜 Historial
 
@@ -619,16 +629,21 @@
                         </mat-form-field>
 
                         <button mat-raised-button color="primary" class="section-btn" (click)="assignPlan(user)"
-                            [disabled]="user.planId">
+                            [disabled]="!user.selectedPlan">
 
-                            {{ user.planId ? 'Plan Asignado' : 'Asignar Plan' }}
+                            {{
+                            user.membershipStatus === 'active'
+                            ? 'Cambiar Plan'
+                            : user.planId
+                            ? 'Renovar Plan'
+                            : 'Asignar Plan'
+                            }}
 
                         </button>
                     </div>
 
                     <div class="section-row">
-                        <button mat-stroked-button color="primary" (click)="viewPayments(user)"
-                            [disabled]="!user.lastPaymentAmount">
+                        <button mat-stroked-button color="primary" (click)="viewPayments(user)" [disabled]="false">
 
                             📜 Historial
 

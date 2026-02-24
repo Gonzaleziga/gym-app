@@ -22,7 +22,7 @@ import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage
 import { deleteObject } from '@angular/fire/storage';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-
+import { Timestamp } from '@angular/fire/firestore';
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -380,25 +380,34 @@ export class AdminUsersComponent implements OnInit {
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + plan.durationMonths);
 
+      const startTimestamp = Timestamp.fromDate(startDate);
+      const endTimestamp = Timestamp.fromDate(endDate);
+      const createdTimestamp = Timestamp.fromDate(new Date());
+
       // 🔥 1️⃣ Registrar pago
       await this.paymentsService.registerPayment({
         userId: user.uid,
         amount: plan.price,
         months: plan.durationMonths,
-        startDate,
-        endDate,
-        createdAt: new Date(),
+        startDate: startTimestamp,
+        endDate: endTimestamp,
+        createdAt: createdTimestamp,
         createdBy: adminUid
       });
 
-      // 🔥 2️⃣ Actualizar membresía
+      // 🔥 2️⃣ Actualizar membresía en Firestore
       await this.usersService.updateUser(user.uid, {
         membershipStatus: 'active',
-        membershipStart: startDate,
-        membershipEnd: endDate
+        membershipStart: startTimestamp,
+        membershipEnd: endTimestamp,
+        lastPaymentAmount: plan.price
       });
 
+      // 🔥 3️⃣ Actualizar en memoria (CLAVE PARA QUE NO TENGAS QUE CERRAR DETALLES)
       user.membershipStatus = 'active';
+      user.membershipStart = startTimestamp;
+      user.membershipEnd = endTimestamp;
+      user.lastPaymentAmount = plan.price;
 
       // 🔹 Modal éxito
       this.dialog.open(ConfirmModalComponent, {
@@ -491,17 +500,36 @@ export class AdminUsersComponent implements OnInit {
   async assignPlan(user: any) {
 
     if (!user.selectedPlan) return;
-    const currentTab = this.activeTabIndex; // 🔥 GUARDAR TAB ACTUAL
-    await this.usersService.assignPlanToUser(
-      user.uid,
-      user.selectedPlan
+
+    const plan = this.plans.find(p => p.id === user.selectedPlan);
+    if (!plan) return;
+
+    const today = new Date();
+
+    const endDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + plan.durationMonths,
+      today.getDate()
     );
 
-    user.planId = user.selectedPlan;
-    user.selectedPlan = null;
+    const startTimestamp = Timestamp.fromDate(today);
+    const endTimestamp = Timestamp.fromDate(endDate);
 
-    await this.loadUsers();
-    this.activeTabIndex = currentTab; // 🔥 RESTAURA TAB
+    // 🔥 Guardar en Firestore
+    await this.usersService.updateUser(user.uid, {
+      planId: plan.id,
+      membershipStart: startTimestamp,
+      membershipEnd: endTimestamp,
+      membershipStatus: 'active'
+    });
+
+    // 🔥 Actualizar en memoria como Timestamp también
+    user.planId = plan.id;
+    user.membershipStart = startTimestamp;
+    user.membershipEnd = endTimestamp;
+    user.membershipStatus = 'active';
+
+    user.selectedPlan = null;
   }
 
   async loadPlans() {

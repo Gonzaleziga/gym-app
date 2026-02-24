@@ -123,6 +123,12 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/cliente/routine/client-routine/client-routine.component')
                                 .then(m => m.ClientRoutineComponent)
+                    },
+                    {
+                        path: 'payments',
+                        loadComponent: () =>
+                            import('./features/cliente/payments/client-payments/client-payments.component')
+                                .then(m => m.ClientPaymentsComponent)
                     }
 
                 ]

@@ -133,6 +133,8 @@
     /* mismo alto que mat-form-field outline */
     min-width: 170px;
     font-weight: 600;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 /* ===== TARJETAS INTERNAS DEL PANEL ===== */
@@ -170,11 +172,7 @@
     min-width: 240px;
 }
 
-.section-btn {
-    height: 56px;
-    min-width: 170px;
-    font-weight: 600;
-}
+
 
 :host-context(.light-theme) .section-card {
     background: #fafafa;
