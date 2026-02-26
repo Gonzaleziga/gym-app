@@ -68,7 +68,7 @@ export class PrivateSidebarComponent {
       case 'employee':
         return [
           { label: 'Mi panel', route: '/employee', icon: 'dashboard' },
-          { label: 'Mis grupos', route: '/employee/groups', icon: 'dashboard' },
+          { label: 'Usuarios', route: '/employee/users', icon: 'group' }
         ];
 
       case 'visitor':

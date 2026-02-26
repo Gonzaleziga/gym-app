@@ -248,6 +248,9 @@ export class UsersService {
           expiredMembers++;
         }
       });
+      console.log('Active:', activeMembers);
+      console.log('Expired:', expiredMembers);
+      console.log('Upcoming:', upcomingExpirations);
 
       return {
         monthlyIncome,

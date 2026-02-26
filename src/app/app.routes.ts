@@ -137,10 +137,22 @@ export const routes: Routes = [
             {
                 path: 'employee',
                 canMatch: [employeeGuard],
-                loadComponent: () =>
-                    import('./features/empleado/dashboard/dashboard.component')
-                        .then(m => m.DashboardComponent)
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import('./features/empleado/dashboard/dashboard.component')
+                                .then(m => m.DashboardComponent)
+                    },
+                    {
+                        path: 'users',
+                        loadComponent: () =>
+                            import('./features/empleado/employee-users/employee-users.component')
+                                .then(m => m.EmployeeUsersComponent)
+                    }
+                ]
             },
+
 
             {
                 path: 'visitor',

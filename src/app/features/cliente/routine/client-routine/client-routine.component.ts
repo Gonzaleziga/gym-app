@@ -84,7 +84,8 @@ export class ClientRoutineComponent implements OnInit {
         if (instructor) {
           this.instructorName =
             (instructor['name'] || '') + ' ' +
-            (instructor['lastNameFather'] || '');
+            (instructor['lastNameFather'] || '') + ' ' +
+            (instructor['lastNameMother'] || '');
         }
       }
 

@@ -16,6 +16,7 @@
 
 
     <!-- 🔥 PANEL FINANCIERO -->
+
     <div *ngIf="role === 'admin' && stats" class="financial-grid">
 
         <!-- 💳 FINANZAS DEL MES -->
@@ -34,18 +35,25 @@
                     <span class="label">🧾 Total de pagos</span>
                     <p class="big-number">{{ stats.monthlyPayments }}</p>
                 </div>
-
             </div>
-
             <small>Click para ver detalle</small>
+
+        </mat-card>
+        <!-- 📚 HISTORIAL COMPLETO -->
+        <mat-card class="financial-card clickable" (click)="openDetails('history')">
+
+            <h3>📚 Historial completo</h3>
+            <p class="big-number">📄</p>
+            <small>Click para ver todos los pagos registrados</small>
 
         </mat-card>
 
         <!-- 🟢 Activos -->
         <mat-card class="financial-card clickable" (click)="openDetails('active')">
-
-            <h3>👥 Membresias Activas</h3>
-            <p class="big-number active">{{ stats.activeMembers }}</p>
+            <h3>👥 Membresías Activas</h3>
+            <p class="big-number text-active">
+                {{ stats?.activeMembers || 0 }}
+            </p>
             <small>Click para ver detalle</small>
 
         </mat-card>
@@ -54,7 +62,9 @@
         <mat-card class="financial-card clickable" (click)="openDetails('expired')">
 
             <h3>❌ Membresias Vencidas</h3>
-            <p class="big-number expired">{{ stats.expiredMembers }}</p>
+            <p class="big-number text-expired">
+                {{ stats?.expiredMembers || 0 }}
+            </p>
             <small>Click para ver detalle</small>
 
         </mat-card>
@@ -63,7 +73,9 @@
         <mat-card class="financial-card clickable" (click)="openDetails('upcoming')">
 
             <h3>⚠️ Vencen en 7 días</h3>
-            <p class="big-number warning">{{ stats.upcomingExpirations }}</p>
+            <p class="big-number text-warning">
+                {{ stats?.upcomingExpirations || 0 }}
+            </p>
             <small>Click para ver detalle</small>
 
         </mat-card>
@@ -92,51 +104,130 @@
         <!-- BODY -->
         <div class="modal-body">
 
-            <div *ngIf="detailList.length === 0">
+            <div *ngIf="filteredDetailList.length === 0">
                 <p>No hay registros.</p>
             </div>
 
-            <div *ngFor="let item of detailList" class="detail-item">
+            <!-- ================= HISTORY ================= -->
+            <div *ngIf="selectedDetailType === 'history'">
 
-                <!-- 💰 INGRESOS -->
-                <div *ngIf="selectedDetailType === 'income'">
-                    <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
-                    <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
-                    <p>
-                        <strong>📅 Fecha:</strong>
-                        {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
-                    </p>
-                    <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
+                <!-- 🔎 BUSCADOR (solo una vez) -->
+                <input type="text" placeholder="🔎 Buscar por nombre..." [(ngModel)]="searchTerm"
+                    (input)="filterHistory()" class="search-input">
+
+                <div class="date-filters">
+                    <input type="date" [(ngModel)]="startDateFilter" (change)="filterHistory()">
+                    <input type="date" [(ngModel)]="endDateFilter" (change)="filterHistory()">
                 </div>
 
-                <!-- 🧾 PAGOS -->
-                <div *ngIf="selectedDetailType === 'payments'">
+                <select [(ngModel)]="adminFilter" (change)="filterHistory()">
+                    <option value="">Todos los registros</option>
+                    <option *ngFor="let admin of adminList" [value]="admin">
+                        {{ admin }}
+                    </option>
+                </select>
+                <button mat-raised-button color="primary" (click)="exportHistoryToPDF()">
+                    📄 Exportar PDF
+                </button>
+
+                <div *ngFor="let item of filteredDetailList" class="detail-item">
+
                     <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
+                    <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
                     <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
                     <p><strong>📆 Meses:</strong> {{ item.months }}</p>
                     <p>
                         <strong>📅 Fecha:</strong>
                         {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
                     </p>
-                    <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
+
+
+
                 </div>
 
-                <!-- 👥 USUARIOS -->
-                <div *ngIf="selectedDetailType === 'active' ||
-                            selectedDetailType === 'expired' ||
-                            selectedDetailType === 'upcoming'">
+            </div>
 
-                    <p><strong>Nombre:</strong> {{ item.name }}</p>
-                    <p><strong>Email:</strong> {{ item.email }}</p>
-                    <p><strong>Estado:</strong> {{ item.membershipStatus }}</p>
+            <!-- ================= OTROS TIPOS ================= -->
+            <div *ngIf="selectedDetailType !== 'history'">
 
-                    <p *ngIf="item.membershipEnd">
-                        <strong>Vence:</strong>
-                        {{ item.membershipEnd?.toDate?.() | date:'mediumDate' }}
-                    </p>
+                <div *ngFor="let item of filteredDetailList" class="detail-item">
+
+                    <!-- 💰 INGRESOS -->
+                    <div *ngIf="selectedDetailType === 'income'">
+                        <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
+                        <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
+                        <p>
+                            <strong>📅 Fecha:</strong>
+                            {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
+                        </p>
+                        <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
+                    </div>
+
+                    <!-- 👥 USUARIOS -->
+                    <!-- 👥 ACTIVOS -->
+                    <div *ngIf="selectedDetailType === 'active'">
+
+                        <p><strong>👤 Nombre:</strong> {{ item.fullName }}</p>
+                        <p><strong>📧 Email:</strong> {{ item.email }}</p>
+
+                        <p>
+                            <strong>📅 Inicio:</strong>
+                            {{ item.membershipStartParsed | date:'mediumDate' }}
+                        </p>
+
+                        <p>
+                            <strong>📅 Vence:</strong>
+                            {{ item.membershipEndParsed | date:'mediumDate' }}
+                        </p>
+
+                        <p>
+                            <strong>⏳ Días restantes:</strong>
+                            {{ item.remainingDays }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- ❌ VENCIDOS -->
+                    <div *ngIf="selectedDetailType === 'expired'">
+                        <p>
+                            <strong>👤 Nombre:</strong>
+                            {{ item.name }} {{ item.lastNameFather }} {{ item.lastNameMother }}
+                        </p>
+                        <p>
+                            <strong>📞 Teléfono:</strong>
+                            {{ item.phoneNumber || 'No registrado' }}
+                        </p>
+                        <p>
+                            <strong>📧 Email:</strong>
+                            {{ item.email }}
+                        </p>
+                        <p *ngIf="item.membershipEnd">
+                            <strong>📅 Venció:</strong>
+                            {{ item.membershipEnd?.toDate?.() | date:'mediumDate' }}
+                        </p>
+                    </div>
+
+
+                    <!-- ⚠️ PRÓXIMOS -->
+                    <div *ngIf="selectedDetailType === 'upcoming'">
+
+                        <p><strong>👤 Nombre:</strong> {{ item.name }} {{ item.lastNameFather }} {{ item.lastNameMother
+                            }}</p>
+                        <p>
+                            <strong>📞 Teléfono:</strong>
+                            {{ item.phoneNumber || 'No registrado' }}
+                        </p>
+                        <p><strong>📧 Email:</strong> {{ item.email }}</p>
+
+                        <p *ngIf="item.membershipEnd">
+                            <strong>📅 Vence:</strong>
+                            {{ item.membershipEnd?.toDate?.() | date:'mediumDate' }}
+                        </p>
+
+                    </div>
+
                 </div>
-
-
 
             </div>
 

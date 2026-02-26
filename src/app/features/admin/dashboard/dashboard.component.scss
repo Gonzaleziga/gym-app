@@ -37,10 +37,6 @@ mat-card {
     margin-top: 20px;
 }
 
-.big-number {
-    font-size: 28px;
-    font-weight: bold;
-}
 
 .active {
     color: #2ecc71;
@@ -139,7 +135,29 @@ mat-card {
     color: #777;
 }
 
+
+
+.search-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
 .big-number {
     font-size: 24px;
     font-weight: bold;
+}
+
+.text-active {
+    color: #4caf50;
+}
+
+.text-expired {
+    color: #f44336;
+}
+
+.text-warning {
+    color: #ff9800;
 }
