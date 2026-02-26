@@ -9,7 +9,8 @@
     <mat-card class="profile-visual-card">
 
         <!-- COVER -->
-        <div class="cover-wrapper" [class.clickable]="isOwner" (click)="isOwner && confirmChangeCover(coverInput)">
+        <div class="cover-wrapper" [class.clickable]="isOwner && !isVisitor"
+            (click)="isOwner && !isVisitor && confirmChangeCover(coverInput)">
 
             <div class="cover" [style.backgroundImage]="
                  user.coverPhotoURL
@@ -17,7 +18,7 @@
                  : 'url(/images/cover-default.jpg)'">
             </div>
 
-            <div *ngIf="isOwner" class="cover-overlay-text">
+            <div *ngIf="isOwner && !isVisitor" class="cover-overlay-text">
                 Cambiar portada
             </div>
 
@@ -31,8 +32,8 @@
         <input type="file" hidden #coverInput accept="image/*" (change)="onCoverSelected($event)">
 
         <!-- FOTO PERFIL -->
-        <div class="profile-avatar-wrapper" [class.clickable]="isOwner"
-            (click)="isOwner && confirmChangeProfilePhoto(fileInput)">
+        <div class="profile-avatar-wrapper" [class.clickable]="isOwner && !isVisitor"
+            (click)="isOwner && !isVisitor && confirmChangeProfilePhoto(fileInput)">
 
             <img class="profile-photo" [src]="user.photoURL || '/images/images.png'">
 
@@ -55,8 +56,11 @@
             {{ user.name }}
             {{ user.lastNameFather }}
             {{ user.lastNameMother }}
-            {{ user.uid }}
+            <!-- {{ user.uid }} -->
         </h2>
+        <div *ngIf="isBirthdayToday" class="birthday-banner">
+            🎉 Muchas Felicidades, ¡Hoy es tu cumpleaños! 🎂
+        </div>
 
         <!-- <p *ngIf="isOwner" class="role">
             Rol: {{ user.role }}
@@ -85,13 +89,13 @@
                     {{ user.nickname || 'Sin nickname' }}
                 </h2>
 
-                <button *ngIf="isOwner" mat-stroked-button (click)="editingNickname = true">
+                <button *ngIf="isOwner && !isVisitor" mat-stroked-button (click)="editingNickname = true">
                     Editar nickname
                 </button>
 
             </div>
 
-            <div *ngIf="editingNickname && isOwner">
+            <div *ngIf="editingNickname && isOwner && !isVisitor">
 
                 <input type="text" [(ngModel)]="newNickname" maxlength="20" placeholder="Tu nickname"
                     class="nickname-input">
@@ -118,7 +122,7 @@
                     {{ user.bio || 'Sin biografía aún.' }}
                 </p>
 
-                <button mat-stroked-button *ngIf="isOwner" (click)="editingBio = true">
+                <button mat-stroked-button *ngIf="isOwner && !isVisitor" (click)="editingBio = true">
                     Editar biografía
                 </button>
             </div>
@@ -178,6 +182,10 @@
                     <strong>Género:</strong>
                     {{ user.gender || 'No especificado' }}
                 </p>
+                <p *ngIf="isOwner && user.birthDate">
+                    <strong>Fecha de nacimiento:</strong>
+                    {{ user.birthDate?.toDate() | date:'longDate' }}
+                </p>
 
                 <div *ngIf="isOwner">
 
@@ -191,18 +199,9 @@
                         {{ user.emergencyContact?.phone || 'No definido' }}
                     </p>
 
-                    <p *ngIf="user.birthDate">
-                        <strong>Cumpleaños:</strong>
-                        {{ user.birthDate?.toDate() | date:'longDate' }}
-                    </p>
-
-                    <div *ngIf="isBirthdayToday" class="birthday-banner">
-                        🎉 Muchas Felicidades, ¡Hoy es tu cumpleaños! 🎂
-                    </div>
-
                 </div>
 
-                <button *ngIf="isOwner" mat-stroked-button (click)="editingExtraInfo = true">
+                <button *ngIf="isOwner && !isVisitor" mat-stroked-button (click)="editingExtraInfo = true">
                     Editar información
                 </button>
 
@@ -220,6 +219,11 @@
                         <mat-option value="Otro">Otro</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <!-- CUMPLEAÑOS -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Cumpleaños</mat-label>
+                    <input matInput type="date" [(ngModel)]="birthDate">
+                </mat-form-field>
 
                 <!-- CONTACTO EMERGENCIA -->
                 <mat-form-field appearance="outline" class="full-width">
@@ -229,20 +233,21 @@
 
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Teléfono emergencia</mat-label>
-                    <input matInput [(ngModel)]="emergencyPhone">
+                    <input matInput [(ngModel)]="emergencyPhone" maxlength="10" inputmode="numeric"
+                        (input)="validateEmergencyPhone()">
+                    <mat-error *ngIf="emergencyPhoneError">
+                        El teléfono debe tener exactamente 10 números
+                    </mat-error>
                 </mat-form-field>
-                <!-- CUMPLEAÑOS -->
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Cumpleaños</mat-label>
-                    <input matInput type="date" [(ngModel)]="birthDate">
-                </mat-form-field>
+
 
                 <div class="edit-actions">
                     <button mat-button (click)="editingExtraInfo = false">
                         Cancelar
                     </button>
 
-                    <button mat-raised-button color="primary" (click)="saveExtraInfo()">
+                    <button mat-raised-button color="primary" (click)="saveExtraInfo()"
+                        [disabled]="emergencyPhoneError">
                         Guardar
                     </button>
                 </div>
@@ -256,7 +261,7 @@
 
 
         <div class="profile-visibility">
-            <button *ngIf="isOwner" mat-raised-button [color]="user.isPublic ? 'primary' : 'warn'"
+            <button *ngIf="isOwner && !isVisitor" mat-raised-button [color]="user.isPublic ? 'primary' : 'warn'"
                 (click)="togglePublicProfile()">
 
                 <mat-icon>
@@ -276,7 +281,7 @@
         <div class="gallery-header">
             <h3>Mi Galería</h3>
 
-            <button *ngIf="isOwner" mat-stroked-button (click)="openGalleryInput()">
+            <button *ngIf="isOwner && !isVisitor" mat-stroked-button (click)="openGalleryInput()">
                 + Agregar
             </button>
         </div>

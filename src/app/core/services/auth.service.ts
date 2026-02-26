@@ -25,6 +25,22 @@ export class AuthService {
     private router: Router
   ) { }
 
+
+
+  // =============================
+  // 🔹 Función privada para formatear nombres
+  // =============================
+  private formatName(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .split(' ')
+      .map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join(' ');
+  }
+
   // =============================
   // 📧 REGISTRO
   // =============================
@@ -36,40 +52,44 @@ export class AuthService {
     lastNameMother: string,
     phoneNumber: string
   ) {
+
+    // 🔥 Normalizar datos
+    const cleanEmail = email.trim().toLowerCase();
+    const formattedName = this.formatName(name);
+    const formattedLastNameFather = this.formatName(lastNameFather);
+    const formattedLastNameMother = this.formatName(lastNameMother);
+
     const cred = await createUserWithEmailAndPassword(
       this.auth,
-      email.trim(),
+      cleanEmail,
       password.trim()
     );
 
     // Actualizar perfil en Auth
     await updateProfile(cred.user, {
-      displayName: name,
+      displayName: formattedName,
       photoURL: '/images/images.png'
     });
 
     // Crear documento en Firestore
     await this.usersService.createUser(cred.user.uid, {
       uid: cred.user.uid,
-      name,
-      lastNameFather,
-      lastNameMother,
+      name: formattedName,
+      lastNameFather: formattedLastNameFather,
+      lastNameMother: formattedLastNameMother,
       phoneNumber,
-      email,
+      email: cleanEmail,
       provider: 'password',
 
-      // Seguridad
       role: 'visitor',
       status: 'active',
       isApproved: false,
       forceLogout: false,
 
-      // Membresía
       membershipId: null,
       membershipStatus: 'none',
       membershipEndDate: null,
 
-      // Perfil
       photoURL: cred.user.photoURL,
       genero: 'otro',
       birthDate: null,
@@ -78,7 +98,6 @@ export class AuthService {
       bio: '',
       emergencyContact: { name: '', phone: '' },
 
-      // Fechas
       createdAt: new Date(),
       updatedAt: new Date(),
     });

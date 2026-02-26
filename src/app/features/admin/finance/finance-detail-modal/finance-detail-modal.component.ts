@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { UsersService } from '../../../../core/services/users.service';
 import { MatIconModule } from '@angular/material/icon';
+
+import { UsersService } from '../../../../core/services/users.service';
+import { PaymentsService } from '../../../../core/services/payments.service';
 
 @Component({
   selector: 'app-finance-detail-modal',
@@ -27,7 +29,8 @@ export class FinanceDetailModalComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private paymentsService: PaymentsService
   ) { }
 
   async ngOnInit() {
@@ -37,21 +40,50 @@ export class FinanceDetailModalComponent implements OnInit {
       case 'income':
         this.title = 'Reporte Financiero del Mes';
 
-        const monthlyPayments = await this.usersService.getMonthlyPayments();
+        const monthlyPayments = await this.paymentsService.getMonthlyPayments();
+        const users = await this.usersService.getAllUsers();
 
-        // 🔥 calcular total
-        const total = monthlyPayments.reduce((sum: number, p: any) => {
+        // 🔥 Unir pagos con usuarios
+        const enrichedPayments = monthlyPayments.map((payment: any) => {
+
+          const user = users.find((u: any) => u.uid === payment.userId);
+
+          return {
+            ...payment,
+            userName: user
+              ? `${user.name} ${user.lastNameFather}`
+              : 'Usuario no encontrado'
+          };
+        });
+
+        const total = enrichedPayments.reduce((sum: number, p: any) => {
           return sum + (p.amount || 0);
         }, 0);
 
-        this.items = monthlyPayments;
+        this.items = enrichedPayments;
         this.data.total = total;
 
         break;
 
+
       case 'payments':
         this.title = 'Historial de Pagos del Mes';
-        this.items = await this.usersService.getMonthlyPayments();
+
+        const payments = await this.paymentsService.getMonthlyPayments();
+        const allUsers = await this.usersService.getAllUsers();
+
+        this.items = payments.map((payment: any) => {
+
+          const user = allUsers.find((u: any) => u.uid === payment.userId);
+
+          return {
+            ...payment,
+            userName: user
+              ? `${user.name} ${user.lastNameFather}`
+              : 'Usuario no encontrado'
+          };
+        });
+
         break;
 
       case 'active':

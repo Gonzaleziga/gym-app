@@ -35,14 +35,14 @@ export class UsersService {
   }
 
   // 🔥 Obtener todos los usuarios
-  getAllUsers() {
+  getAllUsers(): Promise<any[]> {
     return runInInjectionContext(this.injector, async () => {
       const ref = collection(this.firestore, 'users');
       const snap = await getDocs(ref);
 
       return snap.docs.map(d => ({
         uid: d.id,
-        ...d.data()
+        ...(d.data() as any)
       }));
     });
   }

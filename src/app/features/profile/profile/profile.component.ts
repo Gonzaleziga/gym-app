@@ -88,6 +88,8 @@ export class ProfileComponent implements OnInit {
   newNickname = '';
   birthDate: string | null = null;
   isBirthdayToday = false;
+  isVisitor = false;
+  emergencyPhoneError = false;
 
   async ngOnInit() {
     const routeUid = this.route.snapshot.paramMap.get('uid');
@@ -105,7 +107,7 @@ export class ProfileComponent implements OnInit {
     // 🔥 ASIGNAR SIEMPRE
     this.currentUserId = currentUser.uid;
 
-    // 🔥 CASO 1
+    // 🔥 CASO 1   CARGAR USUARIOS CUANDO VIENE DE LA COMUNIDAD
     if (routeUid) {
       this.isOwner = currentUser.uid === routeUid;
       this.isFromCommunity = !this.isOwner;
@@ -113,6 +115,7 @@ export class ProfileComponent implements OnInit {
       if (snap.exists()) {
         this.userData = snap.data();
         this.userData.uid = routeUid;
+        this.isVisitor = this.userData.role === 'visitor';
         this.newBio = this.userData.bio || '';
         this.selectedGender = this.userData.gender || '';
         this.emergencyName = this.userData.emergencyContact?.name || '';
@@ -122,10 +125,13 @@ export class ProfileComponent implements OnInit {
 
           const date = this.userData.birthDate.toDate();
 
-          this.birthDate = date.toISOString().split('T')[0];
+          this.birthDate = date.toISOString().split('T')[0]; // ✅ CORRECTO
 
-        } else {
-          this.birthDate = null;
+          const today = new Date();
+
+          this.isBirthdayToday =
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth();
         }
         await this.loadGallery();
         await this.loadWorkoutStats(this.userData.uid);
@@ -134,7 +140,7 @@ export class ProfileComponent implements OnInit {
       this.loading = false;
       return;
     }
-    // 🔥 CASO 2
+    // 🔥 CASO 2 CUANDO ES TU PERFIL 
     this.isOwner = true;
 
     const snap = await this.usersService.getUser(currentUser.uid);
@@ -143,13 +149,15 @@ export class ProfileComponent implements OnInit {
       this.userData = snap.data();
       this.userData.uid = currentUser.uid;
       this.newBio = this.userData.bio || '';
+      this.isVisitor = this.userData.role === 'visitor';
       this.selectedGender = this.userData.gender || '';
       this.emergencyName = this.userData.emergencyContact?.name || '';
       this.emergencyPhone = this.userData.emergencyContact?.phone || '';
       if (this.userData.birthDate) {
 
         const date = this.userData.birthDate.toDate();
-        this.birthDate = date;
+
+        this.birthDate = date.toISOString().split('T')[0]; // ✅ CORRECTO
 
         const today = new Date();
 
@@ -449,6 +457,19 @@ export class ProfileComponent implements OnInit {
 
     try {
 
+      // 🔥 Limpiar teléfono emergencia
+      if (this.emergencyPhone) {
+        this.emergencyPhone = this.emergencyPhone
+          .replace(/[^0-9]/g, '')
+          .slice(0, 10);
+      }
+
+      // 🔥 Validar que tenga exactamente 10 dígitos
+      if (this.emergencyPhone && this.emergencyPhone.length !== 10) {
+        this.emergencyPhoneError = true;
+        return;
+      }
+
       let birthTimestamp = null;
 
       // 🔥 Ahora birthDate es string (YYYY-MM-DD)
@@ -640,5 +661,20 @@ export class ProfileComponent implements OnInit {
     );
 
     photo.comments = updated; // 🔥 actualiza en pantalla sin recargar todo
+  }
+  validateEmergencyPhone() {
+
+    if (!this.emergencyPhone) {
+      this.emergencyPhoneError = true;
+      return;
+    }
+
+    // 🔥 Limpiar caracteres no numéricos
+    this.emergencyPhone = this.emergencyPhone
+      .replace(/[^0-9]/g, '')
+      .slice(0, 10);
+
+    // 🔥 Validar que tenga exactamente 10
+    this.emergencyPhoneError = this.emergencyPhone.length !== 10;
   }
 }

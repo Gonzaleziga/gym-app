@@ -122,3 +122,24 @@ mat-card {
     color: #ff0000;
     transform: scale(1.1);
 }
+
+.finance-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    flex: 1;
+}
+
+.label {
+    font-size: 14px;
+    color: #777;
+}
+
+.big-number {
+    font-size: 24px;
+    font-weight: bold;
+}

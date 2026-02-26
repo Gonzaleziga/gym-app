@@ -18,20 +18,25 @@
     <!-- 🔥 PANEL FINANCIERO -->
     <div *ngIf="role === 'admin' && stats" class="financial-grid">
 
-        <!-- 💰 Ingresos -->
+        <!-- 💳 FINANZAS DEL MES -->
         <mat-card class="financial-card clickable" (click)="openDetails('income')">
 
-            <h3>💰 Ingresos del mes</h3>
-            <p class="big-number">${{ stats.monthlyIncome }}</p>
-            <small>Click para ver detalle</small>
+            <h3>💳 Finanzas del mes</h3>
 
-        </mat-card>
+            <div class="finance-stats">
 
-        <!-- 🧾 Pagos -->
-        <mat-card class="financial-card clickable" (click)="openDetails('payments')">
+                <div class="stat-item">
+                    <span class="label">💰 Total recaudado</span>
+                    <p class="big-number">${{ stats.monthlyIncome }}</p>
+                </div>
 
-            <h3>💵 Pagos del mes</h3>
-            <p class="big-number">{{ stats.monthlyPayments }}</p>
+                <div class="stat-item">
+                    <span class="label">🧾 Total de pagos</span>
+                    <p class="big-number">{{ stats.monthlyPayments }}</p>
+                </div>
+
+            </div>
+
             <small>Click para ver detalle</small>
 
         </mat-card>
@@ -95,21 +100,25 @@
 
                 <!-- 💰 INGRESOS -->
                 <div *ngIf="selectedDetailType === 'income'">
-                    <p><strong>Monto:</strong> ${{ item.amount }}</p>
+                    <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
+                    <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
                     <p>
-                        <strong>Fecha:</strong>
+                        <strong>📅 Fecha:</strong>
                         {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
                     </p>
+                    <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
                 </div>
 
                 <!-- 🧾 PAGOS -->
                 <div *ngIf="selectedDetailType === 'payments'">
-                    <p><strong>Monto:</strong> ${{ item.amount }}</p>
-                    <p><strong>Meses:</strong> {{ item.months }}</p>
+                    <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
+                    <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
+                    <p><strong>📆 Meses:</strong> {{ item.months }}</p>
                     <p>
-                        <strong>Fecha:</strong>
+                        <strong>📅 Fecha:</strong>
                         {{ item.createdAt?.toDate?.() | date:'mediumDate' }}
                     </p>
+                    <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
                 </div>
 
                 <!-- 👥 USUARIOS -->

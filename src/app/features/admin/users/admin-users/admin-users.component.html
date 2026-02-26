@@ -52,11 +52,10 @@
                         {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
                     </h3>
                     <div class="compact-row">
-                        <span *ngIf="user.email">{{ user.email }}</span>
+                        <span *ngIf="user.email"> ✉️ {{ user.email }}</span>
+                        <span *ngIf="user.phoneNumber">📞 {{ user.phoneNumber }}</span>
                     </div>
                     <div class="compact-row">
-
-                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
 
                         <span *ngIf="user.membershipStart">
                             Inicio:
@@ -295,12 +294,10 @@
                         {{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}
                     </h3>
                     <div class="compact-row">
-                        <span *ngIf="user.email">{{ user.email }}</span>
+                        <span *ngIf="user.email"> ✉️ {{ user.email }}</span>
+                        <span *ngIf="user.phoneNumber">📞 {{ user.phoneNumber }}</span>
                     </div>
                     <div class="compact-row">
-
-                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
-
                         <span *ngIf="user.membershipStart">
                             Inicio:
                             {{ user.membershipStart?.toDate() | date:'mediumDate' }}
@@ -535,11 +532,11 @@
 
                     </h3>
                     <div class="compact-row">
-                        <span *ngIf="user.email">{{ user.email }}</span>
+                        <span *ngIf="user.email"> ✉️ {{ user.email }}</span>
+
+                        <span *ngIf="user.phoneNumber">📞 {{ user.phoneNumber }}</span>
                     </div>
                     <div class="compact-row">
-
-                        <span *ngIf="user.phone">📞 {{ user.phone }}</span>
 
                         <span *ngIf="user.membershipStart">
                             Inicio:
@@ -739,7 +736,10 @@
                 <img class="avatar" [src]="user.photoURL || '/images/images.png'">
                 <div class="basic-info">
                     <h3>{{ user.name }} {{ user.lastNameFather }} {{ user.lastNameMother }}</h3>
-                    <p>{{ user.email }}</p>
+                    <div class="compact-row">
+                        <span *ngIf="user.email"> ✉️ {{ user.email }}</span>
+                        <span *ngIf="user.phoneNumber">📞 {{ user.phoneNumber }}</span>
+                    </div>
                     <span class="account-status" [ngClass]="{
                       'status-active': user.status === 'active',
                       'status-inactive': user.status === 'inactive'

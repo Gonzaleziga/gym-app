@@ -80,19 +80,48 @@ export class DashboardComponent implements OnInit {
             const createdAt = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
             return createdAt >= firstDayOfMonth;
           })
-          .map((p: any) => ({
-            ...p,
-            showAsIncome: true
-          }));
+          .map((p: any) => {
+
+            const client = users.find((u: any) => u.uid === p.userId);
+            const admin = users.find((u: any) => u.uid === p.createdBy);
+
+            return {
+              ...p,
+              userName: client
+                ? `${client.name} ${client.lastNameFather}`
+                : 'Usuario no encontrado',
+
+              createdByName: admin
+                ? `${admin.name} ${admin.lastNameFather}`
+                : 'Admin desconocido'
+            };
+          });
 
         break;
 
       case 'payments':
 
-        this.detailList = payments.filter((p: any) => {
-          const createdAt = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
-          return createdAt >= firstDayOfMonth;
-        });
+        this.detailList = payments
+          .filter((p: any) => {
+            const createdAt = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
+            return createdAt >= firstDayOfMonth;
+          })
+          .map((p: any) => {
+
+            const client = users.find((u: any) => u.uid === p.userId);
+            const admin = users.find((u: any) => u.uid === p.createdBy);
+
+            return {
+              ...p,
+              userName: client
+                ? `${client.name} ${client.lastNameFather}`
+                : 'Usuario no encontrado',
+
+              createdByName: admin
+                ? `${admin.name} ${admin.lastNameFather}`
+                : 'Admin desconocido'
+            };
+          });
 
         break;
 
