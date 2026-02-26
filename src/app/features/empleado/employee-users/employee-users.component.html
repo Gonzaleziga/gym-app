@@ -138,26 +138,57 @@
                 <!-- ================= SECCIÓN RUTINA ================= -->
                 <div class="section-card">
 
-                    <h4 class="section-title">💪 Gestión de Rutina</h4>
+                    <h4 class="section-title">💪 Crear Rutina</h4>
 
-                    <div class="section-row">
+                    <!-- 🔽 Grupo muscular -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Grupo muscular</mat-label>
+                        <mat-select [(ngModel)]="selectedMuscleGroup" (selectionChange)="filterExercisesByGroup()">
 
-                        <mat-form-field appearance="outline" class="section-field">
-                            <mat-label>Seleccionar Rutina</mat-label>
-                            <mat-select [(ngModel)]="user.selectedRoutine">
-                                <mat-option *ngFor="let routine of routines" [value]="routine.id">
-                                    {{ routine.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                            <mat-option value="Pecho">Pecho</mat-option>
+                            <mat-option value="Espalda">Espalda</mat-option>
+                            <mat-option value="Pierna">Pierna</mat-option>
+                            <mat-option value="Hombro">Hombro</mat-option>
+                            <mat-option value="Biceps">Bíceps</mat-option>
+                            <mat-option value="Triceps">Tríceps</mat-option>
 
-                        <button mat-raised-button color="primary" (click)="assignRoutine(user)">
-                            {{ user.assignedRoutineId
-                            ? 'Cambiar Rutina'
-                            : 'Asignar Rutina' }}
-                        </button>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- 🖼️ Cards de ejercicios -->
+                    <div class="exercise-grid">
+
+                        <div *ngFor="let exercise of filteredExercises" class="exercise-card"
+                            [class.selected]="isSelected(exercise)" (click)="toggleExercise(exercise)">
+
+                            <img [src]="exercise.imageUrl" alt="exercise">
+
+                            <p>{{ exercise.name }}</p>
+
+                        </div>
 
                     </div>
+
+                    <h4 *ngIf="selectedExercises.length > 0">
+                        📝 Ejercicios seleccionados
+                    </h4>
+
+                    <div class="exercise-grid selected-zone" *ngIf="selectedExercises.length > 0">
+
+                        <div *ngFor="let exercise of selectedExercises" class="exercise-card selected"
+                            (click)="toggleExercise(exercise)">
+
+                            <img [src]="exercise.imageUrl">
+                            <p>{{ exercise.name }}</p>
+
+                        </div>
+
+                    </div>
+
+                    <button mat-raised-button color="primary" (click)="assignVisualRoutine(user)"
+                        [disabled]="selectedExercises.length === 0">
+                        Asignar Rutina
+                    </button>
 
                 </div>
 

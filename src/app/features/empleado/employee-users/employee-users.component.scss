@@ -56,3 +56,97 @@
     border: 2px solid white;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
+
+.client-card {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    transition: 0.2s ease;
+}
+
+.client-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.basic-info h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.compact-row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #555;
+}
+
+.details-panel {
+    padding: 16px 0;
+}
+
+.section-card {
+    background: var(--section-bg);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.section-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+/// RUTINAS
+.exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.exercise-card {
+    background: var(--section-bg);
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.exercise-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.exercise-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.exercise-card.selected {
+    border: 2px solid #1976d2;
+    background: #e3f2fd;
+}
+
+.selected-zone {
+    margin-top: 24px;
+    border-top: 2px dashed #444;
+    padding-top: 16px;
+}

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,7 +10,10 @@ import { UsersService } from '../../../core/services/users.service';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { MatFormField, MatLabel, MatOption } from '@angular/material/select';
+import { MatFormField, MatLabel, MatOption, MatSelectModule } from '@angular/material/select';
+import { ExercisesService } from '../../../core/services/exercises.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 
 @Component({
@@ -25,7 +28,11 @@ import { MatFormField, MatLabel, MatOption } from '@angular/material/select';
     FormsModule,
     MatFormField,
     MatLabel,
-    MatOption
+    MatOption,
+    MatTabGroup,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule
   ],
   templateUrl: './employee-users.component.html',
   styleUrl: './employee-users.component.scss'
@@ -41,11 +48,16 @@ export class EmployeeUsersComponent implements OnInit {
   searchTerm = '';
   plans: any[] = [];
   routines: any[] = [];
+  selectedMuscleGroup: string = '';
+  filteredExercises: any[] = [];
+  selectedExercises: any[] = [];
+  exercises: any[] = [];
 
   constructor(
     private usersService: UsersService,
     private paymentsService: PaymentsService,
-    private auth: Auth
+    private auth: Auth,
+    private exercisesService: ExercisesService,
   ) { }
 
   async ngOnInit() {
@@ -60,7 +72,7 @@ export class EmployeeUsersComponent implements OnInit {
 
     this.clients = allUsers.filter((u: any) => u.role === 'client');
     this.visitors = allUsers.filter((u: any) => u.role === 'visitor');
-
+    this.exercises = await this.exercisesService.getAllExercises();
     this.loading = false;
   }
 
@@ -160,5 +172,48 @@ export class EmployeeUsersComponent implements OnInit {
 
     // Si ya tienes modal de pagos en admin,
     // aquí después lo conectamos.
+  }
+
+  filterExercisesByGroup() {
+
+    if (!this.selectedMuscleGroup) {
+      this.filteredExercises = [];
+      return;
+    }
+
+    this.filteredExercises = this.exercises.filter(e =>
+      e.muscleGroup === this.selectedMuscleGroup
+    );
+
+  }
+  toggleExercise(exercise: any) {
+
+    const exists = this.selectedExercises.find(e => e.id === exercise.id);
+
+    if (exists) {
+      this.selectedExercises =
+        this.selectedExercises.filter(e => e.id !== exercise.id);
+    } else {
+      this.selectedExercises.push(exercise);
+    }
+  }
+  async assignVisualRoutine(user: any) {
+
+    const routineData = this.selectedExercises.map(e => ({
+      id: e.id,
+      name: e.name,
+      imageUrl: e.imageUrl
+    }));
+
+    await this.usersService.updateUser(user.uid, {
+      customRoutine: routineData
+    });
+
+    alert('Rutina asignada correctamente');
+
+    this.selectedExercises = [];
+  }
+  isSelected(exercise: any): boolean {
+    return this.selectedExercises.some(e => e.id === exercise.id);
   }
 }
