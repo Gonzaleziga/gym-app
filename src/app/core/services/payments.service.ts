@@ -90,4 +90,23 @@ export class PaymentsService {
     }));
 
   }
+  async getPaymentsByUser(userId: string) {
+    return runInInjectionContext(this.injector, async () => {
+
+      const paymentsRef = collection(this.firestore, 'payments');
+
+      const q = query(
+        paymentsRef,
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const snap = await getDocs(q);
+
+      return snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    });
+  }
 }

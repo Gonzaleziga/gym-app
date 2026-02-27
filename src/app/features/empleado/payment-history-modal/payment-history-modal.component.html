@@ -2,8 +2,11 @@
 
     <!-- HEADER -->
     <div class="modal-header">
-        <h2 mat-dialog-title>
-            📜 Pagos de {{ data.name }} {{ data.lastNameFather }} {{ data.lastNameMother }}
+        <h2>
+            Historial de
+            {{ data.name }}
+            {{ data.lastNameFather }}
+            {{ data.lastNameMother }}
         </h2>
 
         <button mat-icon-button class="close-btn" (click)="close()">
@@ -11,7 +14,7 @@
         </button>
     </div>
 
-    <!-- BODY CON SCROLL -->
+    <!-- BODY -->
     <div class="modal-body">
 
         <div *ngIf="loading" class="center">
@@ -24,32 +27,27 @@
 
         <mat-card *ngFor="let p of payments" class="payment-card">
 
-            <div class="row">
+            <div class="payment-row">
                 <span class="label">Monto:</span>
                 <span class="value income">${{ p.amount }}</span>
             </div>
 
-            <div class="row">
+            <div class="payment-row">
                 <span class="label">Meses:</span>
                 <span class="value">{{ p.months }}</span>
             </div>
 
-            <div class="row">
+            <div class="payment-row">
                 <span class="label">Válido hasta:</span>
                 <span class="value">
                     {{ p.endDate?.toDate?.() | date:'mediumDate' }}
                 </span>
             </div>
-            <div class="row">
+
+            <div class="payment-row">
                 <span class="label">Registrado por:</span>
                 <span class="value">
                     {{ p.createdByName }}
-                </span>
-            </div>
-            <div class="row">
-                <span class="label">Fecha del pago:</span>
-                <span class="value">
-                    {{ p.createdAt?.toDate?.() | date:'mediumDate' }}
                 </span>
             </div>
 

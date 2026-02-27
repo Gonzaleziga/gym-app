@@ -4,9 +4,10 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { UsersService } from '../../../../core/services/users.service';
 import { MatIconModule } from '@angular/material/icon';
-import { PaymentsService } from '../../../../core/services/payments.service';
+
+import { PaymentsService } from '../../../core/services/payments.service';
+import { UsersService } from '../../../core/services/users.service';
 
 @Component({
   selector: 'app-payment-history-modal',
@@ -33,11 +34,6 @@ export class PaymentHistoryModalComponent implements OnInit {
     private dialogRef: MatDialogRef<PaymentHistoryModalComponent>
   ) { }
 
-  // async ngOnInit() {
-  //   this.payments = await this.paymentsService.getUserPayments(this.data.uid);
-  //   this.loading = false;
-  // }
-
   async ngOnInit() {
 
     const payments =
@@ -58,6 +54,7 @@ export class PaymentHistoryModalComponent implements OnInit {
       };
     });
 
+    this.loading = false;
   }
 
   close() {

@@ -1,8 +1,9 @@
-<div *ngIf="loading">
+<div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
     <p>Cargando usuarios...</p>
 </div>
 
-<!-- 🔍 BUSCADOR GENERAL -->
+<!-- 🔍 BUSCADOR -->
 <div class="search-bar">
     <input type="text" placeholder="🔍 Buscar por nombre o email..." [(ngModel)]="searchTerm" />
 </div>
@@ -15,19 +16,22 @@
         <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
 
             <!-- HEADER -->
-            <div class="card-header aligned-top">
+            <div class="card-header">
 
-                <!-- FOTO -->
-                <div class="avatar-wrapper">
-                    <div class="avatar-wrapper">
-                        <!-- FOTO ADMIN (principal) -->
-                        <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+                <!-- AVATAR -->
+                <div class="avatar-wrapper" (click)="confirmChangeAdminPhoto(user, fileInput)">
+
+                    <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+
+                    <div class="spinner-overlay" *ngIf="uploadingPhotoUserId === user.uid">
+                        <mat-spinner diameter="35"></mat-spinner>
                     </div>
+
+                    <input type="file" #fileInput hidden accept="image/*" (click)="$event.stopPropagation()"
+                        (change)="uploadAdminPhoto(user, $event)">
                 </div>
 
-
-
-                <!-- INFORMACIÓN -->
+                <!-- INFO -->
                 <div class="basic-info">
 
                     <h3>
@@ -54,22 +58,40 @@
                     </div>
 
                     <div class="compact-row">
-                        <span *ngIf="user.planId">
-                            Plan: {{ getPlanName(user.planId) }}
+                        <span *ngIf="user.planId" class="plan-badge">
+                            🏷 {{ getPlanName(user.planId) }}
                         </span>
 
                         <span *ngIf="user.lastPaymentAmount">
                             Último pago: ${{ user.lastPaymentAmount }}
+                        </span>
+
+                        <!-- <span *ngIf="user.assignedRoutineId" class="routine-badge">
+                            💪 Rutina asignada
+                        </span> -->
+                    </div>
+
+                    <div class="compact-row">
+                        <span *ngIf="user.gender">
+                            Género: {{ user.gender }}
+                        </span>
+
+                        <span *ngIf="user.emergencyContact?.name || user.emergencyContact?.phone">
+                            Emergencia:
+                            {{ user.emergencyContact?.name }}
+                            <span *ngIf="user.emergencyContact?.phone">
+                                ({{ user.emergencyContact?.phone }})
+                            </span>
                         </span>
                     </div>
 
                     <!-- ESTADO MEMBRESÍA -->
                     <div class="status-row">
                         <span class="membership-status" [ngClass]="{
-                  'membership-active': user.membershipStatus === 'active',
-                  'membership-expired': user.membershipStatus === 'expired',
-                  'membership-none': user.membershipStatus === 'none'
-                }">
+                      'membership-active': user.membershipStatus === 'active',
+                      'membership-expired': user.membershipStatus === 'expired',
+                      'membership-none': user.membershipStatus === 'none'
+                    }">
 
                             {{
                             user.membershipStatus === 'active'
@@ -127,7 +149,7 @@
 
                     </div>
 
-                    <div class="section-row">
+                    <div class="section-row buttons-row">
 
                         <button mat-stroked-button color="primary" (click)="viewPayments(user)">
                             📜 Historial
@@ -135,7 +157,7 @@
 
                         <button mat-raised-button color="accent" (click)="registerPayment(user)"
                             [disabled]="!user.planId">
-                            Registrar Pago
+                            💵 Registrar Pago
                         </button>
 
                     </div>
@@ -153,13 +175,9 @@
                             <mat-label>Seleccionar Rutina</mat-label>
 
                             <mat-select [(ngModel)]="user.selectedRoutine">
-
                                 <mat-option *ngFor="let routine of routines" [value]="routine.id">
-
                                     {{ routine.name }}
-
                                 </mat-option>
-
                             </mat-select>
 
                         </mat-form-field>
@@ -167,7 +185,9 @@
                         <button mat-raised-button color="primary" (click)="assignRoutine(user)"
                             [disabled]="!user.selectedRoutine">
 
-                            {{ user.assignedRoutineId ? 'Cambiar Rutina' : 'Asignar Rutina' }}
+                            {{ user.assignedRoutineId
+                            ? 'Cambiar Rutina'
+                            : 'Asignar Rutina' }}
 
                         </button>
 
@@ -175,7 +195,6 @@
 
                 </div>
 
-                <!-- ================= SECCIÓN RUTINA END ================= -->
             </div>
 
         </mat-card>
@@ -189,7 +208,9 @@
 
             <div class="card-header">
 
-                <img class="avatar" [src]="user.photoURL || '/images/images.png'">
+                <div class="avatar-wrapper">
+                    <img class="avatar-admin" [src]="user.photoURL || '/images/images.png'">
+                </div>
 
                 <div class="basic-info">
 
