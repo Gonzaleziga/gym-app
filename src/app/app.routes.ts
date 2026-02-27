@@ -6,11 +6,7 @@ import { employeeGuard } from './core/guards/employee.guard';
 import { visitorGuard } from './core/guards/visitor.guard';
 import { PrivateLayoutComponent } from './shared/layouts/private-layout/private-layout.component';
 import { membershipGuard } from './core/guards/membership.guard';
-
-
-
-
-
+import { adminOrEmployeeGuard } from './core/guards/admin-or-employee.guard';
 
 export const routes: Routes = [
 
@@ -36,7 +32,6 @@ export const routes: Routes = [
                 .then(m => m.RegisterComponent)
     },
 
-
     // ===============================
     // 🔐 PRIVADO (UN SOLO LAYOUT)
     // ===============================
@@ -46,7 +41,7 @@ export const routes: Routes = [
         canMatch: [authGuard],
         children: [
 
-            // ADMIN
+            // ================= ADMIN =================
             {
                 path: 'admin',
                 canMatch: [adminGuard],
@@ -74,15 +69,23 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/admin/exercises/admin-exercises/admin-exercises.component')
                                 .then(m => m.AdminExercisesComponent)
-                    },
+                    }
+                ]
+            },
+
+            // ================= RUTINAS (ADMIN + EMPLOYEE) =================
+            {
+                path: 'routines',
+                canMatch: [adminOrEmployeeGuard],
+                children: [
                     {
-                        path: 'routines',
+                        path: '',
                         loadComponent: () =>
                             import('./features/admin/routines/admin-routines/admin-routines.component')
                                 .then(m => m.AdminRoutinesComponent)
                     },
                     {
-                        path: 'routines/:id',
+                        path: ':id',
                         loadComponent: () =>
                             import('./features/admin/routines/routine-detail/routine-detail.component')
                                 .then(m => m.RoutineDetailComponent)
@@ -90,34 +93,31 @@ export const routes: Routes = [
                 ]
             },
 
+            // ================= PERFIL =================
             {
                 path: 'profile',
                 loadComponent: () =>
                     import('./features/profile/profile/profile.component')
-                        .then(m => m.ProfileComponent),
-                canMatch: [authGuard]
+                        .then(m => m.ProfileComponent)
             },
-
             {
                 path: 'profile/:uid',
                 loadComponent: () =>
                     import('./features/profile/profile/profile.component')
-                        .then(m => m.ProfileComponent),
-                canMatch: [authGuard]
+                        .then(m => m.ProfileComponent)
             },
 
+            // ================= CLIENT =================
             {
                 path: 'client',
                 canMatch: [clientGuard, membershipGuard],
                 children: [
-
                     {
                         path: '',
                         loadComponent: () =>
                             import('./features/cliente/dashboard/dashboard.component')
                                 .then(m => m.DashboardComponent)
                     },
-
                     {
                         path: 'routine',
                         loadComponent: () =>
@@ -130,10 +130,10 @@ export const routes: Routes = [
                             import('./features/cliente/payments/client-payments/client-payments.component')
                                 .then(m => m.ClientPaymentsComponent)
                     }
-
                 ]
             },
 
+            // ================= EMPLOYEE =================
             {
                 path: 'employee',
                 canMatch: [employeeGuard],
@@ -153,7 +153,7 @@ export const routes: Routes = [
                 ]
             },
 
-
+            // ================= VISITOR =================
             {
                 path: 'visitor',
                 canMatch: [visitorGuard],
@@ -161,15 +161,13 @@ export const routes: Routes = [
                     import('./features/visitor/dashboard/dashboard.component')
                         .then(m => m.DashboardComponent)
             },
+
             {
                 path: 'comunidad',
                 loadComponent: () =>
                     import('./features/public-profile/public-profile/public-profile.component')
                         .then(m => m.PublicProfileComponent)
-
             }
-
-
 
         ]
     },

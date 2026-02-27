@@ -203,6 +203,44 @@
     font-size: 12px;
 }
 
+
+///RUTINAS
+
+.exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.exercise-card {
+    background: #1f1f1f;
+    border-radius: 14px;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.exercise-card img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.exercise-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    border-color: #1976d2;
+}
+
+.exercise-card p {
+    margin-top: 8px;
+    font-weight: 500;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;

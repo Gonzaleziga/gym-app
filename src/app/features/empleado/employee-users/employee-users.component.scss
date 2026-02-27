@@ -1,51 +1,286 @@
-.user-card {
-    margin-bottom: 16px;
-    padding: 10px;
+.client-card {
+    margin-bottom: 20px;
+    padding: 16px;
+    border-radius: 16px;
 }
 
-.user-header {
+.card-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    cursor: pointer;
+    justify-content: space-between;
+    gap: 20px; // 🔥 más separación horizontal
 }
 
-.user-details {
-    margin-top: 10px;
+
+.avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 16px;
+    object-fit: cover;
 }
 
-.actions {
+.basic-info {
+    flex: 1;
+    padding-left: 10px; // 🔥 pequeño empuje extra
+}
+
+.basic-info h3 {
+    margin: 0;
+    margin-bottom: 4px;
+    /* pequeño espacio controlado */
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.account-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #4caf50;
+    color: white;
+}
+
+.status-inactive {
+    background: #f44336;
+    color: white;
+}
+
+.details-panel {
+    margin-top: 15px;
+}
+
+.admin-actions button {
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+
+/* 🔐 CUENTA Y MEMBRESIA */
+.account-status,
+.membership-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+    margin-right: 6px;
+}
+
+
+.account-active {
+    color: #e8f5e9;
+    background-color: #2e7d32;
+}
+
+.account-blocked {
+    color: #ffebee;
+    background-color: #c62828;
+}
+
+/* 💳 MEMBRESÍA */
+.membership-active {
+    color: #e3f2fd;
+    background-color: #1565c0;
+}
+
+.membership-expired {
+    color: #fff3e0;
+    background-color: #ef6c00;
+}
+
+.membership-none {
+    color: #eeeeee;
+    background-color: #616161;
+}
+
+// 🔎 Búsqueda
+.search-bar {
+    margin-bottom: 16px;
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    justify-content: flex-end;
 }
 
-.loading-container {
+.search-bar input {
+    width: 280px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* ===== ALINEACIÓN SELECT + BOTÓN ===== */
+
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.section-field {
+    flex: 1;
+    min-width: 240px;
+}
+
+.section-btn {
+    height: 56px;
+    /* mismo alto que mat-form-field outline */
+    min-width: 170px;
+    font-weight: 600;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* ===== TARJETAS INTERNAS DEL PANEL ===== */
+
+.section-card {
+    margin-top: 14px;
+    /* antes 20px */
+    padding: 16px;
+    /* antes 20px */
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(6px);
+}
+
+.section-title {
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 15px;
+    opacity: 0.85;
+}
+
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.section-field {
+    flex: 1;
+    min-width: 240px;
+}
+
+
+
+:host-context(.light-theme) .section-card {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+}
+
+/* ===== HEADER CLIENTE MEJORADO ===== */
+
+.client-header {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.avatar-container {
+    width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 40px;
+    margin-bottom: 16px;
 }
 
-/* ================= AVATAR ================= */
+.avatar-large {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.info-row {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.status-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ===== HEADER MÁS COMPACTO ===== */
+
+.aligned-top {
+    align-items: flex-start;
+    /* clave para subir la foto */
+}
+
+.avatar-top {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 16px;
+    object-fit: cover;
+}
+
+.compact-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    margin-top: 4px;
+    opacity: 0.9;
+}
+
+.status-row {
+    margin-top: 6px;
+    display: flex;
+    gap: 8px;
+}
 
 .avatar-wrapper {
     position: relative;
     width: 80px;
     height: 80px;
+    cursor: pointer;
+
 }
 
+.spinner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+/* FOTO ADMIN GRANDE */
 .avatar-admin {
     width: 80px;
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #1976d2; // azul estilo admin
+    border: 3px solid #1976d2; // azul admin
 }
 
+/* MINI FOTO USUARIO */
 .avatar-user-mini {
     position: absolute;
     bottom: -4px;
-    left: -4px;
+    left: -4px; // 🔥 ahora del lado izquierdo
 
     width: 32px;
     height: 32px;
@@ -55,98 +290,4 @@
 
     border: 2px solid white;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-}
-
-.client-card {
-    margin-bottom: 16px;
-    border-radius: 12px;
-    transition: 0.2s ease;
-}
-
-.client-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.basic-info h3 {
-    margin: 0;
-    font-weight: 600;
-}
-
-.compact-row {
-    display: flex;
-    gap: 16px;
-    font-size: 13px;
-    color: #555;
-}
-
-.details-panel {
-    padding: 16px 0;
-}
-
-.section-card {
-    background: var(--section-bg);
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-}
-
-.section-title {
-    margin-bottom: 12px;
-    font-weight: 600;
-}
-
-.section-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-
-/// RUTINAS
-.exercise-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-    margin-top: 16px;
-}
-
-.exercise-card {
-    background: var(--section-bg);
-    border-radius: 12px;
-    padding: 8px;
-    cursor: pointer;
-    text-align: center;
-    transition: 0.2s ease;
-    border: 2px solid transparent;
-}
-
-.exercise-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.exercise-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-}
-
-.exercise-card.selected {
-    border: 2px solid #1976d2;
-    background: #e3f2fd;
-}
-
-.selected-zone {
-    margin-top: 24px;
-    border-top: 2px dashed #444;
-    padding-top: 16px;
 }

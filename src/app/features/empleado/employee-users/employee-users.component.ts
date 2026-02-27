@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
-import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 import { UsersService } from '../../../core/services/users.service';
 import { PaymentsService } from '../../../core/services/payments.service';
-import { MatIcon } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-import { MatFormField, MatLabel, MatOption, MatSelectModule } from '@angular/material/select';
-import { ExercisesService } from '../../../core/services/exercises.service';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-
+import { RoutinesService } from '../../../core/services/routines.service';
 
 @Component({
   selector: 'app-employee-users',
@@ -25,14 +25,11 @@ import { MatInputModule } from '@angular/material/input';
     MatCardModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    FormsModule,
-    MatFormField,
-    MatLabel,
-    MatOption,
-    MatTabGroup,
-    MatFormFieldModule,
+    MatIconModule,
     MatSelectModule,
-    MatInputModule
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule
   ],
   templateUrl: './employee-users.component.html',
   styleUrl: './employee-users.component.scss'
@@ -43,28 +40,26 @@ export class EmployeeUsersComponent implements OnInit {
 
   clients: any[] = [];
   visitors: any[] = [];
+  routines: any[] = [];
+
   activeTabIndex = 0;
   expandedUserId: string | null = null;
   searchTerm = '';
-  plans: any[] = [];
-  routines: any[] = [];
-  selectedMuscleGroup: string = '';
-  filteredExercises: any[] = [];
-  selectedExercises: any[] = [];
-  exercises: any[] = [];
+
+  plans: any[] = []; // si luego cargas planes
 
   constructor(
     private usersService: UsersService,
     private paymentsService: PaymentsService,
-    private auth: Auth,
-    private exercisesService: ExercisesService,
+    private routinesService: RoutinesService,
+    private auth: Auth
   ) { }
 
   async ngOnInit() {
-    await this.loadUsers();
+    await this.loadData();
   }
 
-  async loadUsers() {
+  async loadData() {
 
     this.loading = true;
 
@@ -72,22 +67,22 @@ export class EmployeeUsersComponent implements OnInit {
 
     this.clients = allUsers.filter((u: any) => u.role === 'client');
     this.visitors = allUsers.filter((u: any) => u.role === 'visitor');
-    this.exercises = await this.exercisesService.getAllExercises();
+
+    // 🔥 Rutinas activas creadas en admin
+    this.routines = await this.routinesService.getActiveRoutines();
+
     this.loading = false;
   }
 
-
-
-  // 💪 Asignar rutina
-  assignRoutine(user: any) {
-    console.log('Asignar rutina a:', user.name);
-  }
-
+  // ==============================
+  // 🔽 UI Helpers
+  // ==============================
 
   toggleDetails(uid: string) {
     this.expandedUserId =
       this.expandedUserId === uid ? null : uid;
   }
+
   getFilteredUsers(list: any[]) {
     if (!this.searchTerm) return list;
 
@@ -99,15 +94,26 @@ export class EmployeeUsersComponent implements OnInit {
         .includes(term)
     );
   }
-  async convertToClient(user: any) {
+
+  // ==============================
+  // 💪 RUTINAS
+  // ==============================
+
+  async assignRoutine(user: any) {
+
+    if (!user.selectedRoutine) return;
 
     await this.usersService.updateUser(user.uid, {
-      role: 'client',
-      membershipStatus: 'none'
+      assignedRoutineId: user.selectedRoutine
     });
 
-    await this.loadUsers();
+    alert('Rutina asignada correctamente');
   }
+
+  // ==============================
+  // 💳 PLANES
+  // ==============================
+
   async assignPlan(user: any) {
 
     if (!user.selectedPlan) return;
@@ -129,8 +135,9 @@ export class EmployeeUsersComponent implements OnInit {
       membershipStatus: 'active'
     });
 
-    await this.loadUsers();
+    await this.loadData();
   }
+
   async registerPayment(user: any) {
 
     if (!user.planId) return;
@@ -161,59 +168,29 @@ export class EmployeeUsersComponent implements OnInit {
       membershipEnd: endDate
     });
 
-    await this.loadUsers();
+    await this.loadData();
   }
+
   getPlanName(planId: string): string {
     const plan = this.plans?.find(p => p.id === planId);
     return plan ? plan.name : 'Sin plan';
   }
+
   async viewPayments(user: any) {
     console.log('Ver historial de:', user.name);
-
-    // Si ya tienes modal de pagos en admin,
-    // aquí después lo conectamos.
   }
 
-  filterExercisesByGroup() {
+  // ==============================
+  // 🔄 VISITOR → CLIENT
+  // ==============================
 
-    if (!this.selectedMuscleGroup) {
-      this.filteredExercises = [];
-      return;
-    }
-
-    this.filteredExercises = this.exercises.filter(e =>
-      e.muscleGroup === this.selectedMuscleGroup
-    );
-
-  }
-  toggleExercise(exercise: any) {
-
-    const exists = this.selectedExercises.find(e => e.id === exercise.id);
-
-    if (exists) {
-      this.selectedExercises =
-        this.selectedExercises.filter(e => e.id !== exercise.id);
-    } else {
-      this.selectedExercises.push(exercise);
-    }
-  }
-  async assignVisualRoutine(user: any) {
-
-    const routineData = this.selectedExercises.map(e => ({
-      id: e.id,
-      name: e.name,
-      imageUrl: e.imageUrl
-    }));
+  async convertToClient(user: any) {
 
     await this.usersService.updateUser(user.uid, {
-      customRoutine: routineData
+      role: 'client',
+      membershipStatus: 'none'
     });
 
-    alert('Rutina asignada correctamente');
-
-    this.selectedExercises = [];
-  }
-  isSelected(exercise: any): boolean {
-    return this.selectedExercises.some(e => e.id === exercise.id);
+    await this.loadData();
   }
 }

@@ -130,5 +130,11 @@ export class RoutinesService {
       ...snap.data()
     };
   }
+  async getActiveRoutines() {
+
+    const routines = await this.getAllRoutines();
+
+    return routines.filter((r: any) => r.isActive);
+  }
 
 }

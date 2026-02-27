@@ -196,9 +196,9 @@ export class AdminRoutinesComponent implements OnInit {
 
     await this.loadRoutines();
   }
+
   goToRoutineDetail(routine: any) {
-    console.log('Navegando a detalle:', routine.id);
-    this.router.navigate(['/admin/routines', routine.id]);
+    this.router.navigate(['/routines', routine.id]);
   }
 
 }

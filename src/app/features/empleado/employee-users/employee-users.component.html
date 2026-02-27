@@ -18,7 +18,14 @@
             <div class="card-header aligned-top">
 
                 <!-- FOTO -->
-                <img class="avatar-admin" [src]="user.photoURL || '/images/images.png'">
+                <div class="avatar-wrapper">
+                    <div class="avatar-wrapper">
+                        <!-- FOTO ADMIN (principal) -->
+                        <img class="avatar-admin" [src]="user.adminPhotoURL || '/images/images.png'">
+                    </div>
+                </div>
+
+
 
                 <!-- INFORMACIÓN -->
                 <div class="basic-info">
@@ -138,60 +145,37 @@
                 <!-- ================= SECCIÓN RUTINA ================= -->
                 <div class="section-card">
 
-                    <h4 class="section-title">💪 Crear Rutina</h4>
+                    <h4 class="section-title">💪 Gestión de Rutina</h4>
 
-                    <!-- 🔽 Grupo muscular -->
-                    <mat-form-field appearance="outline">
-                        <mat-label>Grupo muscular</mat-label>
-                        <mat-select [(ngModel)]="selectedMuscleGroup" (selectionChange)="filterExercisesByGroup()">
+                    <div class="section-row">
 
-                            <mat-option value="Pecho">Pecho</mat-option>
-                            <mat-option value="Espalda">Espalda</mat-option>
-                            <mat-option value="Pierna">Pierna</mat-option>
-                            <mat-option value="Hombro">Hombro</mat-option>
-                            <mat-option value="Biceps">Bíceps</mat-option>
-                            <mat-option value="Triceps">Tríceps</mat-option>
+                        <mat-form-field appearance="outline" class="section-field">
+                            <mat-label>Seleccionar Rutina</mat-label>
 
-                        </mat-select>
-                    </mat-form-field>
+                            <mat-select [(ngModel)]="user.selectedRoutine">
 
-                    <!-- 🖼️ Cards de ejercicios -->
-                    <div class="exercise-grid">
+                                <mat-option *ngFor="let routine of routines" [value]="routine.id">
 
-                        <div *ngFor="let exercise of filteredExercises" class="exercise-card"
-                            [class.selected]="isSelected(exercise)" (click)="toggleExercise(exercise)">
+                                    {{ routine.name }}
 
-                            <img [src]="exercise.imageUrl" alt="exercise">
+                                </mat-option>
 
-                            <p>{{ exercise.name }}</p>
+                            </mat-select>
 
-                        </div>
+                        </mat-form-field>
+
+                        <button mat-raised-button color="primary" (click)="assignRoutine(user)"
+                            [disabled]="!user.selectedRoutine">
+
+                            {{ user.assignedRoutineId ? 'Cambiar Rutina' : 'Asignar Rutina' }}
+
+                        </button>
 
                     </div>
-
-                    <h4 *ngIf="selectedExercises.length > 0">
-                        📝 Ejercicios seleccionados
-                    </h4>
-
-                    <div class="exercise-grid selected-zone" *ngIf="selectedExercises.length > 0">
-
-                        <div *ngFor="let exercise of selectedExercises" class="exercise-card selected"
-                            (click)="toggleExercise(exercise)">
-
-                            <img [src]="exercise.imageUrl">
-                            <p>{{ exercise.name }}</p>
-
-                        </div>
-
-                    </div>
-
-                    <button mat-raised-button color="primary" (click)="assignVisualRoutine(user)"
-                        [disabled]="selectedExercises.length === 0">
-                        Asignar Rutina
-                    </button>
 
                 </div>
 
+                <!-- ================= SECCIÓN RUTINA END ================= -->
             </div>
 
         </mat-card>

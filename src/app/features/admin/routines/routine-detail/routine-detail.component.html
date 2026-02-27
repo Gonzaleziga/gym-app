@@ -40,14 +40,31 @@
 
             <h4>Agregar Ejercicios</h4>
 
-            <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Seleccionar ejercicio</mat-label>
-                <mat-select (selectionChange)="addExerciseToDay($event.value)">
-                    <mat-option *ngFor="let ex of exercises" [value]="ex.id">
-                        {{ ex.name }}
+            <!-- 🔽 Filtro -->
+            <mat-form-field appearance="outline">
+                <mat-label>Grupo muscular</mat-label>
+
+                <mat-select [(ngModel)]="selectedMuscleGroup" (selectionChange)="filterExercisesByGroup()">
+
+                    <mat-option *ngFor="let group of muscleGroups" [value]="group">
+                        {{ group }}
                     </mat-option>
+
                 </mat-select>
             </mat-form-field>
+
+            <!-- 🖼 Grid visual -->
+            <div class="exercise-grid">
+
+                <div *ngFor="let ex of filteredExercises" class="exercise-card" (click)="addVisualExercise(ex)">
+
+                    <img [src]="ex.imageUrl" alt="exercise">
+
+                    <p>{{ ex.name }}</p>
+
+                </div>
+
+            </div>
 
         </div>
 

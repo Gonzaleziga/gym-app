@@ -55,7 +55,7 @@ export class PrivateSidebarComponent {
           { label: 'Usuarios', route: '/admin/users', icon: 'group' },
           { label: 'Planes', route: '/admin/plans', icon: 'workspace_premium' },
           { label: 'Ejercicios', route: '/admin/exercises', icon: 'fitness_center' },
-          { label: 'Rutinas', route: '/admin/routines', icon: 'fitness_center' }
+          { label: 'Rutinas', route: '/routines', icon: 'fitness_center' }
         ];
 
       case 'client':
@@ -68,7 +68,8 @@ export class PrivateSidebarComponent {
       case 'employee':
         return [
           { label: 'Mi panel', route: '/employee', icon: 'dashboard' },
-          { label: 'Usuarios', route: '/employee/users', icon: 'group' }
+          { label: 'Usuarios', route: '/employee/users', icon: 'group' },
+          { label: 'Rutinas', route: '/routines', icon: 'fitness_center' }
         ];
 
       case 'visitor':

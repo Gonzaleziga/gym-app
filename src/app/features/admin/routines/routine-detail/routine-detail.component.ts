@@ -47,6 +47,19 @@ export class RoutineDetailComponent implements OnInit {
   };
 
   editingDayId: string | null = null;
+  selectedMuscleGroup: string = '';
+  filteredExercises: any[] = [];
+  muscleGroups: string[] = [
+    'Pecho',
+    'Espalda',
+    'Piernas',
+    'Hombros',
+    'Bíceps',
+    'Tríceps',
+    'Abdomen',
+    'Glúteos',
+    'Cardio'
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -75,6 +88,7 @@ export class RoutineDetailComponent implements OnInit {
 
     this.exercises =
       await this.exercisesService.getAllExercises();
+    console.log('EJERCICIOS:', this.exercises);
   }
 
   async addDay() {
@@ -118,9 +132,16 @@ export class RoutineDetailComponent implements OnInit {
     this.newDay.exercises = [];
   }
 
-  addExerciseToDay(exerciseId: string) {
+  addVisualExercise(exercise: any) {
+
+    const exists = this.newDay.exercises.find(
+      ex => ex.exerciseId === exercise.id
+    );
+
+    if (exists) return;
+
     this.newDay.exercises.push({
-      exerciseId,
+      exerciseId: exercise.id,
       sets: 3,
       reps: '12'
     });
@@ -197,6 +218,16 @@ export class RoutineDetailComponent implements OnInit {
     this.newDay.dayNumber = maxDay + 1;
   }
 
+  filterExercisesByGroup() {
 
+    if (!this.selectedMuscleGroup) {
+      this.filteredExercises = [];
+      return;
+    }
+
+    this.filteredExercises = this.exercises.filter(e =>
+      e.muscleGroup === this.selectedMuscleGroup
+    );
+  }
 
 }
