@@ -23,6 +23,8 @@ import { deleteObject } from '@angular/fire/storage';
 import { ConfirmModalComponent }
   from '../../shared/confirm-modal/confirm-modal.component';
 import { Timestamp } from '@angular/fire/firestore';
+import { AssignedRoutinesService } from '../../../core/services/assigned-routines.service';
+
 
 
 @Component({
@@ -68,6 +70,8 @@ export class EmployeeUsersComponent implements OnInit {
     private plansService: PlansService,
     private dialog: MatDialog,
     private storage: Storage,
+    private assignedRoutinesService: AssignedRoutinesService,
+
 
   ) { }
 
@@ -88,7 +92,7 @@ export class EmployeeUsersComponent implements OnInit {
     this.routines = await this.routinesService.getActiveRoutines();
     // 🔥 Cargar planes
     this.plans = await this.plansService.getAllPlans();
-    console.log('PLANES:', this.plans); // aqui va el consolo verdad 
+    console.log('PLANES:', this.plans);
     this.loading = false;
   }
 
@@ -114,21 +118,6 @@ export class EmployeeUsersComponent implements OnInit {
   }
 
   // ==============================
-  // 💪 RUTINAS
-  // ==============================
-
-  async assignRoutine(user: any) {
-
-    if (!user.selectedRoutine) return;
-
-    await this.usersService.updateUser(user.uid, {
-      assignedRoutineId: user.selectedRoutine
-    });
-
-    alert('Rutina asignada correctamente');
-  }
-
-  // ==============================
   // 💳 PLANES
   // ==============================
 
@@ -139,23 +128,51 @@ export class EmployeeUsersComponent implements OnInit {
     const plan = this.plans.find(p => p.id === user.selectedPlan);
     if (!plan) return;
 
-    await this.usersService.updateUser(user.uid, {
-      planId: plan.id,
-      membershipStatus: 'none',   // 🔥 no activa aún
-      membershipStart: null,
-      membershipEnd: null
-    });
+    try {
 
-    // 🔥 Actualizamos en memoria
-    user.planId = plan.id;
-    user.membershipStatus = 'none';
-    user.membershipStart = null;
-    user.membershipEnd = null;
+      await this.usersService.updateUser(user.uid, {
+        planId: plan.id,
+        membershipStatus: 'none',   // 🔥 no activa aún
+        membershipStart: null,
+        membershipEnd: null
+      });
 
-    user.selectedPlan = null;
+      // 🔥 Actualizamos en memoria
+      user.planId = plan.id;
+      user.membershipStatus = 'none';
+      user.membershipStart = null;
+      user.membershipEnd = null;
+      user.selectedPlan = null;
 
-    alert('Plan asignado correctamente. Ahora puedes registrar el pago.');
+      // ✅ Modal de éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Plan Asignado',
+          message: 'Plan asignado correctamente. Ahora puedes registrar el pago.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('Error asignando plan:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al asignar el plan.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
+
+
 
   async registerPayment(user: any) {
 
@@ -167,43 +184,142 @@ export class EmployeeUsersComponent implements OnInit {
     const employeeUid = this.auth.currentUser?.uid;
     if (!employeeUid) return;
 
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + plan.durationMonths);
+    try {
 
-    const startTimestamp = Timestamp.fromDate(startDate);
-    const endTimestamp = Timestamp.fromDate(endDate);
-    const createdTimestamp = Timestamp.fromDate(new Date());
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + plan.durationMonths);
 
-    await this.paymentsService.registerPayment({
-      userId: user.uid,
-      amount: plan.price,
-      months: plan.durationMonths,
-      startDate: startTimestamp,
-      endDate: endTimestamp,
-      createdAt: createdTimestamp,
-      createdBy: employeeUid
-    });
+      const startTimestamp = Timestamp.fromDate(startDate);
+      const endTimestamp = Timestamp.fromDate(endDate);
+      const createdTimestamp = Timestamp.fromDate(new Date());
 
-    console.log('Pago guardado');
+      await this.paymentsService.registerPayment({
+        userId: user.uid,
+        amount: plan.price,
+        months: plan.durationMonths,
+        startDate: startTimestamp,
+        endDate: endTimestamp,
+        createdAt: createdTimestamp,
+        createdBy: employeeUid
+      });
 
-    const test = await this.paymentsService.getPaymentsByUser(user.uid);
-    console.log('Pagos inmediatamente después de guardar:', test);
+      console.log('Pago guardado');
 
-    await this.usersService.updateUser(user.uid, {
-      membershipStatus: 'active',
-      membershipStart: startTimestamp,
-      membershipEnd: endTimestamp,
-      lastPaymentAmount: plan.price
-    });
+      // 🔥 Actualizar membresía
+      await this.usersService.updateUser(user.uid, {
+        membershipStatus: 'active',
+        membershipStart: startTimestamp,
+        membershipEnd: endTimestamp,
+        lastPaymentAmount: plan.price
+      });
 
-    user.membershipStatus = 'active';
-    user.membershipStart = startTimestamp;
-    user.membershipEnd = endTimestamp;
-    user.lastPaymentAmount = plan.price;
+      // 🔥 Actualizar en memoria
+      user.membershipStatus = 'active';
+      user.membershipStart = startTimestamp;
+      user.membershipEnd = endTimestamp;
+      user.lastPaymentAmount = plan.price;
 
-    alert('Pago registrado correctamente');
+      // ✅ Modal de éxito elegante
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Pago Registrado',
+          message: 'El pago fue registrado correctamente.',
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('Error registrando pago:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al registrar el pago.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
+  // ==============================
+  // 💪 RUTINAS
+  // ==============================
+  async assignRoutine(user: any) {
+
+    if (!user.selectedRoutine) return;
+
+    const routine = this.routines.find(r => r.id === user.selectedRoutine);
+    if (!routine) return;
+
+    const employeeUid = this.auth.currentUser?.uid;
+    if (!employeeUid) return;
+
+    try {
+
+      const startDate = new Date();
+      const endDate = new Date();
+
+      if (routine.durationType === 'weeks') {
+        endDate.setDate(endDate.getDate() + (routine.durationValue * 7));
+      } else {
+        endDate.setMonth(endDate.getMonth() + routine.durationValue);
+      }
+
+      // 🔥 1️⃣ Desactivar rutina anterior
+      await this.assignedRoutinesService.deactivateCurrentRoutine(user.uid);
+
+      // 🔥 2️⃣ Crear nueva asignación
+      await this.assignedRoutinesService.assignRoutine({
+        userId: user.uid,
+        routineId: routine.id,
+        startDate,
+        endDate,
+        assignedBy: employeeUid
+      });
+
+      // 🔥 3️⃣ Guardar referencia rápida en usuario
+      await this.usersService.updateUser(user.uid, {
+        assignedRoutineId: routine.id
+      });
+
+      // 🔥 Actualizar en memoria
+      user.assignedRoutineId = routine.id;
+      user.selectedRoutine = null;
+
+      // ✅ Modal éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Rutina Asignada',
+          message: `La rutina "${routine.name}" fue asignada correctamente.`,
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('Error asignando rutina:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al asignar la rutina.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
+  }
+
 
   getPlanName(planId: string): string {
     const plan = this.plans?.find(p => p.id === planId);
@@ -218,16 +334,59 @@ export class EmployeeUsersComponent implements OnInit {
 
   async convertToClient(user: any) {
 
-    await this.usersService.updateUser(user.uid, {
-      role: 'client',
-      membershipStatus: 'none',
-      planId: null,
-      membershipStart: null,
-      membershipEnd: null,
-      lastPaymentAmount: null
+    const dialogRef = this.dialog.open(ConfirmModalComponent, {
+      width: '400px',
+      data: {
+        title: 'Convertir a Cliente',
+        message: `¿Deseas convertir a ${user.name} en cliente?`,
+        confirmText: 'Convertir',
+        cancelText: 'Cancelar'
+      }
     });
 
-    await this.loadData();
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) return;
+
+    try {
+
+      await this.usersService.updateUser(user.uid, {
+        role: 'client',
+        membershipStatus: 'none',
+        planId: null,
+        membershipStart: null,
+        membershipEnd: null,
+        lastPaymentAmount: null
+      });
+
+      await this.loadData();
+
+      // 🔥 Modal de éxito
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Usuario Actualizado',
+          message: `${user.name} ahora es cliente sin membresía.`,
+          confirmText: 'OK',
+          hideCancel: true
+        }
+      });
+
+    } catch (error) {
+
+      console.error('Error convirtiendo usuario:', error);
+
+      this.dialog.open(ConfirmModalComponent, {
+        width: '350px',
+        data: {
+          title: 'Error',
+          message: 'Ocurrió un error al convertir el usuario.',
+          confirmText: 'Cerrar',
+          hideCancel: true
+        }
+      });
+
+    }
   }
   viewPayments(user: any) {
     this.dialog.open(PaymentHistoryModalComponent, {

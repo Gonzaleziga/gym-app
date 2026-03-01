@@ -132,7 +132,9 @@
 
                 <div *ngFor="let item of filteredDetailList" class="detail-item">
 
-                    <p><strong>👤 Cliente:</strong> {{ item.userName }}</p>
+                    <p>
+                        <strong>👤 Cliente:</strong> {{ item.userName }}
+                    </p>
                     <p><strong>👨‍💼 Registrado por:</strong> {{ item.createdByName }}</p>
                     <p><strong>💰 Monto:</strong> ${{ item.amount }}</p>
                     <p><strong>📆 Meses:</strong> {{ item.months }}</p>
@@ -167,7 +169,9 @@
                     <!-- 👥 ACTIVOS -->
                     <div *ngIf="selectedDetailType === 'active'">
 
-                        <p><strong>👤 Nombre:</strong> {{ item.fullName }}</p>
+                        <p class="client-link" (click)="goToUser(item.uid)">
+                            <strong>👤 Nombre:</strong> {{ item.fullName }}
+                        </p>
                         <p><strong>📧 Email:</strong> {{ item.email }}</p>
 
                         <p>
@@ -190,18 +194,21 @@
 
                     <!-- ❌ VENCIDOS -->
                     <div *ngIf="selectedDetailType === 'expired'">
-                        <p>
+                        <p class="client-link" (click)="goToUser(item.uid)">
                             <strong>👤 Nombre:</strong>
                             {{ item.name }} {{ item.lastNameFather }} {{ item.lastNameMother }}
                         </p>
+
                         <p>
                             <strong>📞 Teléfono:</strong>
                             {{ item.phoneNumber || 'No registrado' }}
                         </p>
+
                         <p>
                             <strong>📧 Email:</strong>
                             {{ item.email }}
                         </p>
+
                         <p *ngIf="item.membershipEnd">
                             <strong>📅 Venció:</strong>
                             {{ item.membershipEnd?.toDate?.() | date:'mediumDate' }}
@@ -211,9 +218,10 @@
 
                     <!-- ⚠️ PRÓXIMOS -->
                     <div *ngIf="selectedDetailType === 'upcoming'">
-
-                        <p><strong>👤 Nombre:</strong> {{ item.name }} {{ item.lastNameFather }} {{ item.lastNameMother
-                            }}</p>
+                        <p class="client-link" (click)="goToUser(item.uid)">
+                            <strong>👤 Nombre:</strong> {{ item.name }} {{ item.lastNameFather }} {{ item.lastNameMother
+                            }}
+                        </p>
                         <p>
                             <strong>📞 Teléfono:</strong>
                             {{ item.phoneNumber || 'No registrado' }}

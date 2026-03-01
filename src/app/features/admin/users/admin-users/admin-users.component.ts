@@ -23,6 +23,10 @@ import { deleteObject } from '@angular/fire/storage';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { Timestamp } from '@angular/fire/firestore';
+import { ActivatedRoute } from '@angular/router';
+import { ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { MatSidenavContent } from '@angular/material/sidenav';
+import { ViewChild } from '@angular/core';
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -56,8 +60,9 @@ export class AdminUsersComponent implements OnInit {
   plans: any[] = [];
   routines: any[] = [];
   uploadingPhotoUserId: string | null = null;
-
-
+  @ViewChildren('userCard') userCards!: QueryList<ElementRef>;
+  private pendingScrollUid: string | null = null;
+  @ViewChild(MatSidenavContent) sidenavContent!: MatSidenavContent;
   constructor(
     private usersService: UsersService,
     private plansService: PlansService,
@@ -67,16 +72,52 @@ export class AdminUsersComponent implements OnInit {
     private auth: Auth,
     private dialog: MatDialog,
     private paymentsService: PaymentsService,
-    private storage: Storage
+    private storage: Storage,
+    private route: ActivatedRoute,
+
   ) { }
 
   async ngOnInit() {
+
     await this.loadUsers();
+
     this.plans = await this.plansService.getAllPlans();
     this.routines = await this.routinesService.getAllRoutines();
 
-  }
+    this.route.queryParams.subscribe(params => {
 
+      const uid = params['uid'];
+      const tab = params['tab'];
+
+      if (tab === 'clients') {
+        this.activeTabIndex = 2; // Admins(0), Empleados(1), Clientes(2)
+      }
+
+      if (uid) {
+
+        this.searchTerm = '';
+        this.expandedUserId = uid;
+
+        setTimeout(() => {
+
+          const element = document.getElementById(uid);
+
+          if (!element) {
+            console.log('Elemento no encontrado');
+            return;
+          }
+
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+
+        }, 500);
+      }
+
+    });
+
+  }
   async loadUsers() {
     this.loading = true;
 
@@ -755,5 +796,31 @@ export class AdminUsersComponent implements OnInit {
 
       reader.readAsDataURL(file);
     });
+  }
+
+  onTabChange(event: any) {
+
+    // Solo cuando estamos en Clientes (index 2)
+    if (event.index === 2 && this.pendingScrollUid) {
+
+      setTimeout(() => {
+
+        const card = this.userCards?.find(
+          el => el.nativeElement.getAttribute('data-uid') === this.pendingScrollUid
+        );
+
+        if (card) {
+          card.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+
+        this.pendingScrollUid = null;
+
+      }, 200);
+
+    }
+
   }
 }

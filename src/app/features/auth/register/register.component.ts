@@ -9,6 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { last } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmModalComponent }
+  from '../../shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-register',
@@ -19,7 +22,7 @@ import { last } from 'rxjs';
     MatCardModule,
     MatInputModule,
     MatButtonModule,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
@@ -33,7 +36,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -87,7 +91,23 @@ export class RegisterComponent {
       phoneNumber
     )
       .then(() => {
-        alert('Cuenta creada correctamente');
+        // quitamos el alert y ponemos el dialog
+        // alert('Cuenta creada correctamente');
+        const dialogRef = this.dialog.open(ConfirmModalComponent, {
+          width: '350px',
+          data: {
+            title: 'Registro Exitoso',
+            message: 'Tu cuenta fue creada correctamente.',
+            confirmText: 'Continuar',
+            hideCancel: true
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(() => {
+          this.router.navigate(['/login']);
+        });
+
+        // aqui termina el dialog 
         this.router.navigateByUrl('/login');
       })
       .catch(err => {

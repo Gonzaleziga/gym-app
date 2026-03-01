@@ -5,7 +5,7 @@
 <div class="search-bar">
     <input type="text" placeholder="🔍 Buscar por nombre o email..." [(ngModel)]="searchTerm" />
 </div>
-<mat-tab-group *ngIf="!loading" [(selectedIndex)]="activeTabIndex">
+<mat-tab-group [(selectedIndex)]="activeTabIndex" (selectedTabChange)="onTabChange($event)">
 
     <!-- ================= ADMIN ================= -->
     <mat-tab label="Administradores">
@@ -489,8 +489,7 @@
 
     <!-- ================= CARD CLIENTES  ================= -->
     <mat-tab label="Clientes">
-
-        <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card" [attr.id]="user.uid">
 
             <!-- HEADER -->
             <div class="card-header aligned-top">
@@ -726,6 +725,7 @@
             </div>
         </mat-card>
     </mat-tab>
+
 
 
     <!-- ================= VISITANTES ================= -->

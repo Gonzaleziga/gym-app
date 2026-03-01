@@ -161,3 +161,14 @@ mat-card {
 .text-warning {
     color: #ff9800;
 }
+
+.client-link {
+    cursor: pointer;
+    color: var(--mat-primary);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.client-link:hover {
+    opacity: 0.8;
+}

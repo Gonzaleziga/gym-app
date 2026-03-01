@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -44,7 +46,8 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private userSession: UserSessionService,
-    private paymentsService: PaymentsService
+    private paymentsService: PaymentsService,
+
   ) { }
 
   async ngOnInit() {
@@ -398,5 +401,14 @@ export class DashboardComponent implements OnInit {
       // 🔹 Guardar
       doc.save(`historial-${Date.now()}.pdf`);
     };
+  }
+
+  goToUser(uid: string) {
+    this.router.navigate(['/admin/users'], {
+      queryParams: {
+        uid,
+        tab: 'clients'
+      }
+    });
   }
 }
