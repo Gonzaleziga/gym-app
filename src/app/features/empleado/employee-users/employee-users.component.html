@@ -13,7 +13,7 @@
     <!-- ================= CLIENTES ================= -->
     <mat-tab label="Clientes">
 
-        <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card">
+        <mat-card *ngFor="let user of getFilteredUsers(clients)" class="client-card" [attr.id]="user.uid">
 
             <!-- HEADER -->
             <div class="card-header">

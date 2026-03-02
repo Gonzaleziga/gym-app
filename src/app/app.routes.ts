@@ -31,6 +31,12 @@ export const routes: Routes = [
             import('./features/auth/register/register.component')
                 .then(m => m.RegisterComponent)
     },
+    {
+        path: 'terms',
+        loadComponent: () =>
+            import('./public/terms/terms/terms.component')
+                .then(m => m.TermsComponent)
+    },
 
     // ===============================
     // 🔐 PRIVADO (UN SOLO LAYOUT)

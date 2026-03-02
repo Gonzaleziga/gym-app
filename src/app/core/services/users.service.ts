@@ -316,5 +316,32 @@ export class UsersService {
 
     return snap.data();
   }
+  async getMembershipAlerts() {
+
+    const users = await this.getAllUsers();
+    const clients = users.filter(u => u.role === 'client');
+
+    const today = new Date();
+    const in7Days = new Date();
+    in7Days.setDate(today.getDate() + 7);
+
+    const expired = clients.filter(u => {
+      if (!u.membershipEnd) return false;
+      const end = u.membershipEnd.toDate
+        ? u.membershipEnd.toDate()
+        : new Date(u.membershipEnd);
+      return end < today;
+    });
+
+    const expiringSoon = clients.filter(u => {
+      if (!u.membershipEnd) return false;
+      const end = u.membershipEnd.toDate
+        ? u.membershipEnd.toDate()
+        : new Date(u.membershipEnd);
+      return end >= today && end <= in7Days;
+    });
+
+    return { expired, expiringSoon };
+  }
 
 }

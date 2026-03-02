@@ -12,6 +12,8 @@ import { last } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmModalComponent }
   from '../../shared/confirm-modal/confirm-modal.component';
+import { UsersService } from '../../../core/services/users.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-register',
@@ -23,6 +25,7 @@ import { ConfirmModalComponent }
     MatInputModule,
     MatButtonModule,
     RouterModule,
+    MatCheckboxModule
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
@@ -32,12 +35,14 @@ export class RegisterComponent {
   form!: FormGroup;
   loading = false;
   error: string | null = null;
+  acceptedTerms = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private usersService: UsersService,
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -54,7 +59,8 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
       membershipId: [''],
-      forceLogout: [false]
+      forceLogout: [false],
+      acceptedTerms: [false, Validators.requiredTrue]
     });
   }
 
@@ -70,11 +76,16 @@ export class RegisterComponent {
       phoneNumber,
       email,
       password,
-      confirmPassword
+      confirmPassword,
+      acceptedTerms
     } = this.form.value;
 
     if (password !== confirmPassword) {
       this.error = 'Las contraseñas no coinciden';
+      return;
+    }
+    if (!acceptedTerms) {
+      this.error = 'Debes aceptar los términos y condiciones';
       return;
     }
 
@@ -90,7 +101,12 @@ export class RegisterComponent {
       lastNameMother,
       phoneNumber
     )
-      .then(() => {
+      .then(async (userCredential) => {
+        // 🔥 Aquí puedes actualizar el usuario con acceptedTerms
+        await this.usersService.updateUser(userCredential.user.uid, {
+          acceptedTerms: true,
+          acceptedAt: new Date()
+        });
         // quitamos el alert y ponemos el dialog
         // alert('Cuenta creada correctamente');
         const dialogRef = this.dialog.open(ConfirmModalComponent, {
@@ -108,7 +124,7 @@ export class RegisterComponent {
         });
 
         // aqui termina el dialog 
-        this.router.navigateByUrl('/login');
+        // this.router.navigateByUrl('/login');
       })
       .catch(err => {
         this.error = err.message;

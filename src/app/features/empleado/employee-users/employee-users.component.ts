@@ -24,7 +24,7 @@ import { ConfirmModalComponent }
   from '../../shared/confirm-modal/confirm-modal.component';
 import { Timestamp } from '@angular/fire/firestore';
 import { AssignedRoutinesService } from '../../../core/services/assigned-routines.service';
-
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -71,12 +71,43 @@ export class EmployeeUsersComponent implements OnInit {
     private dialog: MatDialog,
     private storage: Storage,
     private assignedRoutinesService: AssignedRoutinesService,
+    private route: ActivatedRoute
 
 
   ) { }
 
   async ngOnInit() {
+
     await this.loadData();
+
+    this.route.queryParams.subscribe(params => {
+
+      const uid = params['uid'];
+      const tab = params['tab'];
+
+      if (tab === 'clients') {
+        this.activeTabIndex = 0; // 👈 OJO
+        // En empleado Clientes es el primer tab
+      }
+
+      if (uid) {
+
+        this.searchTerm = '';
+        this.expandedUserId = uid;
+
+        setTimeout(() => {
+          const element = document.getElementById(uid);
+          if (element) {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+          }
+        }, 500);
+      }
+
+    });
+
   }
 
   async loadData() {
