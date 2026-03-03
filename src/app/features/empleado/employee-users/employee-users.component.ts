@@ -60,6 +60,8 @@ export class EmployeeUsersComponent implements OnInit {
   searchTerm = '';
   plans: any[] = []; // si luego cargas planes
   uploadingPhotoUserId: string | null = null;
+  membershipFilter: '' | 'active' | 'expired' | 'none' | 'upcoming' = '';
+  sortByNewest: boolean = true;
 
 
   constructor(
@@ -137,15 +139,68 @@ export class EmployeeUsersComponent implements OnInit {
   }
 
   getFilteredUsers(list: any[]) {
-    if (!this.searchTerm) return list;
 
-    const term = this.searchTerm.toLowerCase();
+    let filtered = [...list];
 
-    return list.filter(user =>
-      `${user.name} ${user.lastNameFather} ${user.email}`
-        .toLowerCase()
-        .includes(term)
-    );
+    const today = new Date();
+
+    // 🔎 BUSCADOR POR NOMBRE / EMAIL
+    if (this.searchTerm) {
+
+      const term = this.searchTerm.toLowerCase();
+
+      filtered = filtered.filter(user => {
+
+        const fullName =
+          (user.name || '') + ' ' +
+          (user.lastNameFather || '') + ' ' +
+          (user.lastNameMother || '');
+
+        return (
+          fullName.toLowerCase().includes(term) ||
+          user.email?.toLowerCase().includes(term)
+        );
+
+      });
+    }
+
+    // 🔎 FILTRO POR MEMBRESÍA
+    if (this.membershipFilter === 'active') {
+      filtered = filtered.filter(u => u.membershipStatus === 'active');
+    }
+
+    if (this.membershipFilter === 'expired') {
+      filtered = filtered.filter(u => u.membershipStatus === 'expired');
+    }
+
+    if (this.membershipFilter === 'none') {
+      filtered = filtered.filter(u => u.membershipStatus === 'none');
+    }
+
+    if (this.membershipFilter === 'upcoming') {
+      filtered = filtered.filter(u => {
+        if (!u.membershipEnd) return false;
+
+        const end = u.membershipEnd?.toDate?.() ?? new Date(u.membershipEnd);
+        const diff =
+          (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+        return diff <= 7 && diff > 0;
+      });
+    }
+
+    // 📅 ORDENAR POR FECHA DE CREACIÓN
+    filtered.sort((a, b) => {
+
+      const dateA = a.createdAt?.toDate?.() ?? new Date(a.createdAt);
+      const dateB = b.createdAt?.toDate?.() ?? new Date(b.createdAt);
+
+      return this.sortByNewest
+        ? dateB.getTime() - dateA.getTime()
+        : dateA.getTime() - dateB.getTime();
+    });
+
+    return filtered;
   }
 
   // ==============================

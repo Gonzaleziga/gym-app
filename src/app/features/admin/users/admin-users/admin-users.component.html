@@ -1,9 +1,36 @@
-<div *ngIf="loading">
+<div *ngIf="loading" class="loading-container">
     <p>Cargando usuarios...</p>
 </div>
 <!-- 🔍 BUSCADOR GENERAL -->
-<div class="search-bar">
-    <input type="text" placeholder="🔍 Buscar por nombre o email..." [(ngModel)]="searchTerm" />
+<div class="filters-row">
+
+    <!-- 🔍 Buscador -->
+    <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Buscar</mat-label>
+        <input matInput placeholder="Nombre o email" [(ngModel)]="searchTerm">
+    </mat-form-field>
+
+    <!-- 🔎 Estado Membresía -->
+    <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Estado Membresía</mat-label>
+        <mat-select [(ngModel)]="membershipFilter">
+            <mat-option value="">Todas</mat-option>
+            <mat-option value="active">Activas</mat-option>
+            <mat-option value="expired">Vencidas</mat-option>
+            <mat-option value="none">Sin membresía</mat-option>
+            <mat-option value="upcoming">Vencen en 7 días</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- 📅 Orden -->
+    <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Ordenar por</mat-label>
+        <mat-select [(ngModel)]="sortByNewest">
+            <mat-option [value]="true">Más recientes</mat-option>
+            <mat-option [value]="false">Más antiguos</mat-option>
+        </mat-select>
+    </mat-form-field>
+
 </div>
 <mat-tab-group [(selectedIndex)]="activeTabIndex" (selectedTabChange)="onTabChange($event)">
 
