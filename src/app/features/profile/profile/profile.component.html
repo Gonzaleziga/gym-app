@@ -171,6 +171,29 @@
         </div>
         <hr class="section-divider">
 
+
+        <!-- Graficas -->
+        <div *ngIf="getUniqueExercises().length > 0" class="progress-section">
+
+            <h3>📈 Progreso de Peso</h3>
+
+            <select [(ngModel)]="selectedExerciseId" (change)="selectExercise(selectedExerciseId!)">
+
+                <option [ngValue]="null">Selecciona ejercicio</option>
+
+                <option *ngFor="let ex of getUniqueExercises()" [value]="ex">
+                    {{ getExerciseNameById(ex) }}
+                </option>
+
+            </select>
+
+            <div class="chart-container" *ngIf="selectedExerciseId">
+                <canvas id="progressChart"></canvas>
+            </div>
+
+        </div>
+        <hr class="section-divider">
+
         <div class="extra-info-section">
 
             <h3>Información adicional</h3>

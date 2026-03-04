@@ -20,9 +20,30 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { collection, getDocs, query, where } from '@angular/fire/firestore';
+import { ExerciseLogsService } from '../../../core/services/exercise-logs.service';
 import { Firestore } from '@angular/fire/firestore';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
 
-
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+);
 interface GalleryPhoto {
   id: string;
   imageUrl: string;
@@ -61,6 +82,7 @@ export class ProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private firestore = inject(Firestore);
+  private exerciseLogsService = inject(ExerciseLogsService);
 
   userData: any = null;
   loading = true;
@@ -90,6 +112,10 @@ export class ProfileComponent implements OnInit {
   isBirthdayToday = false;
   isVisitor = false;
   emergencyPhoneError = false;
+  // variables para grafica de progreso
+  exerciseLogs: any[] = [];
+  selectedExerciseId: string | null = null;
+  chart!: Chart;
 
   async ngOnInit() {
     const routeUid = this.route.snapshot.paramMap.get('uid');
@@ -136,6 +162,7 @@ export class ProfileComponent implements OnInit {
         await this.loadGallery();
         await this.loadWorkoutStats(this.userData.uid);
         await this.loadWeeklyStats(this.userData.uid);
+        await this.loadExerciseLogs(this.userData.uid);
       }
       this.loading = false;
       return;
@@ -170,6 +197,7 @@ export class ProfileComponent implements OnInit {
     this.loading = false;
     await this.loadWorkoutStats(this.userData.uid);
     await this.loadWeeklyStats(this.userData.uid);
+    await this.loadExerciseLogs(this.userData.uid);
   }
 
   // 🔥 SUBIR FOTO
@@ -676,5 +704,90 @@ export class ProfileComponent implements OnInit {
 
     // 🔥 Validar que tenga exactamente 10
     this.emergencyPhoneError = this.emergencyPhone.length !== 10;
+  }
+  getUniqueExercises() {
+    return [...new Set(
+      this.exerciseLogs.map(log => log.exerciseId)
+    )];
+  }
+
+  renderChart() {
+
+    if (!this.selectedExerciseId) return;
+
+    const logs = this.exerciseLogs
+      .filter(log => log.exerciseId === this.selectedExerciseId)
+      .sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() ?? new Date(a.createdAt);
+        const dateB = b.createdAt?.toDate?.() ?? new Date(b.createdAt);
+        return dateA.getTime() - dateB.getTime();
+      });
+
+    const labels = logs.map(log =>
+      (log.createdAt?.toDate?.() ?? new Date(log.createdAt))
+        .toLocaleDateString()
+    );
+
+    const data = logs.map(log => log.weight);
+
+    const canvas = document.getElementById('progressChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    this.chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Peso (kg)',
+          data,
+          borderColor: '#4caf50',
+          backgroundColor: 'rgba(76,175,80,0.2)',
+          tension: 0.3,
+          pointRadius: 6,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              usePointStyle: true,   // 👈 esto lo vuelve punto
+              pointStyle: 'circle'   // 👈 asegura que sea círculo
+            }
+          }
+        }
+      }
+    });
+  }
+
+  async loadExerciseLogs(uid: string) {
+
+    this.exerciseLogs =
+      await this.exerciseLogsService.getLogsByUser(uid);
+
+    console.log('📊 Logs cargados:', this.exerciseLogs);
+  }
+  selectExercise(exerciseId: string) {
+    this.selectedExerciseId = exerciseId;
+
+    // pequeño delay para que el canvas exista
+    setTimeout(() => {
+      this.renderChart();
+    }, 100);
+  }
+
+  getExerciseNameById(id: string): string {
+
+    const log = this.exerciseLogs.find(l => l.exerciseId === id);
+
+    return log?.exerciseName || id;
+
   }
 }

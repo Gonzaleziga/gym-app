@@ -73,4 +73,20 @@ export class ExerciseLogsService {
 
     return logs[0]?.weight ?? null;
   }
+  async getLogsByUser(userId: string) {
+
+    const ref = collection(this.firestore, 'exerciseLogs');
+
+    const q = query(
+      ref,
+      where('userId', '==', userId)
+    );
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
 }
