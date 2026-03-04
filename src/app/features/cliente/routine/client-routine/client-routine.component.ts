@@ -12,11 +12,13 @@ import { ExercisePreviewComponent } from '../exercise-preview/exercise-preview.c
 import { MatIconModule } from '@angular/material/icon';
 import { collection, query, where, getDocs, addDoc } from '@angular/fire/firestore';
 import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { ExerciseLogsService } from '../../../../core/services/exercise-logs.service';
 
 @Component({
   selector: 'app-client-routine',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, FormsModule],
   templateUrl: './client-routine.component.html',
   styleUrl: './client-routine.component.scss'
 })
@@ -27,6 +29,7 @@ export class ClientRoutineComponent implements OnInit {
   exercises: any[] = [];
   loading = true;
   instructorName: string = '';
+  lastWeights: { [key: string]: number | null } = {};
 
   constructor(
     private auth: Auth,
@@ -35,7 +38,8 @@ export class ClientRoutineComponent implements OnInit {
     private assignedRoutinesService: AssignedRoutinesService,
     private routinesService: RoutinesService,
     private usersService: UsersService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private exerciseLogsService: ExerciseLogsService
   ) { }
 
   async ngOnInit() {
@@ -100,6 +104,20 @@ export class ClientRoutineComponent implements OnInit {
       for (const day of this.routineDays) {
         day.completedToday = false;
         await this.checkIfCompletedToday(day);
+      }
+      // 6️⃣ Últimos pesos
+      for (const day of this.routineDays) {
+        for (const ex of day.exercises) {
+
+          const weight = await this.exerciseLogsService.getLastWeight(
+            currentUser.uid,
+            ex.exerciseId
+          );
+
+          this.lastWeights[ex.exerciseId] = weight;
+
+          console.log('Peso cargado:', ex.exerciseId, weight);
+        }
       }
 
     } catch (error) {
@@ -186,6 +204,46 @@ export class ClientRoutineComponent implements OnInit {
         day.completedToday = true;
       }
     });
+  }
+  async saveWeight(day: any, ex: any, exercise: any) {
+
+    if (!ex.currentWeight) return;
+
+    const user = await this.auth.currentUser;
+    if (!user) return;
+
+    await this.exerciseLogsService.logWeight({
+      userId: user.uid,
+      routineId: this.routine.id,
+      routineDayId: day.id,
+      exerciseId: ex.exerciseId,
+      exerciseName: exercise.name,
+      weight: Number(ex.currentWeight)
+    });
+
+    ex.currentWeight = null;
+
+    console.log('✅ Peso guardado correctamente');
+  }
+
+  async loadLastWeights() {
+
+    const user = this.auth.currentUser;
+    if (!user) return;
+
+    for (const day of this.routineDays) {
+      for (const ex of day.exercises) {
+
+        const key = ex.exerciseId;
+
+        const weight = await this.exerciseLogsService.getLastWeight(
+          user.uid,
+          ex.exerciseId
+        );
+
+        this.lastWeights[key] = weight;
+      }
+    }
   }
 
 }

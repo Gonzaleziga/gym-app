@@ -61,3 +61,26 @@
     background-color: #1976d2 !important;
     color: white !important;
 }
+
+
+///estilos para el peso 
+/// 
+.weight-log {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.weight-input {
+    width: 100px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.last-weight {
+    font-size: 13px;
+    color: #4caf50;
+    margin-top: 5px;
+}

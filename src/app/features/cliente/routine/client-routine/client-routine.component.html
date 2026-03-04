@@ -31,7 +31,21 @@
                                 <span class="badge">{{ ex.sets }} sets</span>
                                 <span class="badge">{{ ex.reps }} reps</span>
                             </div>
+                            <div *ngIf="lastWeights[ex.exerciseId] != null" class="last-weight">
+                                Último peso: <strong>{{ lastWeights[ex.exerciseId] }} kg</strong>
+                            </div>
                         </div>
+
+                    </div>
+                    <!-- 🔥 REGISTRO DE PESO -->
+                    <div class="weight-log">
+
+                        <input type="number" min="0" placeholder="Peso (kg)" [(ngModel)]="ex.currentWeight"
+                            class="weight-input" />
+
+                        <button mat-stroked-button color="primary" (click)="saveWeight(day, ex, exercise)">
+                            Guardar
+                        </button>
 
                     </div>
 
