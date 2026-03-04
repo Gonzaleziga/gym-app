@@ -95,6 +95,12 @@ export class RoutineDetailComponent implements OnInit {
 
     if (!this.routine?.id) return;
 
+    // 🔥 BLOQUEAR SI YA HAY 7
+    if (!this.editingDayId && this.routineDays.length >= 7) {
+      alert('Solo se permiten 7 días por rutina');
+      return;
+    }
+
     if (this.editingDayId) {
 
       await this.routineDaysService.updateRoutineDay(
@@ -110,9 +116,12 @@ export class RoutineDetailComponent implements OnInit {
 
     } else {
 
+      // 🔥 FORZAMOS EL NÚMERO AUTOMÁTICO
+      const nextDayNumber = this.routineDays.length + 1;
+
       await this.routineDaysService.addRoutineDay({
         routineId: this.routine.id,
-        dayNumber: this.newDay.dayNumber,
+        dayNumber: nextDayNumber,
         title: this.newDay.title,
         exercises: this.newDay.exercises,
         createdAt: new Date()
@@ -124,12 +133,36 @@ export class RoutineDetailComponent implements OnInit {
     this.routineDays =
       await this.routineDaysService.getRoutineDays(this.routine.id);
 
-    // 🔥 CALCULAMOS SIGUIENTE DÍA
-    this.calculateNextDayNumber();
+    // 🔥 REORDENAR POR SI SE BORRÓ ALGUNO
+    await this.reorderDays();
 
-    // 🔥 LIMPIAMOS SOLO CAMPOS
     this.newDay.title = '';
     this.newDay.exercises = [];
+  }
+
+  async reorderDays() {
+
+    // Ordenamos por dayNumber
+    this.routineDays.sort((a, b) => a.dayNumber - b.dayNumber);
+
+    // Reasignamos números correctos
+    for (let i = 0; i < this.routineDays.length; i++) {
+
+      const correctNumber = i + 1;
+
+      if (this.routineDays[i].dayNumber !== correctNumber) {
+
+        await this.routineDaysService.updateRoutineDay(
+          this.routineDays[i].id,
+          { dayNumber: correctNumber }
+        );
+
+      }
+    }
+
+    // Recargar nuevamente
+    this.routineDays =
+      await this.routineDaysService.getRoutineDays(this.routine.id);
   }
 
   addVisualExercise(exercise: any) {

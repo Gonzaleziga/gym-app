@@ -1,0 +1,37 @@
+<div *ngIf="loading" class="center">
+    Cargando rutinas asignadas...
+</div>
+
+<div *ngIf="!loading">
+
+    <h2>🏋 Rutinas Asignadas</h2>
+
+    <p>Total: {{ assignments.length }}</p>
+
+    <mat-card *ngFor="let item of assignments" class="routine-card">
+
+        <h3>👤 {{ item.fullName }}</h3>
+
+
+        <p>
+            <strong>Rutina:</strong>
+            {{ getRoutineName(item.routineId) }}
+        </p>
+
+        <p>
+            <strong>Inicio:</strong>
+            {{ item.startDate?.toDate?.() | date:'mediumDate' }}
+        </p>
+
+        <p>
+            <strong>Fin:</strong>
+            {{ item.endDate?.toDate?.() | date:'mediumDate' }}
+        </p>
+
+        <button mat-stroked-button color="primary" (click)="goToClient(item.userId)">
+            Ver Cliente
+        </button>
+
+    </mat-card>
+
+</div>

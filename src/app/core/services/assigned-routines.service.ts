@@ -88,4 +88,22 @@ export class AssignedRoutinesService {
     }
   }
 
+  async getActiveAssignmentsByEmployee(employeeUid: string) {
+
+    const ref = collection(this.firestore, 'assignedRoutines');
+
+    const q = query(
+      ref,
+      where('status', '==', 'active'),
+      where('assignedBy', '==', employeeUid)
+    );
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
+
 }

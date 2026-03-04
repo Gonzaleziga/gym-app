@@ -1,5 +1,6 @@
 import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Firestore, collection, addDoc, getDocs, query, where, doc, deleteDoc, updateDoc } from '@angular/fire/firestore';
+import { orderBy } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +34,8 @@ export class RoutineDaysService {
 
       const q = query(
         collection(this.firestore, 'routineDays'),
-        where('routineId', '==', routineId)
+        where('routineId', '==', routineId),
+        orderBy('dayNumber', 'asc') // 🔥 AQUÍ ESTÁ LA CLAVE
       );
 
       const snapshot = await getDocs(q);

@@ -75,7 +75,8 @@ export const routes: Routes = [
                         loadComponent: () =>
                             import('./features/admin/exercises/admin-exercises/admin-exercises.component')
                                 .then(m => m.AdminExercisesComponent)
-                    }
+                    },
+
                 ]
             },
 
@@ -97,6 +98,14 @@ export const routes: Routes = [
                                 .then(m => m.RoutineDetailComponent)
                     }
                 ]
+            },
+
+            {
+                path: 'assigned-routines',
+                canMatch: [adminOrEmployeeGuard],
+                loadComponent: () =>
+                    import('./features/shared/assigned-routines/assigned-routines.component')
+                        .then(m => m.AssignedRoutinesComponent)
             },
 
             // ================= PERFIL =================
