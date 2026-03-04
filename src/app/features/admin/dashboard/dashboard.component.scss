@@ -172,3 +172,69 @@ mat-card {
 .client-link:hover {
     opacity: 0.8;
 }
+
+// estilos para las graficas 
+canvas {
+    width: 100% !important;
+    height: 250px !important;
+}
+
+.modal-body canvas {
+    height: 350px !important;
+}
+
+.chart-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#incomeChart {
+    height: 200px !important;
+}
+
+#yearIncomeChart {
+    height: 400px !important;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.mini-chart-card {
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: 0.2s ease;
+
+}
+
+.mini-chart-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.mini-chart-container {
+    flex: 1;
+    position: relative;
+    margin-top: 10px;
+}
+
+.mini-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.chart-hint {
+    text-align: center;
+    margin-top: 8px;
+    opacity: 0.7;
+    font-size: 12px;
+}

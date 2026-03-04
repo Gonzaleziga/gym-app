@@ -11,7 +11,27 @@ import { PaymentsService } from '../../../core/services/payments.service';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+);
 
 
 @Component({
@@ -38,7 +58,11 @@ export class DashboardComponent implements OnInit {
   endDateFilter: string | null = null;
   adminFilter: string | null = null;
   adminList: string[] = [];
+  // para mostrar las graficas
 
+  miniChart!: Chart;
+  yearChart!: Chart;
+  showIncomeModal = false;
 
   constructor(
     private auth: Auth,
@@ -48,26 +72,38 @@ export class DashboardComponent implements OnInit {
     private userSession: UserSessionService,
     private paymentsService: PaymentsService,
 
+
+
   ) { }
 
+
   async ngOnInit() {
+
     const user = this.auth.currentUser;
     if (!user) return;
-    // 🔹 Traemos el documento completo
+
     const snap = await this.usersService.getUser(user.uid);
     if (!snap.exists()) return;
+
     const data = snap.data();
-    // 🔹 Guardamos rol
+
     this.role = data?.['role'] ?? null;
-    // 🔹 Nombre completo
+
     const name = data?.['name'] ?? '';
     const lastNameFather = data?.['lastNameFather'] ?? '';
     const lastNameMother = data?.['lastNameMother'] ?? '';
+
     this.userName = `${name} ${lastNameFather} ${lastNameMother}`.trim();
-    // 🔥 SOLO ADMIN carga stats
+
+    // 🔥 SOLO ADMIN
     if (this.role === 'admin') {
+
       this.stats = await this.usersService.getFinancialStats();
-      console.log('📊 STATS:', this.stats);
+
+      // ⏳ Esperamos a que el canvas exista en el DOM
+      setTimeout(() => {
+        this.buildIncomeChart(true, 'mini'); // últimos 5 meses
+      }, 300);
     }
   }
   // 🔥 ABRIR MODAL
@@ -411,4 +447,189 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  async loadMonthlyIncome(lastFiveMonths: boolean, target: 'mini' | 'year') {
+
+    const payments = await this.paymentsService.getAllPayments();
+
+    const now = new Date();
+    const monthsToShow = lastFiveMonths ? 5 : 12;
+
+    const monthlyData: { [key: string]: number } = {};
+
+    for (let i = 0; i < monthsToShow; i++) {
+
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = date.toLocaleString('default', { month: 'short' });
+
+      monthlyData[key] = 0;
+    }
+
+    payments.forEach((p: any) => {
+
+      const created = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
+      const key = created.toLocaleString('default', { month: 'short' });
+
+      if (monthlyData[key] !== undefined) {
+        monthlyData[key] += p.amount;
+      }
+    });
+
+    const labels = Object.keys(monthlyData).reverse();
+    const data = Object.values(monthlyData).reverse();
+
+    const canvasId = target === 'mini'
+      ? 'incomeChart'
+      : 'yearIncomeChart';
+
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // 🔥 destruir la gráfica correcta
+    if (target === 'mini' && this.miniChart) {
+      this.miniChart.destroy();
+    }
+
+    if (target === 'year' && this.yearChart) {
+      this.yearChart.destroy();
+    }
+
+    const newChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Ingresos MXN',
+            data,
+            borderColor: '#516dde',
+            backgroundColor: 'rgba(81,109,222,0.2)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              usePointStyle: true,   // 👈 esto lo vuelve punto
+              pointStyle: 'circle'   // 👈 asegura que sea círculo
+            }
+          }
+        }
+      }
+    });
+
+    if (target === 'mini') {
+      this.miniChart = newChart;
+    } else {
+      this.yearChart = newChart;
+    }
+  }
+
+
+
+  openIncomeModal() {
+    this.showIncomeModal = true;
+
+    setTimeout(() => {
+      this.buildIncomeChart(false, 'year');
+    }, 200);
+  }
+
+  closeIncomeModal() {
+    this.showIncomeModal = false;
+
+    if (this.yearChart) {
+      this.yearChart.destroy();
+    }
+  }
+
+  async buildIncomeChart(lastFive: boolean, target: 'mini' | 'year') {
+
+    const payments = await this.paymentsService.getAllPayments();
+
+    const now = new Date();
+    const monthsToShow = lastFive ? 5 : 12;
+
+    const monthlyData: { [key: string]: number } = {};
+
+    for (let i = 0; i < monthsToShow; i++) {
+
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = date.toLocaleString('default', { month: 'short' });
+
+      monthlyData[key] = 0;
+    }
+
+    payments.forEach((p: any) => {
+
+      const created = p.createdAt?.toDate?.() ?? new Date(p.createdAt);
+      const key = created.toLocaleString('default', { month: 'short' });
+
+      if (monthlyData[key] !== undefined) {
+        monthlyData[key] += p.amount;
+      }
+    });
+
+    const labels = Object.keys(monthlyData).reverse();
+    const data = Object.values(monthlyData).reverse();
+
+    const canvasId = target === 'mini' ? 'incomeChart' : 'yearIncomeChart';
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+
+    if (!canvas) return;
+
+    if (target === 'mini' && this.miniChart) {
+      this.miniChart.destroy();
+    }
+
+    if (target === 'year' && this.yearChart) {
+      this.yearChart.destroy();
+    }
+
+    const newChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Ingresos MXN',
+          data,
+          borderColor: '#516dde',
+          backgroundColor: 'rgba(81,109,222,0.2)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              usePointStyle: true,   // 👈 esto lo vuelve punto
+              pointStyle: 'circle'   // 👈 asegura que sea círculo
+            }
+          }
+        }
+      }
+    });
+
+    if (target === 'mini') {
+      this.miniChart = newChart;
+    } else {
+      this.yearChart = newChart;
+    }
+  }
+
+
+
+
 }

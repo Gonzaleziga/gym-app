@@ -19,6 +19,21 @@
 
     <div *ngIf="role === 'admin' && stats" class="financial-grid">
 
+        <!-- 📊 INGRESOS MINI -->
+        <mat-card class="financial-card mini-chart-card clickable" (click)="openIncomeModal()">
+
+            <h3>📊 Ingresos (Últimos meses)</h3>
+
+            <div class="mini-chart-container">
+                <canvas id="incomeChart"></canvas>
+            </div>
+
+            <small class="chart-hint">
+                Click para ver año completo
+            </small>
+
+        </mat-card>
+
         <!-- 💳 FINANZAS DEL MES -->
         <mat-card class="financial-card clickable" (click)="openDetails('income')">
 
@@ -239,6 +254,25 @@
 
             </div>
 
+
+
+        </div>
+
+    </div>
+
+</div>
+<!-- 🔥 MODAL INGRESOS -->
+<div *ngIf="showIncomeModal" class="modal-overlay">
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h3>📊 Ingresos Año Completo</h3>
+            <button class="close-btn" (click)="closeIncomeModal()">✖</button>
+        </div>
+
+        <div class="modal-body">
+            <canvas id="yearIncomeChart"></canvas>
         </div>
 
     </div>
